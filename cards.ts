@@ -1,4 +1,9 @@
-module.exports = [
+export interface Card {
+  name: string
+  emissions: number
+}
+
+export const cards: Card[] = [
 	{
 		"name": "aggmackor",
 		"emissions": 120
@@ -216,3 +221,5 @@ module.exports = [
 		"emissions": 200
 	}
 ]
+
+export default cards
