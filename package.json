@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -r ts-node/register *.spec.ts --watch --watch-files *.spec.ts",
+    "test": "mocha -r ts-node/register ./src/**/*.spec.ts --watch --watch-files ./src/**/*.ts",
     "dev": "nodemon index.ts"
   },
   "author": "",
