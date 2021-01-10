@@ -1,8 +1,8 @@
 import { server as WebSocketServer, connection as WebSocketConnection } from 'websocket'
 import http from 'http'
 import seedrandom from 'seedrandom'
-import cards from './cards'
-import { getClientEvents, createEvent, Event } from './event'
+import cards from './src/cards'
+import { getClientEvents, createEvent, Event } from './src/event'
 
 class Socket {
   static nextSocketID: number = 0
