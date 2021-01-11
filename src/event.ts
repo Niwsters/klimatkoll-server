@@ -23,6 +23,12 @@ export class EventHandler {
     return EventHandler.createEvent(EventHandler.lastServerEventID++, type, payload)
   }
 
+  static drawCard(): Card {
+    const card = EventHandler.deck.pop()
+    if (!card) throw new Error("Deck ran out of cards")
+    return card   
+  }
+
   static getClientEvents(events: GameEvent[], socketID: number): GameEvent[] {
     const players = new Map()
 
@@ -38,16 +44,37 @@ export class EventHandler {
       if (type == "player_connected") {
         if (players.size >= 2) return clientEvents
 
-        // Assign player and draw hand
-        const card = EventHandler.deck.pop()
-        players.set(event.payload.socketID, { hand: [card] })
+        if (players.size == 0) {
+          players.set(event.payload.socketID, { hand: [] })
 
-        if (event.payload.socketID == socketID) {
-          return [...clientEvents, createClientEvent("draw_card", { card: card })
+          return [
+            ...clientEvents,
+            createClientEvent("waiting_for_players")
           ]
         }
 
-        return [...clientEvents, createClientEvent("draw_opponent_card", { card: card })]
+        // Draw player hand
+        const playerCards: Card[] = Array.of(1, 2, 3).map(() => {
+          return EventHandler.drawCard()
+        })
+        players.set(socketID, { hand: [...playerCards] })
+
+        // Draw opponent hand
+        const opponentCards: Card[] = Array.of(1, 2, 3).map(() => {
+          return EventHandler.drawCard()
+        })
+        players.set(event.payload.socketID, { hand: [...opponentCards] })
+
+        return [
+          ...clientEvents,
+          createClientEvent("playing"),
+          ...playerCards.map((card: Card) => {
+            return createClientEvent("draw_card", { card: card })
+          }),
+          ...opponentCards.map((card: Card) => {
+            return createClientEvent("draw_opponent_card", { card: card })
+          })
+        ]
       } else if (type == "player_disconnected") {
         const player = players.get(event.payload.socketID)
 

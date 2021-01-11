@@ -1,30 +1,23 @@
 import 'mocha'
 import assert from 'assert'
 import { GameEvent, EventHandler } from './event'
-import { Card } from './cards'
+import cards, { Card } from './cards'
 
 describe('EventHandler', () => {
-  let deck: Card[] = []
+  let deck: Card[] = [...cards]
+  let lastEventID = 0
+
+  const createTestEvent = (type: string, payload: any = {}) => {
+    return {
+      event_id: lastEventID++,
+      event_type: type,
+      payload: payload
+    }
+  }
 
   beforeEach(() => {
-    deck = [
-      {
-        emissions: 100,
-        name: "blargh"
-      },
-      {
-        emissions: 99,
-        name: "honk"
-      },
-      {
-        emissions: 124,
-        name: "test"
-      },
-      {
-        emissions: 150,
-        name: "test2"
-      }
-    ]
+    lastEventID = 0
+    deck = [...cards]
 
     EventHandler.deck = deck
     EventHandler.lastServerEventID = 0
@@ -63,44 +56,43 @@ describe('EventHandler', () => {
   describe('getClientEvents', () => {
     const playerID = 0
     const opponentID = 1
+    let lastCard = deck.length - 1
+    const nextCard = () => deck[lastCard--]
 
-    it("should assign player's cards on connection", () => {
-      const expectedCard = deck[deck.length - 1]
+    beforeEach(() => {
+      lastCard = deck.length - 1
+      deck = [...cards]
+    })
 
+    it("should set state to waiting_for_players on first player connection", () => {
       const events: GameEvent[] = [
-        EventHandler.createServerEvent('player_connected', { socketID: playerID })
+        EventHandler.createServerEvent("player_connected", { socketID: playerID })
       ]
 
       const clientEvents = EventHandler.getClientEvents(events, playerID)
 
       assert.deepEqual(clientEvents, [
-        {
-          event_type: "draw_card",
-          event_id: 0,
-          payload: {
-            card: expectedCard
-          }
-        }
+        createTestEvent("waiting_for_players")
       ])
     })
 
-    it("should assign opponent's cards on connection", () => {
+    it("should draw hands on second player connection", () => {
       const events: GameEvent[] = [
+        EventHandler.createServerEvent('player_connected', { socketID: playerID }),
         EventHandler.createServerEvent('player_connected', { socketID: opponentID })
       ]
-
-      const expectedCard = deck[deck.length - 1]
 
       const clientEvents = EventHandler.getClientEvents(events, playerID)
 
       assert.deepEqual(clientEvents, [
-        {
-          event_type: "draw_opponent_card",
-          event_id: 0,
-          payload: {
-            card: expectedCard
-          }
-        }
+        createTestEvent("waiting_for_players"),
+        createTestEvent("playing"),
+        createTestEvent("draw_card", { card: nextCard() }),
+        createTestEvent("draw_card", { card: nextCard() }),
+        createTestEvent("draw_card", { card: nextCard() }),
+        createTestEvent("draw_opponent_card", { card: nextCard() }),
+        createTestEvent("draw_opponent_card", { card: nextCard() }),
+        createTestEvent("draw_opponent_card", { card: nextCard() })
       ])
     })
 
@@ -111,67 +103,39 @@ describe('EventHandler', () => {
         EventHandler.createServerEvent('player_disconnected', { socketID: opponentID })
       ]
 
-      const expectedCard = deck[deck.length - 1]
-      const expectedCard2 = deck[deck.length - 2]
-
       const clientEvents = EventHandler.getClientEvents(events, playerID)
 
       assert.deepEqual(clientEvents, [
-        {
-          event_type: "draw_card",
-          event_id: 0,
-          payload: {
-            card: expectedCard
-          }
-        },
-        {
-          event_type: "draw_opponent_card",
-          event_id: 1,
-          payload: {
-            card: expectedCard2
-          }
-        },
-        {
-          event_type: "return_opponent_hand",
-          event_id: 2,
-          payload: {}
-        }
+        createTestEvent("waiting_for_players"),
+        createTestEvent("playing"),
+        createTestEvent("draw_card", { card: nextCard() }),
+        createTestEvent("draw_card", { card: nextCard() }),
+        createTestEvent("draw_card", { card: nextCard() }),
+        createTestEvent("draw_opponent_card", { card: nextCard() }),
+        createTestEvent("draw_opponent_card", { card: nextCard() }),
+        createTestEvent("draw_opponent_card", { card: nextCard() }),
+        createTestEvent("return_opponent_hand")
       ])
     })
 
-    it('should not give cards to a third player', () => {
+    it('should ignore third player', () => {
       const events: GameEvent[] = [
         EventHandler.createServerEvent('player_connected', { socketID: playerID }),
         EventHandler.createServerEvent('player_connected', { socketID: opponentID }),
-        EventHandler.createServerEvent('player_connected', { socketID: 2 }),
-        EventHandler.createServerEvent('player_disconnected', { socketID: opponentID })
+        EventHandler.createServerEvent('player_connected', { socketID: 2 })
       ]
-
-      const expectedCard = deck[deck.length - 1]
-      const expectedCard2 = deck[deck.length - 2]
 
       const clientEvents = EventHandler.getClientEvents(events, playerID)
 
       assert.deepEqual(clientEvents, [
-        {
-          event_type: "draw_card",
-          event_id: 0,
-          payload: {
-            card: expectedCard
-          }
-        },
-        {
-          event_type: "draw_opponent_card",
-          event_id: 1,
-          payload: {
-            card: expectedCard2
-          }
-        },
-        {
-          event_type: "return_opponent_hand",
-          event_id: 2,
-          payload: {}
-        }
+        createTestEvent("waiting_for_players"),
+        createTestEvent("playing"),
+        createTestEvent("draw_card", { card: nextCard() }),
+        createTestEvent("draw_card", { card: nextCard() }),
+        createTestEvent("draw_card", { card: nextCard() }),
+        createTestEvent("draw_opponent_card", { card: nextCard() }),
+        createTestEvent("draw_opponent_card", { card: nextCard() }),
+        createTestEvent("draw_opponent_card", { card: nextCard() }),
       ])
     })
   })
