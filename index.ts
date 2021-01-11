@@ -2,7 +2,7 @@ import { server as WebSocketServer, connection as WebSocketConnection } from 'we
 import http from 'http'
 import seedrandom from 'seedrandom'
 import cards from './src/cards'
-import { getClientEvents, createEvent, Event } from './src/event'
+import { GameEvent, EventHandler } from './src/event'
 
 class Socket {
   static nextSocketID: number = 0
@@ -42,14 +42,14 @@ function originIsAllowed(origin: string) {
 }
 
 let sockets: Socket[] = []
-const events: Event[] = []
+const events: GameEvent[] = []
 function addEvent(eventType: string, payload: any) {
-  events.push(createEvent(eventType, payload))
+  events.push(EventHandler.createServerEvent(eventType, payload))
 
   console.log(events)
 
   sockets.forEach((socket: Socket) => {
-    socket.connection.send(JSON.stringify(getClientEvents(events, socket.socketID.toString())))
+    socket.connection.send(JSON.stringify(EventHandler.getClientEvents(events, socket.socketID)))
   })
 }
 
@@ -58,6 +58,12 @@ wsServer.on('request', function(request) {
     // Make sure we only accept requests from an allowed origin
     request.reject()
     console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.')
+    return
+  }
+
+  if (sockets.length >= 2) {
+    request.reject()
+    console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected: Room full')
     return
   }
   
