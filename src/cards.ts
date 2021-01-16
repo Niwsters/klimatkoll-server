@@ -1,9 +1,15 @@
-export interface Card {
+export interface CardData {
   name: string
   emissions: number
 }
 
-export const cards: Card[] = [
+export interface Card {
+  id: number
+  name: string
+  emissions: number
+}
+
+export const cards: CardData[] = [
 	{
 		"name": "aggmackor",
 		"emissions": 120

@@ -65,6 +65,7 @@ function addEvent(eventType: string, payload: any) {
   })
 }
 
+const decoder = new TextDecoder('utf8')
 wsServer.on('request', function(request) {
   if (!originIsAllowed(request.origin)) {
     // Make sure we only accept requests from an allowed origin
@@ -85,6 +86,14 @@ wsServer.on('request', function(request) {
   console.log((new Date()) + ' Player connected')
   socket.connection.send(JSON.stringify({ type: "socketID", payload: socket.socketID }))
   addEvent('player_connected', { socketID: socket.socketID })
+
+  connection.on('message', (msg: any) => {
+    if (msg.type == 'binary') {
+      const event = JSON.parse(msg.binaryData)
+      addEvent(event.type, { socketID: socket.socketID, ...event.payload })
+      console.log(events)
+    }
+  })
 
   connection.on('close', function(reasonCode, description) {
     console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.')

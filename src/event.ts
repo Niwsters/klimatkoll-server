@@ -1,5 +1,12 @@
 import seedrandom from 'seedrandom'
-import cards, { Card } from './cards'
+import cardData, { Card, CardData } from './cards'
+let lastCardID = 0
+const cards = cardData.map((card: CardData) => {
+  return {
+    ...card,
+    id: lastCardID++
+  }
+})
 
 export interface GameEvent {
   event_id: number
@@ -12,6 +19,7 @@ export class GameState {
   player2?: Player
   deck: Card[] = [...cards]
   clientEvents: GameEvent[] = []
+  emissionsLine: Card[] = []
 }
 
 export class Player {
@@ -50,6 +58,13 @@ export class EventHandler {
       return EventHandler.createEvent(lastClientEventID++, eventType, payload)
     }
 
+    const getPlayer = (state: GameState, socketID: number): Player => {
+      if (state.player1 && state.player1.socketID == socketID) return state.player1
+      if (state.player2 && state.player2.socketID == socketID) return state.player2
+
+      throw new Error("Can't find player with socketID: " + socketID)
+    }
+
     return events.reduce((state: GameState, event: GameEvent): GameState => {
       state = {...state}
       const type = event.event_type
@@ -80,8 +95,11 @@ export class EventHandler {
         state.player1.hand = [0,0,0].map(() => drawCard(state))
         state.player2.hand = [0,0,0].map(() => drawCard(state))
 
+        const emissionsLineCard = drawCard(state)
+
         return {
           ...state,
+          emissionsLine: [emissionsLineCard],
           clientEvents: [
             ...state.clientEvents,
             createClientEvent("playing"),
@@ -90,7 +108,8 @@ export class EventHandler {
             }),
             ...state.player2.hand.map((card: Card) => {
               return createClientEvent("draw_card", { card: card, socketID: player2.socketID })
-            })
+            }),
+            createClientEvent("card_played_from_deck", { card: emissionsLineCard, position: 0 })
           ]
         }
       } else if (type == "player_disconnected") {
@@ -100,6 +119,29 @@ export class EventHandler {
           clientEvents: [
             ...state.clientEvents,
             createClientEvent("opponent_disconnected")
+          ]
+        }
+      } else if (type == "card_played_from_hand") {
+        const socketID = event.payload.socketID
+        const cardID = event.payload.cardID
+        const position = event.payload.position
+        const player = getPlayer(state, socketID)
+        const card = player.hand.find((card: Card) => card.id === cardID)
+
+        if (!card) throw new Error(
+          "Player with socketID " + socketID + " has no card with ID " + cardID
+        )
+
+        return {
+          ...state,
+          emissionsLine: [
+            ...state.emissionsLine.slice(0, position),
+            card,
+            ...state.emissionsLine.slice(position, state.emissionsLine.length)
+          ],
+          clientEvents: [
+            ...state.clientEvents,
+            createClientEvent("card_played_from_hand", event.payload)
           ]
         }
       }
