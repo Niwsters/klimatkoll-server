@@ -41,6 +41,11 @@ function originIsAllowed(origin: string) {
   return true
 }
 
+interface Data {
+  type: string
+  payload: any
+}
+
 let sockets: Socket[] = []
 const events: GameEvent[] = []
 function addEvent(eventType: string, payload: any) {
@@ -48,8 +53,15 @@ function addEvent(eventType: string, payload: any) {
 
   console.log(events)
 
+  const state = EventHandler.getServerState(events)
+
+  const data = {
+    type: "events",
+    payload: state.clientEvents
+  }
+
   sockets.forEach((socket: Socket) => {
-    socket.connection.send(JSON.stringify(EventHandler.getClientEvents(events, socket.socketID)))
+    socket.connection.send(JSON.stringify(data))
   })
 }
 
@@ -71,6 +83,7 @@ wsServer.on('request', function(request) {
   const socket = new Socket(connection)
   sockets.push(socket)
   console.log((new Date()) + ' Player connected')
+  socket.connection.send(JSON.stringify({ type: "socketID", payload: socket.socketID }))
   addEvent('player_connected', { socketID: socket.socketID })
 
   connection.on('close', function(reasonCode, description) {

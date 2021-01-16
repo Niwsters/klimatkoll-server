@@ -7,9 +7,24 @@ export interface GameEvent {
   payload: any
 }
 
+export class GameState {
+  player1?: Player
+  player2?: Player
+  deck: Card[] = [...cards]
+  clientEvents: GameEvent[] = []
+}
+
+export class Player {
+  socketID: number
+  hand: Card[] = []
+
+  constructor(socketID: number) {
+    this.socketID = socketID
+  }
+}
+
 export class EventHandler {
   static lastServerEventID: number = 0
-  static deck: Card[] = cards
 
   static createEvent(eventID: number, type: string, payload: any = {}): GameEvent {
     return {
@@ -23,74 +38,73 @@ export class EventHandler {
     return EventHandler.createEvent(EventHandler.lastServerEventID++, type, payload)
   }
 
-  static drawCard(): Card {
-    const card = EventHandler.deck.pop()
-    if (!card) throw new Error("Deck ran out of cards")
-    return card   
-  }
-
-  static getClientEvents(events: GameEvent[], socketID: number): GameEvent[] {
-    const players = new Map()
+  static getServerState(events: GameEvent[]): GameState {
+    const drawCard = (state: GameState): Card => {
+      const card = state.deck.pop()
+      if (!card) throw new Error("Deck ran out of cards")
+      return card
+    }
 
     let lastClientEventID: number = 0
-    const createClientEvent = (eventType: string, payload: any = {}) => {
+    const createClientEvent = (eventType: string, payload: any = {}): GameEvent => {
       return EventHandler.createEvent(lastClientEventID++, eventType, payload)
     }
 
-    // Client event IDs need to be the same every time, so we need to reset counter
-    return events.reduce((clientEvents: GameEvent[], event: GameEvent) => {
+    return events.reduce((state: GameState, event: GameEvent): GameState => {
+      state = {...state}
       const type = event.event_type
+      const p1 = state.player1 ? 1 : 0
+      const p2 = state.player2 ? 1 : 0
+      const playerCount = p1 + p2
 
       if (type == "player_connected") {
-        if (players.size >= 2) return clientEvents
+        // Ignore if all players already set
+        if (state.player1 && state.player2) return state
 
-        if (players.size == 0) {
-          players.set(event.payload.socketID, { hand: [] })
-
-          return [
-            ...clientEvents,
+        if (!state.player1) return {
+          ...state,
+          player1: new Player(event.payload.socketID),
+          clientEvents: [
+            ...state.clientEvents,
             createClientEvent("waiting_for_players")
           ]
         }
 
-        // Draw player hand
-        const playerCards: Card[] = Array.of(1, 2, 3).map(() => {
-          return EventHandler.drawCard()
-        })
-        players.set(socketID, { hand: [...playerCards] })
+        if (!state.player2) state.player2 = new Player(event.payload.socketID)
 
-        // Draw opponent hand
-        const opponentCards: Card[] = Array.of(1, 2, 3).map(() => {
-          return EventHandler.drawCard()
-        })
-        players.set(event.payload.socketID, { hand: [...opponentCards] })
+        // Now both players are set, so we draw their hands
+        const player1 = state.player1
+        const player2 = state.player2
+        if (!player1) throw new Error("Player 1 is undefined")
+        if (!player2) throw new Error("Player 2 is undefined")
+        state.player1.hand = [0,0,0].map(() => drawCard(state))
+        state.player2.hand = [0,0,0].map(() => drawCard(state))
 
-        return [
-          ...clientEvents,
-          createClientEvent("playing"),
-          ...playerCards.map((card: Card) => {
-            return createClientEvent("draw_card", { card: card })
-          }),
-          ...opponentCards.map((card: Card) => {
-            return createClientEvent("draw_opponent_card", { card: card })
-          })
-        ]
+        return {
+          ...state,
+          clientEvents: [
+            ...state.clientEvents,
+            createClientEvent("playing"),
+            ...state.player1.hand.map((card: Card) => {
+              return createClientEvent("draw_card", { card: card, socketID: player1.socketID })
+            }),
+            ...state.player2.hand.map((card: Card) => {
+              return createClientEvent("draw_card", { card: card, socketID: player2.socketID })
+            })
+          ]
+        }
       } else if (type == "player_disconnected") {
-        const player = players.get(event.payload.socketID)
-
-        // Return hand to deck
-        EventHandler.deck = [
-          ...player.hand,
-          ...EventHandler.deck
-        ]
-
-        // Unassign player
-        players.delete(event.payload.socketID)
-
-        return [...clientEvents, createClientEvent("return_opponent_hand")]
+        // Notify client
+        return {
+          ...state,
+          clientEvents: [
+            ...state.clientEvents,
+            createClientEvent("opponent_disconnected")
+          ]
+        }
       }
 
-      return clientEvents
-    }, [])
+      return state
+    }, new GameState())
   }
 }
