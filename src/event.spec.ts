@@ -203,7 +203,19 @@ describe('EventHandler', () => {
 
     describe('card played from hand', () => {
       let events: GameEvent[]
-      const cardID = 51
+      let hand: Card[]
+      let emissionsLineCard: Card
+      const playCardEvent = (
+        cardID: number,
+        position: number,
+        socketID: number = playerID
+      ): GameEvent => {
+        return EventHandler.createServerEvent('card_played_from_hand', {
+          socketID: opponentID, // opponentID has better cards
+          cardID: cardID,
+          position: position
+        })
+      }
 
       beforeEach(() => {
         deck = createDeck()
@@ -211,21 +223,24 @@ describe('EventHandler', () => {
           EventHandler.createServerEvent('player_connected', { socketID: playerID }),
           EventHandler.createServerEvent('player_connected', { socketID: opponentID }),
         ]
+        const state = EventHandler.getServerState(events)
+        const player2 = state.player2
+        if (!player2) throw new Error("Player 1 is undefined")
+        hand = player2.hand
+        console.log(hand)
+
+        emissionsLineCard = state.emissionsLine[0]
       })
 
       it("should move card from hand to emissions line (position == 0)", () => {
-        const event = EventHandler.createServerEvent('card_played_from_hand', {
-          socketID: playerID,
-          cardID: cardID,
-          position: 0
-        })
+        const card = hand[0]
 
+        const event = playCardEvent(card.id, 0)
         events.push(event)
 
         const state = EventHandler.getServerState(events)
         const clientEvents = state.clientEvents
 
-        const card = [1,2,3].map(() => deck.pop())[2]
         assert.deepEqual(state.emissionsLine, [card, state.emissionsLine[1]])
 
         lastEventID = 9
@@ -234,20 +249,48 @@ describe('EventHandler', () => {
         )
       })
 
-      it("should move card from hand to emissions line (position == 1)", () => {
-        events.push(
-          EventHandler.createServerEvent('card_played_from_hand', {
-            socketID: playerID,
-            cardID: cardID,
-            position: 1
-          })
-        )
+      it("should move card from hand to emissions line (position == 2)", () => {
+        const card = hand[1]
+        const card2 = hand[2]
+
+        const event = playCardEvent(card.id, 0)
+        events.push(event)
+        const event2 = playCardEvent(card2.id, 2)
+        events.push(event2)
 
         const state = EventHandler.getServerState(events)
         const clientEvents = state.clientEvents
 
-        const card = [1,2,3].map(() => deck.pop())[2]
-        assert.deepEqual(state.emissionsLine, [state.emissionsLine[0], card])
+        assert.deepEqual(state.emissionsLine, [card, card2, emissionsLineCard])
+
+        lastEventID = 9
+        const length = clientEvents.length
+        assert.deepEqual(clientEvents.slice(length - 2, length), [
+          createTestEvent("card_played_from_hand", event.payload),
+          createTestEvent("card_played_from_hand", event2.payload)
+        ])
+      })
+
+      it("should NOT move card from hand to emissions line if position is incorrect", () => {
+        const card = hand[0]
+        const card2 = hand[2]
+
+        const event = playCardEvent(card.id, 0)
+        events.push(event)
+        const event2 = playCardEvent(card2.id, 4)
+        events.push(event2)
+
+        const state = EventHandler.getServerState(events)
+        const clientEvents = state.clientEvents
+
+        assert.deepEqual(state.emissionsLine, [card, emissionsLineCard])
+
+        lastEventID = 9
+        const length = clientEvents.length
+        assert.deepEqual(clientEvents.slice(length - 2, length), [
+          createTestEvent("card_played_from_hand", event.payload),
+          createTestEvent("incorrect_card_placement")
+        ])
       })
     })
   })

@@ -132,13 +132,43 @@ export class EventHandler {
           "Player with socketID " + socketID + " has no card with ID " + cardID
         )
 
+        // Position works like this: [s,0,s,1,s,2,s] where s is a "shadow card" where
+        // card can be placed, and 0,1,2 are card indexes in the emissions line
+        const shadowedEL = state.emissionsLine.reduce((shadowedEL: (Card | null)[], card: Card) => {
+          return [
+            ...shadowedEL,
+            card,
+            null
+          ]
+        }, [null])
+        const cardBefore = shadowedEL[position - 1]
+        const cardAfter = shadowedEL[position + 1]
+        if (
+          (cardBefore && cardBefore.emissions > card.emissions) ||
+          (cardAfter && cardAfter.emissions < card.emissions)
+        ) {
+          return {
+            ...state,
+            clientEvents: [
+              ...state.clientEvents,
+              createClientEvent("incorrect_card_placement")
+            ]
+          }
+        }
+
+        shadowedEL[position] = card
+
+        state.emissionsLine = shadowedEL.reduce((EL: Card[], card: Card | null) => {
+          if (!card) return EL
+
+          return [
+            ...EL,
+            card
+          ]
+        }, [])
+
         return {
           ...state,
-          emissionsLine: [
-            ...state.emissionsLine.slice(0, position),
-            card,
-            ...state.emissionsLine.slice(position, state.emissionsLine.length)
-          ],
           clientEvents: [
             ...state.clientEvents,
             createClientEvent("card_played_from_hand", event.payload)
