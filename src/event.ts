@@ -17,6 +17,7 @@ export interface GameEvent {
 export class GameState {
   player1?: Player
   player2?: Player
+  playerTurn?: number
   deck: Card[] = [...cards]
   clientEvents: GameEvent[] = []
   emissionsLine: Card[] = []
@@ -65,6 +66,16 @@ export class EventHandler {
       throw new Error("Can't find player with socketID: " + socketID)
     }
 
+    const getOpponent = (state: GameState, socketID: number): Player => {
+      if (!state.player1) throw new Error("Player 1 is undefined")
+      if (!state.player2) throw new Error("Player 2 is undefined")
+
+      if (state.player1.socketID == socketID) return state.player2
+      if (state.player2.socketID == socketID) return state.player1
+
+      throw new Error("Can't find opponent for socketID: " + socketID)
+    }
+
     return events.reduce((state: GameState, event: GameEvent): GameState => {
       state = {...state}
       const type = event.event_type
@@ -95,6 +106,8 @@ export class EventHandler {
         state.player1.hand = [0,0,0].map(() => drawCard(state))
         state.player2.hand = [0,0,0].map(() => drawCard(state))
 
+        state.playerTurn = player1.socketID
+
         const emissionsLineCard = drawCard(state)
 
         return {
@@ -109,7 +122,8 @@ export class EventHandler {
             ...state.player2.hand.map((card: Card) => {
               return createClientEvent("draw_card", { card: card, socketID: player2.socketID })
             }),
-            createClientEvent("card_played_from_deck", { card: emissionsLineCard, position: 0 })
+            createClientEvent("card_played_from_deck", { card: emissionsLineCard, position: 0 }),
+            createClientEvent("player_turn", { socketID: state.playerTurn })
           ]
         }
       } else if (type == "player_disconnected") {
@@ -126,11 +140,19 @@ export class EventHandler {
         const cardID = event.payload.cardID
         const position = event.payload.position
         const player = getPlayer(state, socketID)
-        const card = player.hand.find((card: Card) => card.id === cardID)
+        const opponent = getOpponent(state, socketID)
 
+        if (state.playerTurn != player.socketID) return {...state}
+        const opponentID = getOpponent(state, player.socketID).socketID
+        state.playerTurn = opponentID
+        state.clientEvents.push(createClientEvent("player_turn", { socketID: state.playerTurn }))
+
+        // Pull card from hand
+        const card: Card | undefined = player.hand.find((card: Card) => card.id === cardID)
         if (!card) throw new Error(
           "Player with socketID " + socketID + " has no card with ID " + cardID
         )
+        player.hand = player.hand.filter(c => c != card)
 
         // Position works like this: [s,0,s,1,s,2,s] where s is a "shadow card" where
         // card can be placed, and 0,1,2 are card indexes in the emissions line
@@ -141,6 +163,8 @@ export class EventHandler {
             null
           ]
         }, [null])
+
+        // If card placement is incorrect, move card to bottom of deck
         const cardBefore = shadowedEL[position - 1]
         const cardAfter = shadowedEL[position + 1]
         if (
@@ -149,13 +173,18 @@ export class EventHandler {
         ) {
           return {
             ...state,
+            deck: [card, ...state.deck],
             clientEvents: [
               ...state.clientEvents,
-              createClientEvent("incorrect_card_placement")
+              createClientEvent("incorrect_card_placement", {
+                cardID: card.id,
+                socketID: player.socketID
+              })
             ]
           }
         }
-
+        
+        // Play card to emissions line 
         shadowedEL[position] = card
 
         state.emissionsLine = shadowedEL.reduce((EL: Card[], card: Card | null) => {

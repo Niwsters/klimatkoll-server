@@ -47,13 +47,13 @@ interface Data {
 }
 
 let sockets: Socket[] = []
-const events: GameEvent[] = []
+let events: GameEvent[] = []
 function addEvent(eventType: string, payload: any) {
   events.push(EventHandler.createServerEvent(eventType, payload))
 
-  console.log(events)
-
   const state = EventHandler.getServerState(events)
+
+  console.log(state.clientEvents)
 
   const data = {
     type: "events",
@@ -98,5 +98,7 @@ wsServer.on('request', function(request) {
   connection.on('close', function(reasonCode, description) {
     console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.')
     addEvent('player_disconnected', { socketID: socket.socketID })
+    // Reset game after player disconnected
+    events = []
   })
 })
