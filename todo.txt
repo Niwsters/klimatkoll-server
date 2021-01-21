@@ -1,0 +1,2 @@
+- Player should be disconnected when other player disconnects
+- Server game crash should result in disconnection, not server crash

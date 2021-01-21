@@ -165,12 +165,16 @@ export class EventHandler {
         }, [null])
 
         // If card placement is incorrect, move card to bottom of deck
+        // and deal new card to player
         const cardBefore = shadowedEL[position - 1]
         const cardAfter = shadowedEL[position + 1]
         if (
           (cardBefore && cardBefore.emissions > card.emissions) ||
           (cardAfter && cardAfter.emissions < card.emissions)
         ) {
+          const newCard = drawCard(state)
+          player.hand.push(newCard)
+
           return {
             ...state,
             deck: [card, ...state.deck],
@@ -178,6 +182,10 @@ export class EventHandler {
               ...state.clientEvents,
               createClientEvent("incorrect_card_placement", {
                 cardID: card.id,
+                socketID: player.socketID
+              }),
+              createClientEvent("draw_card", {
+                card: newCard,
                 socketID: player.socketID
               })
             ]

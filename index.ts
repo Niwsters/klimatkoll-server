@@ -53,8 +53,6 @@ function addEvent(eventType: string, payload: any) {
 
   const state = EventHandler.getServerState(events)
 
-  console.log(state.clientEvents)
-
   const data = {
     type: "events",
     payload: state.clientEvents
@@ -100,5 +98,6 @@ wsServer.on('request', function(request) {
     addEvent('player_disconnected', { socketID: socket.socketID })
     // Reset game after player disconnected
     events = []
+    sockets = []
   })
 })
