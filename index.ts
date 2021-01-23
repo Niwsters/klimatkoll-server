@@ -3,18 +3,8 @@ import http from 'http'
 import seedrandom from 'seedrandom'
 import cards from './src/cards'
 import { GameEvent, EventHandler } from './src/event'
-
-class Socket {
-  static nextSocketID: number = 0
-
-  socketID: number
-  connection: WebSocketConnection
-
-  constructor(connection: WebSocketConnection) {
-    this.connection = connection
-    this.socketID = Socket.nextSocketID++
-  }
-}
+import { RoomHandler } from './src/room'
+import { Socket } from './src/socket'
 
 const server = http.createServer(function(request, response) {
     console.log((new Date()) + ' Received request for ' + request.url)
@@ -63,7 +53,8 @@ function addEvent(eventType: string, payload: any) {
   })
 }
 
-const decoder = new TextDecoder('utf8')
+const roomHandler = new RoomHandler()
+
 wsServer.on('request', function(request) {
   if (!originIsAllowed(request.origin)) {
     // Make sure we only accept requests from an allowed origin
@@ -83,13 +74,26 @@ wsServer.on('request', function(request) {
   sockets.push(socket)
   console.log((new Date()) + ' Player connected')
   socket.connection.send(JSON.stringify({ type: "socketID", payload: socket.socketID }))
-  addEvent('player_connected', { socketID: socket.socketID })
+  //addEvent('player_connected', { socketID: socket.socketID })
 
   connection.on('message', (msg: any) => {
     if (msg.type == 'binary') {
       const event = JSON.parse(msg.binaryData)
-      addEvent(event.type, { socketID: socket.socketID, ...event.payload })
-      console.log(events)
+
+      if (event.context == "game") {
+        addEvent(event.type, { socketID: socket.socketID, ...event.payload })
+      }
+
+      else if (event.context == "menu") {
+        if (event.type == "create_game") {
+          roomHandler.joinRoom(event.payload.roomID, socket)
+          console.log("Game joined", roomHandler)
+        }
+
+        if (event.type == "join_game") {
+          //roomHandler.joinRoom(socket.socketID, event.payload.roomID)
+        }
+      }
     }
   })
 
