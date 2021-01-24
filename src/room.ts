@@ -21,10 +21,37 @@ export class RoomHandler {
       type: "room_joined"
     }))
 
+    socket.connection.on('message', (msg: any) => {
+      if (msg.type == 'binary') {
+        const event = JSON.parse(msg.binaryData)
+
+        console.log("Event received from client: ", event)
+
+        if (event.context == "game") {
+          const roomID = this.getSocketRoomID(socket)
+          this.addGameEvent(roomID, event.type, { socketID: socket.socketID, ...event.payload })
+        }
+      }
+    })
+
     room.sockets.push(socket)
     this.rooms.set(roomID, room)
 
     this.addGameEvent(roomID, "player_connected", { socketID: socket.socketID })
+  }
+
+  getSocketRoomID(socket: Socket): string {
+    const roomID = Array.from(this.rooms.keys()).find((roomID: string) => {
+      const room = this.rooms.get(roomID)
+
+      if (!room) return false
+
+      return room.sockets.find(s => s.socketID == socket.socketID) ? true : false
+    })
+
+    if (!roomID) throw new Error("Can't find room which contains socketID " + socket.socketID)
+
+    return roomID
   }
 
   addGameEvent(roomID: string, eventType: string, payload: any) {
@@ -40,6 +67,9 @@ export class RoomHandler {
       type: "events",
       payload: state.clientEvents
     }
+
+    console.log(room.events)
+
     room.sockets.forEach((socket: Socket) => {
       socket.connection.send(JSON.stringify(data))
     })

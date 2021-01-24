@@ -1,6 +1,4 @@
-- UI: Create game with room ID
 - UI: Notify if room ID taken
-- UI: Join room with ID
 - UI: Exit game
 - UI: Vote another game
 - Player should be disconnected when other player disconnects
@@ -9,3 +7,7 @@
 - Another game start
 - Room close when both disconnect
 - Crop cards with rounded corners and such
+
+Commit and publish:
+- UI: Create game with room ID
+- UI: Reusable notification popup

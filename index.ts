@@ -37,22 +37,6 @@ interface Data {
 }
 
 let sockets: Socket[] = []
-let events: GameEvent[] = []
-function addEvent(eventType: string, payload: any) {
-  events.push(EventHandler.createServerEvent(eventType, payload))
-
-  const state = EventHandler.getServerState(events)
-
-  const data = {
-    type: "events",
-    payload: state.clientEvents
-  }
-
-  sockets.forEach((socket: Socket) => {
-    socket.connection.send(JSON.stringify(data))
-  })
-}
-
 const roomHandler = new RoomHandler()
 
 wsServer.on('request', function(request) {
@@ -62,36 +46,24 @@ wsServer.on('request', function(request) {
     console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.')
     return
   }
-
-  if (sockets.length >= 2) {
-    request.reject()
-    console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected: Room full')
-    return
-  }
   
   const connection = request.accept('echo-protocol', request.origin)
   const socket = new Socket(connection)
   sockets.push(socket)
   console.log((new Date()) + ' Player connected')
   socket.connection.send(JSON.stringify({ type: "socketID", payload: socket.socketID }))
-  //addEvent('player_connected', { socketID: socket.socketID })
 
   connection.on('message', (msg: any) => {
     if (msg.type == 'binary') {
       const event = JSON.parse(msg.binaryData)
 
-      if (event.context == "game") {
-        addEvent(event.type, { socketID: socket.socketID, ...event.payload })
-      }
-
-      else if (event.context == "menu") {
+      if (event.context == "menu") {
         if (event.type == "create_game") {
           roomHandler.joinRoom(event.payload.roomID, socket)
-          console.log("Game joined", roomHandler)
         }
 
         if (event.type == "join_game") {
-          //roomHandler.joinRoom(socket.socketID, event.payload.roomID)
+          roomHandler.joinRoom(event.payload.roomID, socket)
         }
       }
     }
@@ -99,9 +71,5 @@ wsServer.on('request', function(request) {
 
   connection.on('close', function(reasonCode, description) {
     console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.')
-    addEvent('player_disconnected', { socketID: socket.socketID })
-    // Reset game after player disconnected
-    events = []
-    sockets = []
   })
 })
