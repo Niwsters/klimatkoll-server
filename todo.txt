@@ -1,11 +1,10 @@
-- UI: Exit game
-- Room should close when player disconnects
-- Player should be disconnected when other player disconnects
-- Server game crash should result in disconnection, not server crash
 - Deck order should be randomized
+- Game over screen
 - UI: Vote another game
 - Another game start
 - Crop cards with rounded corners and such
+- Server game crash should result in disconnection, not server crash
+- RoomHandler should remove sockets on disconnection
+- Prevent player from creating room that already exists
 
 Commit and publish:
-- UI: Notify if room ID taken
