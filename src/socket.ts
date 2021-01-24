@@ -4,6 +4,7 @@ export class Socket {
   static nextSocketID: number = 0
 
   socketID: number
+  roomID?: string
   connection: WebSocketConnection
 
   constructor(connection: WebSocketConnection) {

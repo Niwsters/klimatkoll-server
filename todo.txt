@@ -1,13 +1,11 @@
-- UI: Notify if room ID taken
 - UI: Exit game
-- UI: Vote another game
+- Room should close when player disconnects
 - Player should be disconnected when other player disconnects
 - Server game crash should result in disconnection, not server crash
 - Deck order should be randomized
+- UI: Vote another game
 - Another game start
-- Room close when both disconnect
 - Crop cards with rounded corners and such
 
 Commit and publish:
-- UI: Create game with room ID
-- UI: Reusable notification popup
+- UI: Notify if room ID taken

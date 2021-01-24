@@ -36,9 +36,7 @@ interface Data {
   payload: any
 }
 
-let sockets: Socket[] = []
 const roomHandler = new RoomHandler()
-
 wsServer.on('request', function(request) {
   if (!originIsAllowed(request.origin)) {
     // Make sure we only accept requests from an allowed origin
@@ -49,25 +47,7 @@ wsServer.on('request', function(request) {
   
   const connection = request.accept('echo-protocol', request.origin)
   const socket = new Socket(connection)
-  sockets.push(socket)
-  console.log((new Date()) + ' Player connected')
-  socket.connection.send(JSON.stringify({ type: "socketID", payload: socket.socketID }))
-
-  connection.on('message', (msg: any) => {
-    if (msg.type == 'binary') {
-      const event = JSON.parse(msg.binaryData)
-
-      if (event.context == "menu") {
-        if (event.type == "create_game") {
-          roomHandler.joinRoom(event.payload.roomID, socket)
-        }
-
-        if (event.type == "join_game") {
-          roomHandler.joinRoom(event.payload.roomID, socket)
-        }
-      }
-    }
-  })
+  roomHandler.addSocket(socket)
 
   connection.on('close', function(reasonCode, description) {
     console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.')

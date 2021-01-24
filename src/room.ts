@@ -2,56 +2,95 @@ import { GameEvent, EventHandler } from './event'
 import { Socket } from './socket';
 
 export interface Room {
-  sockets: Socket[],
   events: GameEvent[]
 }
 
 export class RoomHandler {
   rooms: Map<string, Room> = new Map()
+  sockets: Socket[] = []
 
-  joinRoom(roomID: string, socket: Socket) {
-    const room = this.rooms.get(roomID) || { sockets: [], events: [] }
+  getRoomSockets(roomID: string): Socket[] {
+    return this.sockets.filter(s => s.roomID == roomID)
+  }
 
-    // Avoid joining room twice
-    if (room.sockets.find(s => s.socketID == socket.socketID)) {
-      return
-    }
+  addSocket(socket: Socket) {
+    console.log((new Date()) + ' Player connected')
 
-    socket.connection.send(JSON.stringify({
-      type: "room_joined"
-    }))
+    this.sockets.push(socket)
+
+    socket.connection.send(JSON.stringify({ type: "socketID", payload: socket.socketID }))
 
     socket.connection.on('message', (msg: any) => {
       if (msg.type == 'binary') {
         const event = JSON.parse(msg.binaryData)
+        event.payload = { socketID: socket.socketID, ...event.payload }
 
-        console.log("Event received from client: ", event)
+        if (event.context == "menu") {
+          if (event.type == "create_game") {
+            this.joinRoom(event.payload.roomID, socket)
+          }
 
-        if (event.context == "game") {
-          const roomID = this.getSocketRoomID(socket)
-          this.addGameEvent(roomID, event.type, { socketID: socket.socketID, ...event.payload })
+          if (event.type == "join_game") {
+            this.joinRoom(event.payload.roomID, socket)
+          }
+        } else if (event.context == "game") {
+          if (!socket.roomID) throw new Error("Socket with ID " + socket.socketID + " not connected to a room")
+          this.addGameEvent(socket.roomID, event.type, { socketID: socket.socketID, ...event.payload })
+        } else if (event.context == "room") {
+          if (event.type == "exit_game") {
+            const roomID = socket.roomID
+
+            if (!roomID) {
+              console.log("Warning: Socket trying to exit room when it is not in a room")
+              return
+            }
+
+            const roomSockets = this.getRoomSockets(roomID)
+            roomSockets.forEach((socket: Socket) => {
+              this.sendEventToClient(socket, "room_left", { socketID: event.payload.socketID })
+            })
+
+            socket.roomID = undefined
+
+            this.rooms.delete(roomID)
+          }
         }
       }
     })
+  }
 
-    room.sockets.push(socket)
+  joinRoom(roomID: string, socket: Socket) {
+    const room = this.rooms.get(roomID) || { sockets: [], events: [] }
+    const roomSockets = this.getRoomSockets(roomID)
+
+    // Avoid joining room twice
+    if (roomSockets.find(s => s.socketID == socket.socketID)) {
+      return
+    }
+
+    // Maximum two players per game
+    if (roomSockets.length >= 2) {
+      this.sendEventToClient(socket, "room_full")
+      return
+    }
+
+    socket.roomID = roomID
+
+    this.sendEventToClient(socket, "room_joined")
+
+    roomSockets.push(socket)
     this.rooms.set(roomID, room)
 
     this.addGameEvent(roomID, "player_connected", { socketID: socket.socketID })
   }
 
-  getSocketRoomID(socket: Socket): string {
-    const roomID = Array.from(this.rooms.keys()).find((roomID: string) => {
-      const room = this.rooms.get(roomID)
+  sendEventToClient(socket: Socket, eventType: string, payload: any = {}) {
+    const data = {
+      type: eventType,
+      payload: payload
+    }
 
-      if (!room) return false
-
-      return room.sockets.find(s => s.socketID == socket.socketID) ? true : false
-    })
-
-    if (!roomID) throw new Error("Can't find room which contains socketID " + socket.socketID)
-
-    return roomID
+    socket.connection.send(JSON.stringify(data))
   }
 
   addGameEvent(roomID: string, eventType: string, payload: any) {
@@ -63,15 +102,8 @@ export class RoomHandler {
 
     // Notify clients of changes
     const state = EventHandler.getServerState(room.events)
-    const data = {
-      type: "events",
-      payload: state.clientEvents
-    }
-
-    console.log(room.events)
-
-    room.sockets.forEach((socket: Socket) => {
-      socket.connection.send(JSON.stringify(data))
+    this.getRoomSockets(roomID).forEach((socket: Socket) => {
+      this.sendEventToClient(socket, "events", state.clientEvents)
     })
   }
 }
