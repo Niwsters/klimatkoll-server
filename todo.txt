@@ -1,6 +1,8 @@
+- Fix card placement UI bug where there's no space to select ghost card thing in emissions line
 - UI: Vote another game
 - Another game start
 - Crop cards with rounded corners and such
 - Server game crash should result in disconnection, not server crash
 - RoomHandler should remove sockets on disconnection
 - Prevent player from creating room that already exists
+- Show card a few seconds before discarding it when you play a card in the wrong place
