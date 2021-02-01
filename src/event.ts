@@ -1,5 +1,6 @@
 import seedrandom from 'seedrandom'
 import cardData, { Card, CardData } from './cards'
+
 let lastCardID = 0
 const cards = cardData.map((card: CardData) => {
   return {
@@ -47,6 +48,28 @@ export class EventHandler {
     return EventHandler.createEvent(EventHandler.lastServerEventID++, type, payload)
   }
 
+  static shuffle(deck: Card[], seed: string): Card[] {
+    deck = deck.slice()
+    let currentIndex = deck.length
+    let temporaryValue: Card 
+    let randomIndex: number
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+
+      // Pick a remaining element...
+      randomIndex = Math.floor(seedrandom(seed)() * currentIndex);
+      currentIndex -= 1;
+
+      // And swap it with the current element.
+      temporaryValue = deck[currentIndex];
+      deck[currentIndex] = deck[randomIndex];
+      deck[randomIndex] = temporaryValue;
+    }
+
+    return deck;
+  }
+
   static getServerState(events: GameEvent[]): GameState {
     const drawCard = (state: GameState): Card => {
       const card = state.deck.pop()
@@ -81,9 +104,15 @@ export class EventHandler {
       const type = event.event_type
       const p1 = state.player1 ? 1 : 0
       const p2 = state.player2 ? 1 : 0
-      const playerCount = p1 + p2
+      const playerCount = p1 + p2 
+      if (type == "game_started") {
+        const seed = event.payload.seed
 
-      if (type == "player_connected") {
+        return {
+          ...state,
+          deck: EventHandler.shuffle(state.deck, seed)
+        }
+      } else if (type == "player_connected") {
         // Ignore if all players already set
         if (state.player1 && state.player2) return state
 
@@ -99,6 +128,7 @@ export class EventHandler {
         if (!state.player2) state.player2 = new Player(event.payload.socketID)
 
         // Now both players are set, so we draw their hands
+
         const player1 = state.player1
         const player2 = state.player2
         if (!player1) throw new Error("Player 1 is undefined")

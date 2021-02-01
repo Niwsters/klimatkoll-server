@@ -2,6 +2,7 @@ import 'mocha'
 import assert from 'assert'
 import { GameEvent, EventHandler, GameState, Player } from './event'
 import cards, { Card, CardData } from './cards'
+import seedrandom = require('seedrandom');
 
 function createDeck() {
   let lastCardID = 0
@@ -75,8 +76,33 @@ describe('EventHandler', () => {
       deck = createDeck()
     })
 
+    it('should shuffle deck based on seed', () => {
+      const events: GameEvent[] = [
+        EventHandler.createServerEvent("game_started", { seed: 'some-seed' })
+      ]
+
+      const state = EventHandler.getServerState(events)
+
+      assert.deepEqual(state.deck[0], {
+        emissions: 500,
+        id: 50,
+        name: "vegan"
+      })
+      assert.deepEqual(state.deck[7], {
+        emissions: 110,
+        id: 8,
+        name: "dator-paslagen"
+      })
+      assert.deepEqual(state.deck[10], {
+        emissions: 500,
+        id: 11,
+        name: "duscha-15min"
+      })
+    })
+
     it('should set player1 on first player connected', () => {
       const events: GameEvent[] = [
+        EventHandler.createServerEvent("game_started", { seed: 'some-seed' }),
         EventHandler.createServerEvent("player_connected", { socketID: playerID })
       ]
 
@@ -89,6 +115,9 @@ describe('EventHandler', () => {
     })
 
     describe('second player connected (game started)', () => {
+      EventHandler.random = seedrandom('seeded')
+      const random = seedrandom('seeded')
+
       const events: GameEvent[] = [
         EventHandler.createServerEvent("player_connected", { socketID: playerID }),
       ]

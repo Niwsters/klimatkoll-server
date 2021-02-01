@@ -1,5 +1,6 @@
 import { GameEvent, EventHandler } from './event'
 import { Socket } from './socket';
+import seedrandom = require('seedrandom');
 
 export interface Room {
   events: GameEvent[]
@@ -81,7 +82,18 @@ export class RoomHandler {
     roomSockets.push(socket)
     this.rooms.set(roomID, room)
 
+    this.addGameEvent(roomID, "game_started", { seed: this.generateSeed() })
     this.addGameEvent(roomID, "player_connected", { socketID: socket.socketID })
+  }
+
+  generateSeed(): string {
+     let result           = '';
+     const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+     const charactersLength = characters.length;
+     for ( var i = 0; i < 10; i++ ) {
+        result += characters.charAt(Math.floor(seedrandom()() * charactersLength));
+     }
+     return result;
   }
 
   sendEventToClient(socket: Socket, eventType: string, payload: any = {}) {
