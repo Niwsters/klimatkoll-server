@@ -115,7 +115,6 @@ describe('EventHandler', () => {
     })
 
     describe('second player connected (game started)', () => {
-      EventHandler.random = seedrandom('seeded')
       const random = seedrandom('seeded')
 
       const events: GameEvent[] = [
@@ -233,6 +232,7 @@ describe('EventHandler', () => {
       beforeEach(() => {
         deck = createDeck()
         events = [
+          EventHandler.createServerEvent('game_started', { seed: "some-seed" }),
           EventHandler.createServerEvent('player_connected', { socketID: playerID }),
           EventHandler.createServerEvent('player_connected', { socketID: opponentID }),
         ]
@@ -274,6 +274,34 @@ describe('EventHandler', () => {
           events.push(playCardEvent(player2.hand[0].id, 0, player2.socketID))
           state = EventHandler.getServerState(events)
           assert.deepEqual(state, beforeState)
+        })
+      })
+
+      describe("game over", () => {
+        let state: GameState
+        beforeEach(() => {
+          state = EventHandler.getServerState(events)
+          if (!state.player1) throw new Error("Player 1 is undefined")
+          if (!state.player2) throw new Error("Player 2 is undefined")
+          player1 = state.player1
+          player2 = state.player2
+
+          events.push(playCardEvent(player1.hand[0].id, 0, player1.socketID))
+          events.push(playCardEvent(player2.hand[0].id, 4, player2.socketID))
+          events.push(playCardEvent(player1.hand[1].id, 2, player1.socketID))
+          events.push(playCardEvent(player2.hand[1].id, 4, player2.socketID))
+          events.push(playCardEvent(player1.hand[2].id, 2, player1.socketID))
+
+          state = EventHandler.getServerState(events)
+        })
+
+        it("should notify clients of winning player", () => {
+          const length = state.clientEvents.length
+          lastEventID = length - 1
+          assert.deepEqual(
+            state.clientEvents[state.clientEvents.length - 1],
+            createTestEvent("game_won", { socketID: player1.socketID }),
+          )
         })
       })
 

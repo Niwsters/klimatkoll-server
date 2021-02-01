@@ -222,7 +222,7 @@ export class EventHandler {
           }
         }
         
-        // Play card to emissions line 
+        // If card placement is correct, play card to emissions line 
         shadowedEL[position] = card
 
         state.emissionsLine = shadowedEL.reduce((EL: Card[], card: Card | null) => {
@@ -234,12 +234,16 @@ export class EventHandler {
           ]
         }, [])
 
+        // Notify clients that card was played correctly
+        state.clientEvents.push(createClientEvent("card_played_from_hand", event.payload))
+
+        // If player ran out of cards, notify clients that they won
+        if (player.hand.length == 0) {
+          state.clientEvents.push(createClientEvent("game_won", { socketID: player.socketID }))
+        }
+
         return {
           ...state,
-          clientEvents: [
-            ...state.clientEvents,
-            createClientEvent("card_played_from_hand", event.payload)
-          ]
         }
       }
 
