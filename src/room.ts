@@ -2,8 +2,9 @@ import { GameEvent, EventHandler } from './event'
 import { Socket } from './socket';
 import seedrandom = require('seedrandom');
 
-export interface Room {
-  events: GameEvent[]
+export class Room {
+  events: GameEvent[] = []
+  newGameVotes: Set<number> = new Set()
 }
 
 export class RoomHandler {
@@ -14,12 +15,36 @@ export class RoomHandler {
     return this.sockets.filter(s => s.roomID == roomID)
   }
 
+  removeSocketFromRoom(socket: Socket) {
+    const roomID = socket.roomID
+
+    if (!roomID) {
+      console.log("Warning: Socket trying to exit room when it is not in a room")
+      return
+    }
+
+    const roomSockets = this.getRoomSockets(roomID)
+    roomSockets.forEach((socket: Socket) => {
+      this.sendEventToClient(socket, "room_left", { socketID: socket.socketID })
+    })
+
+    socket.roomID = undefined
+
+    this.rooms.delete(roomID)
+  }
+
   addSocket(socket: Socket) {
     console.log((new Date()) + ' Player connected')
 
     this.sockets.push(socket)
 
     socket.connection.send(JSON.stringify({ type: "socketID", payload: socket.socketID }))
+
+    socket.connection.on('close', (reasonCode, description) => {
+      this.removeSocketFromRoom(socket)
+      // Remove socket from room handler on socket disconnect
+      this.sockets = this.sockets.filter(s => s != socket)
+    })
 
     socket.connection.on('message', (msg: any) => {
       if (msg.type == 'binary') {
@@ -39,21 +64,33 @@ export class RoomHandler {
           this.addGameEvent(socket.roomID, event.type, { socketID: socket.socketID, ...event.payload })
         } else if (event.context == "room") {
           if (event.type == "exit_game") {
+            this.removeSocketFromRoom(socket)
+          } else if (event.type == "vote_new_game") {
+            console.log("Vote new game!")
             const roomID = socket.roomID
 
             if (!roomID) {
-              console.log("Warning: Socket trying to exit room when it is not in a room")
+              console.log("Warning: Socket trying to vote new game when it is not in a room")
               return
             }
 
-            const roomSockets = this.getRoomSockets(roomID)
-            roomSockets.forEach((socket: Socket) => {
-              this.sendEventToClient(socket, "room_left", { socketID: event.payload.socketID })
+            const sockets = this.getRoomSockets(roomID)
+
+            const room: Room | undefined = this.rooms.get(roomID)
+            if (!room) throw new Error("Can't find room with ID: " + roomID)
+
+            room.newGameVotes.add(socket.socketID)
+            console.log("Room:", room)
+
+            if (room.newGameVotes.size < 2) return
+
+            // If both players voted new game, reset events and start new game
+            sockets.forEach(s => this.sendEventToClient(s, "new_game"))
+            this.rooms.set(roomID, { ...room, events: [], newGameVotes: new Set() })
+            this.addGameEvent(roomID, "game_started", { seed: this.generateSeed() })
+            sockets.forEach((socket: Socket) => {
+              this.addGameEvent(roomID, "player_connected", { socketID: socket.socketID })
             })
-
-            socket.roomID = undefined
-
-            this.rooms.delete(roomID)
           }
         }
       }
@@ -61,7 +98,7 @@ export class RoomHandler {
   }
 
   joinRoom(roomID: string, socket: Socket) {
-    const room = this.rooms.get(roomID) || { sockets: [], events: [] }
+    const room: Room = this.rooms.get(roomID) || new Room()
     const roomSockets = this.getRoomSockets(roomID)
 
     // Avoid joining room twice
@@ -105,6 +142,7 @@ export class RoomHandler {
     socket.connection.send(JSON.stringify(data))
   }
 
+  // Adds an event to a room's game
   addGameEvent(roomID: string, eventType: string, payload: any) {
     const room = this.rooms.get(roomID)
     if (!room) throw new Error("Can't find room with ID: " + roomID)

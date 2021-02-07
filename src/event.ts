@@ -253,6 +253,14 @@ export class EventHandler {
         return {
           ...state,
         }
+      } else if (type == "vote_new_game") {
+        return {
+          ...state,
+          clientEvents: [
+            ...state.clientEvents,
+            createClientEvent("vote_new_game", event.payload)
+          ]
+        }
       }
 
       return state

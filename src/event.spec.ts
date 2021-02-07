@@ -279,18 +279,20 @@ describe('EventHandler', () => {
 
       describe("game over", () => {
         let state: GameState
+        let player1Before: Player
+        let player2Before: Player
         beforeEach(() => {
           state = EventHandler.getServerState(events)
           if (!state.player1) throw new Error("Player 1 is undefined")
           if (!state.player2) throw new Error("Player 2 is undefined")
-          player1 = state.player1
-          player2 = state.player2
+          player1Before = state.player1
+          player2Before = state.player2
 
-          events.push(playCardEvent(player1.hand[0].id, 0, player1.socketID))
-          events.push(playCardEvent(player2.hand[0].id, 4, player2.socketID))
-          events.push(playCardEvent(player1.hand[1].id, 2, player1.socketID))
-          events.push(playCardEvent(player2.hand[1].id, 4, player2.socketID))
-          events.push(playCardEvent(player1.hand[2].id, 2, player1.socketID))
+          events.push(playCardEvent(player1Before.hand[0].id, 0, player1Before.socketID))
+          events.push(playCardEvent(player2Before.hand[0].id, 4, player2Before.socketID))
+          events.push(playCardEvent(player1Before.hand[1].id, 2, player1Before.socketID))
+          events.push(playCardEvent(player2Before.hand[1].id, 4, player2Before.socketID))
+          events.push(playCardEvent(player1Before.hand[2].id, 2, player1Before.socketID))
 
           state = EventHandler.getServerState(events)
         })
@@ -318,6 +320,24 @@ describe('EventHandler', () => {
             state.clientEvents[state.clientEvents.length - 1],
             createTestEvent("game_won", { socketID: player1.socketID }),
           )
+        })
+
+        describe("vote new game", () => {
+          beforeEach(() => {
+            events.push(EventHandler
+              .createServerEvent("vote_new_game", { socketID: player1.socketID }))
+
+            state = EventHandler.getServerState(events)           
+          })
+
+          it("notifies clients of player vote", () => {
+            const length = state.clientEvents.length
+            lastEventID = length - 1
+            assert.deepEqual(
+              state.clientEvents[state.clientEvents.length - 1],
+              createTestEvent("vote_new_game", { socketID: player1.socketID }),
+            )
+          })
         })
       })
 

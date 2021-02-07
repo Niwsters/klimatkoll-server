@@ -1,6 +1,3 @@
-- Prevent player from playing cards after game is over
-- UI: Vote another game
-- Another game start
 - Crop cards with rounded corners and such
 - Server game crash should result in disconnection, not server crash
 - RoomHandler should remove sockets on disconnection
@@ -8,4 +5,6 @@
 - Show card a few seconds before discarding it when you play a card in the wrong place
 
 COMMIT AND PUBLISH:
-- Fix card placement UI bug where there's no space to select ghost card thing in emissions line
+- CLIENT: Empty existing hand of cards on game over
+- CLIENT UI: Vote another game
+- Another game start
