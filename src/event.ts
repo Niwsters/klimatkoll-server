@@ -172,7 +172,15 @@ export class EventHandler {
         const player = getPlayer(state, socketID)
         const opponent = getOpponent(state, socketID)
 
+        // If it is not player's turn, ignore event
         if (state.playerTurn != player.socketID) return {...state}
+
+        // If either player's hand is empty, i.e. game is over, ignore event
+        if ((state.player1 && state.player1.hand.length == 0) ||
+            (state.player2 && state.player2.hand.length == 0)) {
+          return {...state}
+        }
+
         const opponentID = getOpponent(state, player.socketID).socketID
         state.playerTurn = opponentID
         state.clientEvents.push(createClientEvent("player_turn", { socketID: state.playerTurn }))

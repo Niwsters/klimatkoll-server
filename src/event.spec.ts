@@ -36,7 +36,7 @@ describe('EventHandler', () => {
   })
 
   describe('createServerEvent', () => {
-    it('should return object with correct parameters', () => {
+    it('returns object with correct parameters', () => {
       const event = EventHandler.createServerEvent('type', { test: 'payload' })
 
       assert.deepEqual(event, {
@@ -46,7 +46,7 @@ describe('EventHandler', () => {
       })
     })
 
-    it('should return default payload', () => {
+    it('returns default payload', () => {
       const event = EventHandler.createServerEvent('type')
 
       assert.deepEqual(event, {
@@ -56,7 +56,7 @@ describe('EventHandler', () => {
       })
     })
 
-    it('should increment event_id', () => {
+    it('increments event_id', () => {
       const event = EventHandler.createServerEvent('type')
       const event2 = EventHandler.createServerEvent('type2')
 
@@ -76,7 +76,7 @@ describe('EventHandler', () => {
       deck = createDeck()
     })
 
-    it('should shuffle deck based on seed', () => {
+    it('shuffles deck based on seed', () => {
       const events: GameEvent[] = [
         EventHandler.createServerEvent("game_started", { seed: 'some-seed' })
       ]
@@ -100,7 +100,7 @@ describe('EventHandler', () => {
       })
     })
 
-    it('should set player1 on first player connected', () => {
+    it('sets player1 on first player connected', () => {
       const events: GameEvent[] = [
         EventHandler.createServerEvent("game_started", { seed: 'some-seed' }),
         EventHandler.createServerEvent("player_connected", { socketID: playerID })
@@ -125,12 +125,12 @@ describe('EventHandler', () => {
       const state = EventHandler.getServerState(events)
       const clientEvents = state.clientEvents
 
-      it('should set player2 on second player connect', () => {
+      it('sets player2 on second player connect', () => {
         if (!state.player2) throw new Error("Player 2 is undefined")
         assert.deepEqual(state.player2.socketID, opponentID)
       })
 
-      it('should assign player hands on second player connect', () => {
+      it('assigns player hands on second player connect', () => {
         const expectedP1Cards = [1,2,3].map(i => deck.pop()) 
         const expectedP2Cards = [1,2,3].map(i => deck.pop()) 
 
@@ -141,7 +141,7 @@ describe('EventHandler', () => {
         assert.deepEqual(state.player2.hand, expectedP2Cards)
       })
 
-      it('should play deck card to emissions line', () => {
+      it('plays deck card to emissions line', () => {
         Array.of(1,2,3,4,5,6).forEach(() => deck.pop())
 
         const card = deck.pop()
@@ -149,11 +149,11 @@ describe('EventHandler', () => {
         assert.deepEqual(state.emissionsLine, [card])
       })
 
-      it("should set player turn", () => {
+      it("sets player turn", () => {
         assert.equal(state.playerTurn, playerID)
       })
 
-      it("should notify client of game start", () => {
+      it("notifies client of game start", () => {
         lastEventID = beforeState.clientEvents.length
         assert.deepEqual(clientEvents.slice(1,clientEvents.length), [
           createTestEvent("playing"),
@@ -169,7 +169,7 @@ describe('EventHandler', () => {
       })
     })
 
-    it('should ignore third player', () => {
+    it('ignores third player', () => {
       const events: GameEvent[] = [
         EventHandler.createServerEvent("player_connected", { socketID: playerID }),
         EventHandler.createServerEvent("player_connected", { socketID: opponentID })
@@ -184,7 +184,7 @@ describe('EventHandler', () => {
       assert.deepEqual(state2, state)
     })
 
-    it("should set state to waiting_for_players on first player connected", () => {
+    it("sets state to waiting_for_players on first player connected", () => {
       const events: GameEvent[] = [
         EventHandler.createServerEvent("player_connected", { socketID: playerID })
       ]
@@ -196,7 +196,7 @@ describe('EventHandler', () => {
       ])
     })
 
-    it("should end game on disconnect", () => {
+    it("ends game on disconnect", () => {
       const events: GameEvent[] = [
         EventHandler.createServerEvent('player_connected', { socketID: playerID }),
         EventHandler.createServerEvent('player_connected', { socketID: opponentID }),
@@ -253,11 +253,11 @@ describe('EventHandler', () => {
           state = EventHandler.getServerState(events)
         })
 
-        it("should set to next player's turn", () => {
+        it("sets next player's turn", () => {
           assert.equal(state.playerTurn, player2.socketID)
         })
 
-        it("should notify client of turn change", () => {
+        it("notifies client of turn change", () => {
           lastEventID = 10
           assert.deepEqual(state.clientEvents[10], 
             createTestEvent("player_turn", { socketID: player2.socketID })
@@ -295,7 +295,23 @@ describe('EventHandler', () => {
           state = EventHandler.getServerState(events)
         })
 
-        it("should notify clients of winning player", () => {
+        it("notifies clients of winning player", () => {
+          const length = state.clientEvents.length
+          lastEventID = length - 1
+          assert.deepEqual(
+            state.clientEvents[state.clientEvents.length - 1],
+            createTestEvent("game_won", { socketID: player1.socketID }),
+          )
+        })
+
+        it("does not allow cards to be played directly afterward", () => {
+          const emissionsLineBefore = [...state.emissionsLine]
+          const cardID = state.player2 ? state.player2.hand[0].id : 0
+          events.push(playCardEvent(cardID, 6, player2.socketID))
+          state = EventHandler.getServerState(events)
+
+          assert.deepEqual(state.emissionsLine, emissionsLineBefore)
+
           const length = state.clientEvents.length
           lastEventID = length - 1
           assert.deepEqual(
@@ -327,16 +343,16 @@ describe('EventHandler', () => {
           player2 = state.player2
         })
 
-        it("should move card to emissions line", () => {
+        it("moves card to emissions line", () => {
           assert.deepEqual(state.emissionsLine, [card, card2, emissionsLineCard])
         })
 
-        it("should move card from hand", () => {
+        it("moves card from hand", () => {
           assert.deepEqual(player1.hand, player1.hand.filter(c => c != card))
           assert.deepEqual(player2.hand, player2.hand.filter(c => c != card2))
         })
 
-        it("should notify client", () => {
+        it("notifies client", () => {
           const clientEvents = state.clientEvents
           const length = clientEvents.length
           lastEventID = length - 3
@@ -386,11 +402,11 @@ describe('EventHandler', () => {
           newCard = nextCard()
         })
 
-        it("should NOT move card to emissions line", () => {
+        it("does NOT move card to emissions line", () => {
           assert.deepEqual(state.emissionsLine, [card, emissionsLineCard])
         })
 
-        it("should move card from player's hand and deal new card to hand", () => {
+        it("moves card from player's hand and deal new card to hand", () => {
           assert.deepEqual(
             player2.hand,
             [
@@ -400,11 +416,11 @@ describe('EventHandler', () => {
           )
         })
 
-        it("should move card to bottom of deck", () => {
+        it("moves card to bottom of deck", () => {
           assert.deepEqual(state.deck[0], card2)
         })
 
-        it("should notify clients of incorrect card placement", () => {
+        it("notifies clients of incorrect card placement", () => {
           const clientEvents = state.clientEvents
           const length = clientEvents.length
           lastEventID = state.clientEvents.length - 4
