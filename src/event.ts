@@ -19,7 +19,7 @@ export class GameState {
   player1?: Player
   player2?: Player
   playerTurn?: number
-  deck: Card[] = [...cards]
+  deck: Card[] = cards.slice()
   clientEvents: GameEvent[] = []
   emissionsLine: Card[] = []
 }

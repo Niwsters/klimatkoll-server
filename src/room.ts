@@ -53,7 +53,7 @@ export class RoomHandler {
 
         if (event.context == "menu") {
           if (event.type == "create_game") {
-            this.joinRoom(event.payload.roomID, socket)
+            this.createRoom(event.payload.roomID, socket)
           }
 
           if (event.type == "join_game") {
@@ -95,6 +95,17 @@ export class RoomHandler {
         }
       }
     })
+  }
+
+  createRoom(roomID: string, socket: Socket): void {
+    // If room already exists, tell client
+    if (this.rooms.get(roomID)) {
+      this.sendEventToClient(socket, "room_exists")
+      return
+    }
+
+    // Else, create new room and join it
+    this.joinRoom(roomID, socket)
   }
 
   joinRoom(roomID: string, socket: Socket) {
