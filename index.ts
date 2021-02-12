@@ -2,9 +2,9 @@ import { server as WebSocketServer, connection as WebSocketConnection } from 'we
 import http from 'http'
 import seedrandom from 'seedrandom'
 import cards from './src/cards'
-import { GameEvent, EventHandler } from './src/event'
-import { RoomHandler } from './src/room'
-import { Socket } from './src/socket'
+import { Database, Socket } from './src/database'
+import { Router } from './src/router'
+import { RoomController } from './src/room'
 
 const server = http.createServer(function(request, response) {
     console.log((new Date()) + ' Received request for ' + request.url)
@@ -36,7 +36,10 @@ interface Data {
   payload: any
 }
 
-const roomHandler = new RoomHandler()
+const db = new Database()
+const roomCtrl = new RoomController(db)
+const router = new Router(db, roomCtrl)
+
 wsServer.on('request', function(request) {
   if (!originIsAllowed(request.origin)) {
     // Make sure we only accept requests from an allowed origin
@@ -47,7 +50,7 @@ wsServer.on('request', function(request) {
   
   const connection = request.accept('echo-protocol', request.origin)
   const socket = new Socket(connection)
-  roomHandler.addSocket(socket)
+  router.addSocket(socket)
 
   connection.on('close', function(reasonCode, description) {
     console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.')

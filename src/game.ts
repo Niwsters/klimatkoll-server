@@ -1,28 +1,6 @@
 import seedrandom from 'seedrandom'
 import cardData, { Card, CardData } from './cards'
-
-let lastCardID = 0
-const cards = cardData.map((card: CardData) => {
-  return {
-    ...card,
-    id: lastCardID++
-  }
-})
-
-export interface GameEvent {
-  event_id: number
-  event_type: string
-  payload: any
-}
-
-export class GameState {
-  player1?: Player
-  player2?: Player
-  playerTurn?: number
-  deck: Card[] = cards.slice()
-  clientEvents: GameEvent[] = []
-  emissionsLine: Card[] = []
-}
+import { GameEvent } from './database';
 
 export class Player {
   socketID: number
@@ -33,8 +11,21 @@ export class Player {
   }
 }
 
-export class EventHandler {
-  static lastServerEventID: number = 0
+let lastCardID = 0
+const cards = cardData.map((card: CardData) => {
+  return {
+    ...card,
+    id: lastCardID++
+  }
+})
+
+export class GameState {
+  player1?: Player
+  player2?: Player
+  playerTurn?: number
+  deck: Card[] = cards.slice()
+  clientEvents: GameEvent[] = []
+  emissionsLine: Card[] = []
 
   static createEvent(eventID: number, type: string, payload: any = {}): GameEvent {
     return {
@@ -42,10 +33,6 @@ export class EventHandler {
       event_type: type,
       payload: payload
     }
-  }
-
-  static createServerEvent(type: string, payload: any = {}): GameEvent {
-    return EventHandler.createEvent(EventHandler.lastServerEventID++, type, payload)
   }
 
   static shuffle(deck: Card[], seed: string): Card[] {
@@ -70,7 +57,7 @@ export class EventHandler {
     return deck;
   }
 
-  static getServerState(events: GameEvent[]): GameState {
+  static fromEvents(events: GameEvent[]): GameState {
     const drawCard = (state: GameState): Card => {
       const card = state.deck.pop()
       if (!card) throw new Error("Deck ran out of cards")
@@ -79,7 +66,7 @@ export class EventHandler {
 
     let lastClientEventID: number = 0
     const createClientEvent = (eventType: string, payload: any = {}): GameEvent => {
-      return EventHandler.createEvent(lastClientEventID++, eventType, payload)
+      return new GameEvent(lastClientEventID++, eventType, payload)
     }
 
     const getPlayer = (state: GameState, socketID: number): Player => {
@@ -110,7 +97,7 @@ export class EventHandler {
 
         return {
           ...state,
-          deck: EventHandler.shuffle(state.deck, seed)
+          deck: GameState.shuffle(state.deck, seed)
         }
       } else if (type == "player_connected") {
         // Ignore if all players already set

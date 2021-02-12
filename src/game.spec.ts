@@ -1,8 +1,9 @@
 import 'mocha'
 import assert from 'assert'
-import { GameEvent, EventHandler, GameState, Player } from './event'
+import { GameState, Player } from './game'
 import cards, { Card, CardData } from './cards'
 import seedrandom = require('seedrandom');
+import { GameEvent } from './database';
 
 function createDeck() {
   let lastCardID = 0
@@ -14,7 +15,12 @@ function createDeck() {
   })
 }
 
-describe('EventHandler', () => {
+let lastServerEventID = 0
+function createServerEvent(eventType: string, payload: any = {}): GameEvent {
+  return new GameEvent(lastServerEventID++, eventType, payload)
+}
+
+describe('GameState', () => {
   let deck: Card[] = createDeck()
   let lastEventID = 0
   const playerID = 0
@@ -32,37 +38,7 @@ describe('EventHandler', () => {
     lastEventID = 0
     deck = createDeck()
 
-    EventHandler.lastServerEventID = 0
-  })
-
-  describe('createServerEvent', () => {
-    it('returns object with correct parameters', () => {
-      const event = EventHandler.createServerEvent('type', { test: 'payload' })
-
-      assert.deepEqual(event, {
-        event_id: 0,
-        event_type: 'type',
-        payload: { test: 'payload' }
-      })
-    })
-
-    it('returns default payload', () => {
-      const event = EventHandler.createServerEvent('type')
-
-      assert.deepEqual(event, {
-        event_id: 0,
-        event_type: 'type',
-        payload: {}
-      })
-    })
-
-    it('increments event_id', () => {
-      const event = EventHandler.createServerEvent('type')
-      const event2 = EventHandler.createServerEvent('type2')
-
-      assert.equal(event.event_id, 0)
-      assert.equal(event2.event_id, 1)
-    })
+    lastServerEventID = 0
   })
 
   describe('getServerState', () => {
@@ -78,10 +54,10 @@ describe('EventHandler', () => {
 
     it('shuffles deck based on seed', () => {
       const events: GameEvent[] = [
-        EventHandler.createServerEvent("game_started", { seed: 'some-seed' })
+        createServerEvent("game_started", { seed: 'some-seed' })
       ]
 
-      const state = EventHandler.getServerState(events)
+      const state = GameState.fromEvents(events)
 
       assert.deepEqual(state.deck[0], {
         emissions: 500,
@@ -102,11 +78,11 @@ describe('EventHandler', () => {
 
     it('sets player1 on first player connected', () => {
       const events: GameEvent[] = [
-        EventHandler.createServerEvent("game_started", { seed: 'some-seed' }),
-        EventHandler.createServerEvent("player_connected", { socketID: playerID })
+        createServerEvent("game_started", { seed: 'some-seed' }),
+        createServerEvent("player_connected", { socketID: playerID })
       ]
 
-      const state = EventHandler.getServerState(events)
+      const state = GameState.fromEvents(events)
 
       assert.deepEqual(state.player1, {
         socketID: playerID,
@@ -118,11 +94,11 @@ describe('EventHandler', () => {
       const random = seedrandom('seeded')
 
       const events: GameEvent[] = [
-        EventHandler.createServerEvent("player_connected", { socketID: playerID }),
+        createServerEvent("player_connected", { socketID: playerID }),
       ]
-      const beforeState = EventHandler.getServerState(events)
-      events.push(EventHandler.createServerEvent("player_connected", { socketID: opponentID }))
-      const state = EventHandler.getServerState(events)
+      const beforeState = GameState.fromEvents(events)
+      events.push(createServerEvent("player_connected", { socketID: opponentID }))
+      const state = GameState.fromEvents(events)
       const clientEvents = state.clientEvents
 
       it('sets player2 on second player connect', () => {
@@ -171,25 +147,25 @@ describe('EventHandler', () => {
 
     it('ignores third player', () => {
       const events: GameEvent[] = [
-        EventHandler.createServerEvent("player_connected", { socketID: playerID }),
-        EventHandler.createServerEvent("player_connected", { socketID: opponentID })
+        createServerEvent("player_connected", { socketID: playerID }),
+        createServerEvent("player_connected", { socketID: opponentID })
       ]
 
-      const state = EventHandler.getServerState(events)
+      const state = GameState.fromEvents(events)
 
-      events.push(EventHandler.createServerEvent("player_connected", { socketID: 3 }))
+      events.push(createServerEvent("player_connected", { socketID: 3 }))
 
-      const state2 = EventHandler.getServerState(events)
+      const state2 = GameState.fromEvents(events)
 
       assert.deepEqual(state2, state)
     })
 
     it("sets state to waiting_for_players on first player connected", () => {
       const events: GameEvent[] = [
-        EventHandler.createServerEvent("player_connected", { socketID: playerID })
+        createServerEvent("player_connected", { socketID: playerID })
       ]
 
-      const clientEvents = EventHandler.getServerState(events).clientEvents
+      const clientEvents = GameState.fromEvents(events).clientEvents
 
       assert.deepEqual(clientEvents, [
         createTestEvent("waiting_for_players")
@@ -198,12 +174,12 @@ describe('EventHandler', () => {
 
     it("ends game on disconnect", () => {
       const events: GameEvent[] = [
-        EventHandler.createServerEvent('player_connected', { socketID: playerID }),
-        EventHandler.createServerEvent('player_connected', { socketID: opponentID }),
-        EventHandler.createServerEvent('player_disconnected', { socketID: opponentID })
+        createServerEvent('player_connected', { socketID: playerID }),
+        createServerEvent('player_connected', { socketID: opponentID }),
+        createServerEvent('player_disconnected', { socketID: opponentID })
       ]
 
-      const clientEvents = EventHandler.getServerState(events).clientEvents
+      const clientEvents = GameState.fromEvents(events).clientEvents
 
       lastEventID = 10
       assert.deepEqual(
@@ -222,7 +198,7 @@ describe('EventHandler', () => {
         position: number,
         socketID: number
       ): GameEvent => {
-        return EventHandler.createServerEvent('card_played_from_hand', {
+        return createServerEvent('card_played_from_hand', {
           socketID: socketID,
           cardID: cardID,
           position: position
@@ -232,11 +208,11 @@ describe('EventHandler', () => {
       beforeEach(() => {
         deck = createDeck()
         events = [
-          EventHandler.createServerEvent('game_started', { seed: "some-seed" }),
-          EventHandler.createServerEvent('player_connected', { socketID: playerID }),
-          EventHandler.createServerEvent('player_connected', { socketID: opponentID }),
+          createServerEvent('game_started', { seed: "some-seed" }),
+          createServerEvent('player_connected', { socketID: playerID }),
+          createServerEvent('player_connected', { socketID: opponentID }),
         ]
-        const state = EventHandler.getServerState(events)
+        const state = GameState.fromEvents(events)
         if (state.player1) player1 = state.player1
         if (state.player2) player2 = state.player2
         if (!player1) throw new Error("Player 1 is undefined")
@@ -250,7 +226,7 @@ describe('EventHandler', () => {
         
         beforeEach(() => {
           events.push(playCardEvent(player1.hand[0].id, 0, player1.socketID))
-          state = EventHandler.getServerState(events)
+          state = GameState.fromEvents(events)
         })
 
         it("sets next player's turn", () => {
@@ -270,9 +246,9 @@ describe('EventHandler', () => {
         let state: GameState
 
         it("ignores event", () => {
-          beforeState = EventHandler.getServerState(events)
+          beforeState = GameState.fromEvents(events)
           events.push(playCardEvent(player2.hand[0].id, 0, player2.socketID))
-          state = EventHandler.getServerState(events)
+          state = GameState.fromEvents(events)
           assert.deepEqual(state, beforeState)
         })
       })
@@ -282,7 +258,7 @@ describe('EventHandler', () => {
         let player1Before: Player
         let player2Before: Player
         beforeEach(() => {
-          state = EventHandler.getServerState(events)
+          state = GameState.fromEvents(events)
           if (!state.player1) throw new Error("Player 1 is undefined")
           if (!state.player2) throw new Error("Player 2 is undefined")
           player1Before = state.player1
@@ -294,7 +270,7 @@ describe('EventHandler', () => {
           events.push(playCardEvent(player2Before.hand[1].id, 4, player2Before.socketID))
           events.push(playCardEvent(player1Before.hand[2].id, 2, player1Before.socketID))
 
-          state = EventHandler.getServerState(events)
+          state = GameState.fromEvents(events)
         })
 
         it("notifies clients of winning player", () => {
@@ -310,7 +286,7 @@ describe('EventHandler', () => {
           const emissionsLineBefore = [...state.emissionsLine]
           const cardID = state.player2 ? state.player2.hand[0].id : 0
           events.push(playCardEvent(cardID, 6, player2.socketID))
-          state = EventHandler.getServerState(events)
+          state = GameState.fromEvents(events)
 
           assert.deepEqual(state.emissionsLine, emissionsLineBefore)
 
@@ -324,10 +300,9 @@ describe('EventHandler', () => {
 
         describe("vote new game", () => {
           beforeEach(() => {
-            events.push(EventHandler
-              .createServerEvent("vote_new_game", { socketID: player1.socketID }))
+            events.push(createServerEvent("vote_new_game", { socketID: player1.socketID }))
 
-            state = EventHandler.getServerState(events)           
+            state = GameState.fromEvents(events)           
           })
 
           it("notifies clients of player vote", () => {
@@ -348,7 +323,7 @@ describe('EventHandler', () => {
         let event2: GameEvent
         let state: GameState
         beforeEach(() => {
-          state = EventHandler.getServerState(events)
+          state = GameState.fromEvents(events)
           card = player1.hand[0]
           card2 = player2.hand[2]
           event = playCardEvent(card.id, 0, player1.socketID)
@@ -356,7 +331,7 @@ describe('EventHandler', () => {
           event2 = playCardEvent(card2.id, 2, player2.socketID)
           events.push(event2)
           
-          state = EventHandler.getServerState(events)
+          state = GameState.fromEvents(events)
           if (!state.player1) throw new Error("Player 1 is undefined")
           if (!state.player2) throw new Error("Player 2 is undefined")
           player1 = state.player1
@@ -398,7 +373,7 @@ describe('EventHandler', () => {
         let newCard: Card
 
         beforeEach(() => {
-          state = EventHandler.getServerState(events)
+          state = GameState.fromEvents(events)
           deckBefore = [...state.deck]
           deck = [...deckBefore]
           if (!state.player1) throw new Error("Player 1 is undefined")
@@ -413,7 +388,7 @@ describe('EventHandler', () => {
           event2 = playCardEvent(card2.id, 4, player2Before.socketID)
           events.push(event2)
           
-          state = EventHandler.getServerState(events)
+          state = GameState.fromEvents(events)
           if (!state.player1) throw new Error("Player 1 is undefined")
           if (!state.player2) throw new Error("Player 2 is undefined")
           player1 = state.player1
