@@ -2,12 +2,12 @@
   "name": "klimatkoll",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "mocha --bail -r ts-node/register ./src/**/*.spec.ts --watch --watch-files ./src/**/*.ts",
     "dev": "nodemon index.ts",
     "start": "node compiled/index.js",
-    "build": "tsc --build"
+    "build": "tsc --build && cp -r public compiled/public"
   },
   "author": "",
   "license": "ISC",

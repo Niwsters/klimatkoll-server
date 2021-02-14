@@ -1,39 +1,29 @@
 import { server as WebSocketServer, connection as WebSocketConnection } from 'websocket'
 import http from 'http'
 import seedrandom from 'seedrandom'
+import express from 'express'
+import path from 'path'
+
 import cards from './src/cards'
 import { Database, Socket } from './src/database'
 import { Router } from './src/router'
 import { RoomController } from './src/room'
-import express from 'express'
-import path from 'path'
-
-const isHeroku = process.env._ && process.env._.indexOf("heroku") > -1
 
 // Create a server to server klimatkoll.html
 const app = express()
-app.use(express.static('public'))
-const publicPath = isHeroku ? '../public' : 'public'
+app.use(express.static(__dirname + '/public'))
 app.get('/', (req, res) => {
-  res.sendFile('klimatkoll.html', { root: path.join(__dirname, publicPath) })
+  res.sendFile(__dirname + '/public/klimatkoll.html')
 })
 const server = http.createServer(app)
-const port = isHeroku ? 80 : 4200
+const port = process.env.PORT || 4200
 server.listen(port, function() {
   console.log((new Date()) + ` Server is listening on port ${port}`)
 })
 
 
-// Set up a separate web socket server with a different port
-const clientListener = http.createServer((req, res) => {
-    console.log((new Date()) + ' Received request for ' + req.url);
-    res.writeHead(404);
-    res.end();
-})
-clientListener.listen(8080)
-
 const wsServer = new WebSocketServer({
-  httpServer: clientListener,
+  httpServer: server,
   // You should not use autoAcceptConnections for production
   // applications, as it defeats all standard cross-origin protection
   // facilities built into the protocol and the browser.  You should
