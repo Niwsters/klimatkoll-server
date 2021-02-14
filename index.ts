@@ -5,25 +5,39 @@ import cards from './src/cards'
 import { Database, Socket } from './src/database'
 import { Router } from './src/router'
 import { RoomController } from './src/room'
+import express from 'express'
+import path from 'path'
 
-const server = http.createServer(function(request, response) {
-    console.log((new Date()) + ' Received request for ' + request.url)
-    response.writeHead(404)
-    response.end()
+
+// Create a server to server klimatkoll.html
+const app = express()
+app.use(express.static('public'))
+app.get('/', (req, res) => {
+  res.sendFile('klimatkoll.html', { root: path.join(__dirname, 'public') })
+})
+const server = http.createServer(app)
+const port = process.env._ && process.env._.indexOf("heroku") > -1 ? 80 : 4200
+server.listen(port, function() {
+  console.log((new Date()) + ` Server is listening on port ${port}`)
 })
 
-server.listen(8080, function() {
-    console.log((new Date()) + ' Server is listening on port 8080')
+
+// Set up a separate web socket server with a different port
+const clientListener = http.createServer((req, res) => {
+    console.log((new Date()) + ' Received request for ' + req.url);
+    res.writeHead(404);
+    res.end();
 })
+clientListener.listen(8080)
 
 const wsServer = new WebSocketServer({
-    httpServer: server,
-    // You should not use autoAcceptConnections for production
-    // applications, as it defeats all standard cross-origin protection
-    // facilities built into the protocol and the browser.  You should
-    // *always* verify the connection's origin and decide whether or not
-    // to accept it.
-    autoAcceptConnections: false
+  httpServer: clientListener,
+  // You should not use autoAcceptConnections for production
+  // applications, as it defeats all standard cross-origin protection
+  // facilities built into the protocol and the browser.  You should
+  // *always* verify the connection's origin and decide whether or not
+  // to accept it.
+  autoAcceptConnections: false
 })
 
 function originIsAllowed(origin: string) {
