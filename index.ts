@@ -4,13 +4,14 @@ import seedrandom from 'seedrandom'
 import express from 'express'
 import path from 'path'
 
+import auth from './auth'
 import cards from './src/cards'
 import { Database, Socket } from './src/database'
 import { Router } from './src/router'
 import { RoomController } from './src/room'
 
-// Create a server to server klimatkoll.html
 const app = express()
+app.use(auth)
 app.use(express.static(__dirname + '/public'))
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/klimatkoll.html')
