@@ -8,15 +8,17 @@ import { RoomController } from './src/room'
 import express from 'express'
 import path from 'path'
 
+const isHeroku = process.env._ && process.env._.indexOf("heroku") > -1
 
 // Create a server to server klimatkoll.html
 const app = express()
 app.use(express.static('public'))
+const publicPath = isHeroku ? '../public' : 'public'
 app.get('/', (req, res) => {
-  res.sendFile('klimatkoll.html', { root: path.join(__dirname, 'public') })
+  res.sendFile('klimatkoll.html', { root: path.join(__dirname, publicPath) })
 })
 const server = http.createServer(app)
-const port = process.env._ && process.env._.indexOf("heroku") > -1 ? 80 : 4200
+const port = isHeroku ? 80 : 4200
 server.listen(port, function() {
   console.log((new Date()) + ` Server is listening on port ${port}`)
 })
