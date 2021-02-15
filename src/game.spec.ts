@@ -1,9 +1,8 @@
 import 'mocha'
 import assert from 'assert'
-import { GameState, Player } from './game'
+import { GameState, GameEvent, Player } from './game'
 import cards, { Card, CardData } from './cards'
 import seedrandom = require('seedrandom');
-import { GameEvent } from './database';
 
 function createDeck() {
   let lastCardID = 0
