@@ -22,6 +22,7 @@ export class Room {
   constructor(id: string, player1: Socket) {
     this.id = id
     this.game = new Game(player1)
+    player1.sendEvent("room_joined", { roomID: this.id })
   }
 
   addNewGameVote(socket: Socket) {
@@ -50,7 +51,7 @@ export class Room {
       return
     }
 
-    socket.sendEvent("room_joined")
+    socket.sendEvent("room_joined", { roomID: this.id })
     this.game.addPlayer2(socket)
   }
 }
@@ -138,7 +139,6 @@ export class RoomController {
 
     const room = new Room(roomID, socket)
     this.rooms.push(room)
-    socket.sendEvent("room_joined")
   }
 
   join(roomID: string, socket: Socket): void {
