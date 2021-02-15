@@ -1,131 +1,152 @@
-import seedrandom = require('seedrandom');
-import { Socket, Database, GameEvent } from './database';
-import { GameState } from './game';
+import { filter } from 'rxjs/operators'
 
-export class RoomController {
-  db: Database
+import { Socket, SocketEvent } from './socket';
+import { Game } from './game';
 
-  constructor(db: Database) {
-    this.db = db
+/* FEATURES
+ * - Disconnect from room
+ * - Vote new game
+ * - Create room
+ * - Join room
+ */
+
+export class Room {
+  id: string
+  newGameVotes: Set<number> = new Set()
+  game: Game
+
+  get sockets(): Socket[] {
+    return this.game.sockets
   }
 
-  disconnectSocketFromRoom(socket: Socket) {
-    const roomID = socket.roomID
+  constructor(id: string, player1: Socket) {
+    this.id = id
+    this.game = new Game(player1)
+  }
 
-    if (!roomID) {
-      console.log("Warning: Socket trying to exit room when it is not in a room")
+  addNewGameVote(socket: Socket) {
+    this.newGameVotes.add(socket.socketID)
+
+    if (this.newGameVotes.size < 2) {
       return
     }
 
-    const roomSockets = this.db.getRoomSockets(roomID)
-    roomSockets.forEach((socket: Socket) => {
-      this.sendEventToClient(socket, "room_left", { socketID: socket.socketID })
-    })
-
-    socket.roomID = undefined
-
-    this.db.deleteRoom(roomID)
+    // New game if both players voted
+    this.sockets.forEach(s => s.sendEvent("new_game"))
+    this.game.newGame()
+    this.newGameVotes = new Set()
   }
 
-  voteNewGame(socket: Socket) {
-    console.log("Vote new game!")
-    const roomID = socket.roomID
-
-    if (!roomID) {
-      console.log("Warning: Socket trying to vote new game when it is not in a room")
-      return
-    }
-
-    const sockets = this.db.getRoomSockets(roomID)
-
-    const room = this.db.getRoom(roomID)
-
-    room.newGameVotes.add(socket.socketID)
-    console.log("Room:", room)
-
-    if (room.newGameVotes.size < 2) return
-
-    // If both players voted new game, reset events and start new game
-    sockets.forEach(s => this.sendEventToClient(s, "new_game"))
-    this.db.resetRoom(roomID)
-    this.db.addGameEvent(roomID, "game_started", { seed: this.generateSeed() })
-    sockets.forEach((socket: Socket) => {
-      this.db.addGameEvent(roomID, "player_connected", { socketID: socket.socketID })
-    })
-  }
-
-  createRoom(roomID: string, socket: Socket): void {
-    // If room already exists, tell client
-    if (this.db.roomExists(roomID)) {
-      this.sendEventToClient(socket, "room_exists")
-      return
-    }
-
-    // Else, create new room and join it
-    this.db.createRoom(roomID)
-    this.joinRoom(roomID, socket)
-  }
-
-  joinRoom(roomID: string, socket: Socket) {
-    const room = this.db.getRoom(roomID)
-    const roomSockets = this.db.getRoomSockets(roomID)
-
+  join(socket: Socket) {
     // Avoid joining room twice
-    if (roomSockets.find(s => s.socketID == socket.socketID)) {
+    if (this.sockets.find(s => s.socketID == socket.socketID)) {
+      console.log("Warning: Socket is trying to join the same room twice")
       return
     }
 
     // Maximum two players per game
-    if (roomSockets.length >= 2) {
-      this.sendEventToClient(socket, "room_full")
+    if (this.sockets.length >= 2) {
+      socket.sendEvent("room_full")
       return
     }
 
-    socket.roomID = roomID
-
-    this.sendEventToClient(socket, "room_joined")
-
-    roomSockets.push(socket)
-
-    this.addGameEvent(socket, "game_started", { seed: this.generateSeed() })
-    this.addGameEvent(socket, "player_connected", { socketID: socket.socketID })
+    socket.sendEvent("room_joined")
+    this.game.addPlayer2(socket)
   }
+}
 
-  generateSeed(): string {
-     let result           = ''
-     const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-     const charactersLength = characters.length
-     for ( var i = 0; i < 10; i++ ) {
-        result += characters.charAt(Math.floor(seedrandom()() * charactersLength))
-     }
-     return result
-  }
+export class RoomController {
+  rooms: Room[] = []
+  sockets: Socket[] = []
 
-  sendEventToClient(socket: Socket, eventType: string, payload: any = {}) {
-    const data = {
-      type: eventType,
-      payload: payload
-    }
+  addSocket(socket: Socket) {
+    this.sockets.push(socket)
 
-    socket.connection.send(JSON.stringify(data))
-  }
+    // TODO: Remove menu context in client so we can have one single event context here
+    socket.events$
+      .pipe(filter((e: SocketEvent) => e.context == "room" || e.context == "menu"))
+      .subscribe((event: SocketEvent) => {
+        if (event.type == "create_game") {
+          this.create(event.payload.roomID, socket)
+        } else if (event.type == "join_game") {
+          this.join(event.payload.roomID, socket)
+        } else if (event.type == "exit_game") {
+          this.disconnect(socket)
+        } else if (event.type == "vote_new_game") {
+          this.voteNewGame(socket)
+        }
+      })
 
-  // Adds an event to a room's game
-  addGameEvent(socket: Socket, eventType: string, payload: any) {
-    if (!socket.roomID) {
-      throw new Error("Socket with ID " + socket.socketID + " not connected to a room")
-    }
-
-    payload = { ...payload, socketID: socket.socketID }
-
-    // Add event to server events
-    this.db.addGameEvent(socket.roomID, eventType, payload)
-
-    // Notify clients of changes
-    const room = this.db.getRoom(socket.roomID)
-    const state = GameState.fromEvents(room.events)
-    this.db.getRoomSockets(socket.roomID).forEach((socket: Socket) => {
-      this.sendEventToClient(socket, "events", state.clientEvents)
+    socket.closed$.subscribe(() => {
+      this.disconnect(socket)
+      this.sockets = this.sockets.filter(s => s != socket)
     })
+  }
+
+  disconnect(socket: Socket): void {
+    const room = this.getSocketRoom(socket)
+
+    if (!room) {
+      console.log("Warning: Trying to disconnect socket that doesn't exist")
+      return
+    }
+
+    room.sockets.forEach((socket: Socket) => {
+      socket.sendEvent("room_left", { socketID: socket.socketID })
+    })
+
+    this.rooms = this.rooms.filter((r: Room) => r.id != room.id)
+  }
+
+  voteNewGame(socket: Socket): void {
+    const room = this.getSocketRoom(socket)
+
+    if (!room) {
+      throw new Error("Can't find room containing socket: " + socket)
+    }
+
+    room.addNewGameVote(socket)
+  }
+
+  getRoom(roomID: string): Room {
+    const room = this.rooms.find((r: Room) => r.id == roomID)
+
+    if (!room) {
+      throw new Error("Could not find room with ID: " + roomID)
+    }
+
+    return room
+  }
+
+  getSocketRoom(socket: Socket): Room | undefined {
+    const room = Array.from(this.rooms.values()).find((r: Room) => {
+      return r.sockets.findIndex((s: Socket) => s == socket) > -1
+    })
+
+    return room
+  }
+
+  roomExists(roomID: string): boolean {
+    return this.rooms.findIndex((r: Room) => r.id == roomID) > -1
+  }
+
+  create(roomID: string, socket: Socket): void {
+    if (this.roomExists(roomID)) {
+      socket.sendEvent("room_exists")
+      return
+    }
+
+    const room = new Room(roomID, socket)
+    this.rooms.push(room)
+    socket.sendEvent("room_joined")
+  }
+
+  join(roomID: string, socket: Socket): void {
+    if (!this.roomExists(roomID)) {
+      return
+    }
+
+    const room = this.getRoom(roomID)
+    room.join(socket)
   }
 }

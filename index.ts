@@ -6,8 +6,7 @@ import path from 'path'
 
 import auth from './auth'
 import cards from './src/cards'
-import { Database, Socket } from './src/database'
-import { Router } from './src/router'
+import { Socket } from './src/socket'
 import { RoomController } from './src/room'
 
 const app = express()
@@ -43,9 +42,7 @@ interface Data {
   payload: any
 }
 
-const db = new Database()
-const roomCtrl = new RoomController(db)
-const router = new Router(db, roomCtrl)
+const roomCtrl = new RoomController()
 
 wsServer.on('request', function(request) {
   if (!originIsAllowed(request.origin)) {
@@ -57,9 +54,5 @@ wsServer.on('request', function(request) {
   
   const connection = request.accept('echo-protocol', request.origin)
   const socket = new Socket(connection)
-  router.addSocket(socket)
-
-  connection.on('close', function(reasonCode, description) {
-    console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.')
-  })
+  roomCtrl.addSocket(socket)
 })

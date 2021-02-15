@@ -1,6 +1,20 @@
 import seedrandom from 'seedrandom'
+import { BehaviorSubject } from 'rxjs'
+import { filter, map } from 'rxjs/operators'
 import cardData, { Card, CardData } from './cards'
-import { GameEvent } from './database';
+import { Socket, SocketEvent } from './socket'
+
+export class GameEvent {
+  event_id: number
+  event_type: string
+  payload: any
+
+  constructor(eventID: number, type: string, payload: any = {}) {
+    this.event_id = eventID
+    this.event_type = type
+    this.payload = payload
+  }
+}
 
 export class Player {
   socketID: number
@@ -18,6 +32,94 @@ const cards = cardData.map((card: CardData) => {
     id: lastCardID++
   }
 })
+
+export class Game {
+  events$: BehaviorSubject<GameEvent[]> = new BehaviorSubject<GameEvent[]>([])
+  lastGameEventID: number = 0
+  private player1: Socket
+  private player2?: Socket
+
+  get sockets(): Socket[] {
+    if (this.player2) {
+      return [this.player1, this.player2]
+    }
+
+    return [this.player1]
+  }
+
+  get events(): GameEvent[] {
+    return this.events$.value
+  }
+
+  constructor(player1: Socket) {
+    this.player1 = player1
+    this.subscribePlayer(player1)
+
+    const events = [
+      this.gameEvent("game_started", { seed: this.newSeed() }),
+      this.gameEvent("player_connected", { socketID: player1.socketID })
+    ]
+    this.events$.next(events)
+  }
+
+  subscribePlayer(player: Socket) {
+    player.events$
+      .pipe(
+        filter((event: SocketEvent) => event.context == "game"),
+        map((event: SocketEvent): GameEvent => {
+          return this.gameEvent(event.type, event.payload)
+        })
+      )
+      .subscribe((event: GameEvent) => {
+        this.events$.next([
+          ...this.events,
+          event
+        ])
+      })
+
+    this.events$.subscribe(events => {
+      const state = GameState.fromEvents(events)
+      player.sendEvent("events", state.clientEvents)
+    })
+  }
+
+  addPlayer2(player2: Socket) {
+    if (!this.player2) this.player2 = player2
+
+    this.subscribePlayer(player2)
+
+    this.events$.next([
+      ...this.events,
+      this.gameEvent("player_connected", { socketID: player2.socketID })
+    ])
+  }
+
+  newSeed(): string {
+    let result           = ''
+    const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    const charactersLength = characters.length
+    for ( var i = 0; i < 10; i++ ) {
+      result += characters.charAt(Math.floor(seedrandom()() * charactersLength))
+    }
+    return result
+  }
+
+  newGame(): void {
+    if (!this.player2) {
+      throw new Error("Trying to start new game with only one player")
+    }
+
+    this.events$.next([
+      this.gameEvent("game_started", { seed: this.newSeed() }),
+      this.gameEvent("player_connected", { socketID: this.player1.socketID }),
+      this.gameEvent("player_connected", { socketID: this.player2.socketID })
+    ])
+  }
+
+  gameEvent(eventType: string, payload: any = {}) {
+    return new GameEvent(this.lastGameEventID++, eventType, payload)
+  }
+}
 
 export class GameState {
   player1?: Player
