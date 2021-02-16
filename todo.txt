@@ -1,3 +1,1 @@
 - CLIENT: Show card a few seconds before discarding it when you play a card in the wrong place
-
-COMMIT AND PUBLISH:

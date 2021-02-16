@@ -83,7 +83,7 @@ export const cards: CardData[] = [
 		"emissions": 1200
 	},
 	{
-		"name": "flygresa-genomsnitt",
+		"name": "flygresor-genomsnitt",
 		"emissions": 650
 	},
 	{
