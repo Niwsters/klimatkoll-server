@@ -1,1 +1,20 @@
 - CLIENT: Show card a few seconds before discarding it when you play a card in the wrong place
+
+------------------
+
+Bug fixes:
+- Fix card selection space bug (I believe it is too small currently, at least vertically it doesn't cover the whole card)
+- Can't read the number at the bottom right of the card unless zoomed in
+- Clarify whose turn it is with text and not just card zoom in. Maybe remove the card zoom? Or not? Check other designs for inspiration.
+- Show game ID somewhere, preferably at the top
+- Translate all text into Swedish
+- Render the actual deck, with the next card on top
+- Make sure cards that are of equal emissions go on both sides of the emissions line
+- Emissions line cards are too small and difficult to read. Also you can't zoom in on them.
+- Select card bug: Shadow cards should update visibility when card is played to emissions line, since new shadow card is added.
+- Allow deselecting card by clicking elsewhere than on the card.
+- Disallow selecting card unless it is your turn.
+- Improve card placement with the hands not blocking the emissions line
+
+Features:
+- Turn timer
