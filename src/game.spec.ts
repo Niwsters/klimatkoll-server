@@ -59,19 +59,19 @@ describe('GameState', () => {
       const state = GameState.fromEvents(events)
 
       assert.deepEqual(state.deck[0], {
-        emissions: 500,
-        id: 50,
-        name: "vegan"
+        emissions: 250,
+        id: 38,
+        name: "rida"
       })
       assert.deepEqual(state.deck[7], {
-        emissions: 110,
-        id: 8,
-        name: "dator-paslagen"
+        emissions: 350,
+        id: 26,
+        name: "ny-dator"
       })
       assert.deepEqual(state.deck[10], {
-        emissions: 500,
-        id: 11,
-        name: "duscha-15min"
+        emissions: 200,
+        id: 33,
+        name: "pendla-buss"
       })
     })
 
@@ -139,7 +139,8 @@ describe('GameState', () => {
           createTestEvent("draw_card", { card: nextCard(), socketID: opponentID }),
           createTestEvent("draw_card", { card: nextCard(), socketID: opponentID }),
           createTestEvent("card_played_from_deck", { card: nextCard(), position: 0 }),
-          createTestEvent("player_turn", { socketID: playerID })
+          createTestEvent("player_turn", { socketID: playerID }),
+          createTestEvent("next_card", { card: state.deck[state.deck.length - 1] })
         ])
       })
     })
@@ -180,7 +181,7 @@ describe('GameState', () => {
 
       const clientEvents = GameState.fromEvents(events).clientEvents
 
-      lastEventID = 10
+      lastEventID = clientEvents.length - 1
       assert.deepEqual(
         clientEvents[clientEvents.length - 1],
         createTestEvent("opponent_disconnected")
@@ -233,8 +234,8 @@ describe('GameState', () => {
         })
 
         it("notifies client of turn change", () => {
-          lastEventID = 10
-          assert.deepEqual(state.clientEvents[10], 
+          lastEventID = state.clientEvents.length - 2
+          assert.deepEqual(state.clientEvents[state.clientEvents.length - 2], 
             createTestEvent("player_turn", { socketID: player2.socketID })
           )
         })
@@ -267,7 +268,7 @@ describe('GameState', () => {
           events.push(playCardEvent(player2Before.hand[0].id, 4, player2Before.socketID))
           events.push(playCardEvent(player1Before.hand[1].id, 2, player1Before.socketID))
           events.push(playCardEvent(player2Before.hand[1].id, 4, player2Before.socketID))
-          events.push(playCardEvent(player1Before.hand[2].id, 2, player1Before.socketID))
+          events.push(playCardEvent(player1Before.hand[2].id, 8, player1Before.socketID))
 
           state = GameState.fromEvents(events)
         })
@@ -381,7 +382,7 @@ describe('GameState', () => {
           player2Before = state.player2
 
           card = player1Before.hand[0]
-          card2 = player2Before.hand[2]
+          card2 = player2Before.hand[1]
           event = playCardEvent(card.id, 0, player1Before.socketID)
           events.push(event)
           event2 = playCardEvent(card2.id, 4, player2Before.socketID)
@@ -414,15 +415,16 @@ describe('GameState', () => {
           assert.deepEqual(state.deck[0], card2)
         })
 
-        it("notifies clients of incorrect card placement", () => {
+        it("notifies clients of changes", () => {
           const clientEvents = state.clientEvents
           const length = clientEvents.length
-          lastEventID = state.clientEvents.length - 4
-          assert.deepEqual(clientEvents.slice(length - 4, length), [
+          lastEventID = state.clientEvents.length - 5
+          assert.deepEqual(clientEvents.slice(length - 5, length), [
             createTestEvent("card_played_from_hand", event.payload),
             createTestEvent("player_turn", { socketID: playerID }),
             createTestEvent("incorrect_card_placement", { cardID: card2.id, socketID: opponentID }),
-            createTestEvent("draw_card", { card: newCard, socketID: player2.socketID })
+            createTestEvent("draw_card", { card: newCard, socketID: player2.socketID }),
+            createTestEvent("next_card", { card: state.deck[state.deck.length - 1] })
           ])
         })
       })

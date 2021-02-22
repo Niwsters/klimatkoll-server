@@ -137,26 +137,18 @@ export class GameState {
     }
   }
 
-  static shuffle(deck: Card[], seed: string): Card[] {
+  static shuffle(deck: Card[], seed: string) {
     deck = deck.slice()
-    let currentIndex = deck.length
-    let temporaryValue: Card 
-    let randomIndex: number
+    const random = seedrandom(seed)
 
-    // While there remain elements to shuffle...
-    while (0 !== currentIndex) {
-
-      // Pick a remaining element...
-      randomIndex = Math.floor(seedrandom(seed)() * currentIndex);
-      currentIndex -= 1;
-
-      // And swap it with the current element.
-      temporaryValue = deck[currentIndex];
-      deck[currentIndex] = deck[randomIndex];
-      deck[randomIndex] = temporaryValue;
+    for (let i = deck.length - 1; i > 0; i--) {
+      var j = Math.floor(random() * (i + 1));
+      var temp = deck[i];
+      deck[i] = deck[j];
+      deck[j] = temp;
     }
 
-    return deck;
+    return deck
   }
 
   static fromEvents(events: GameEvent[]): GameState {
@@ -242,7 +234,8 @@ export class GameState {
               return createClientEvent("draw_card", { card: card, socketID: player2.socketID })
             }),
             createClientEvent("card_played_from_deck", { card: emissionsLineCard, position: 0 }),
-            createClientEvent("player_turn", { socketID: state.playerTurn })
+            createClientEvent("player_turn", { socketID: state.playerTurn }),
+            createClientEvent("next_card", { card: state.deck[state.deck.length - 1] })
           ]
         }
       } else if (type == "player_disconnected") {
@@ -314,6 +307,9 @@ export class GameState {
               createClientEvent("draw_card", {
                 card: newCard,
                 socketID: player.socketID
+              }),
+              createClientEvent("next_card", {
+                card: state.deck[state.deck.length - 1]
               })
             ]
           }

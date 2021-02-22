@@ -1,6 +1,4 @@
 Bug fixes and tweaks:
-- Render the actual deck, with the next card on top
-- Make sure cards that are of equal emissions go on both sides of the emissions line
 - Emissions line cards are too small and difficult to read. Also you can't zoom in on them.
 - Select card bug: Shadow cards should update visibility when opponent card is played to emissions line, since new shadow card is added.
 - Allow deselecting card by clicking elsewhere than on the card.
@@ -21,5 +19,7 @@ Features:
 
 Fixed but uncommitted:
 - Translate all text into Swedish
+- Fixed deck shuffle bug where the RNG would return the same number over and over again
+- Render the actual deck, with the next card on top
 
 Fixed but unpublished:
