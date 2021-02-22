@@ -1,5 +1,4 @@
 Bug fixes and tweaks:
-- Translate all text into Swedish
 - Render the actual deck, with the next card on top
 - Make sure cards that are of equal emissions go on both sides of the emissions line
 - Emissions line cards are too small and difficult to read. Also you can't zoom in on them.
@@ -13,17 +12,14 @@ Bug fixes and tweaks:
 - What happens if deck runs out of cards?
 - Optimise build size for better loading time: https://docs.godotengine.org/en/stable/development/compiling/optimizing_for_size.html
 - The click area of the card shadows were not completely intuitive. Might have been fixed with the increased vertical click area.
+- Bug: Room ID disappears when starting new game
+- New game vote doesn't show when you or the opponent voted
 
 Features:
 - Turn timer
 - Player name
 
 Fixed but uncommitted:
-- Whose turn it is is now visible in the bottom right
-- Incorrectly placed cards are put in the discard pile
-- Show game ID somewhere, preferably at the top
+- Translate all text into Swedish
 
 Fixed but unpublished:
-- Fix card hover space bug (I believe it is too small currently, at least vertically it doesn't cover the whole card)
-- Can't read the number at the bottom right of the card unless zoomed in
-- Shadows are missing in the emissions line
