@@ -1,4 +1,4 @@
-Bug fixes:
+Bug fixes and tweaks:
 - Translate all text into Swedish
 - Render the actual deck, with the next card on top
 - Make sure cards that are of equal emissions go on both sides of the emissions line
@@ -11,6 +11,8 @@ Bug fixes:
 - Rendering two cards looks weird. Look over the card arrangement algorithm.
 - Clarify whose turn it is using another, more obvious visual cue, such as changing the background of the active player
 - What happens if deck runs out of cards?
+- Optimise build size for better loading time: https://docs.godotengine.org/en/stable/development/compiling/optimizing_for_size.html
+- The click area of the card shadows were not completely intuitive. Might have been fixed with the increased vertical click area.
 
 Features:
 - Turn timer
