@@ -1,8 +1,4 @@
 Bug fixes and tweaks:
-- Emissions line cards are too small and difficult to read. Also you can't zoom in on them.
-- Select card bug: Shadow cards should update visibility when opponent card is played to emissions line, since new shadow card is added.
-- Allow deselecting card by clicking elsewhere than on the card.
-- Disallow selecting card unless it is your turn.
 - Improve card placement with the hands not blocking the emissions line
 - Some weird out of sync bug exists which leads to really weird issues. Try making sure that joining a room and restarting a game resets the game instance.
 - Rendering two cards looks weird. Look over the card arrangement algorithm.
@@ -12,14 +8,17 @@ Bug fixes and tweaks:
 - The click area of the card shadows were not completely intuitive. Might have been fixed with the increased vertical click area.
 - Bug: Room ID disappears when starting new game
 - New game vote doesn't show when you or the opponent voted
+- Card rotation when drawn from deck should be fixed so it looks smoooooth
+- Translate notifications to Swedish
 
 Features:
 - Turn timer
 - Player name
 
 Fixed but uncommitted:
-- Translate all text into Swedish
-- Fixed deck shuffle bug where the RNG would return the same number over and over again
-- Render the actual deck, with the next card on top
 
 Fixed but unpublished:
+- Emissions line cards are too small and difficult to read. Also you can't zoom in on them.
+- Select card bug: Shadow cards should update visibility when opponent card is played to emissions line, since new shadow card is added.
+- Allow deselecting card by clicking elsewhere than on the card.
+- Disallow selecting card unless it is your turn.
