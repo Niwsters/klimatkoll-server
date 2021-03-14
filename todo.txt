@@ -1,14 +1,4 @@
 Bug fixes and tweaks:
-- Improve card placement with the hands not blocking the emissions line
-- Some weird out of sync bug exists which leads to really weird issues. Try making sure that joining a room and restarting a game resets the game instance.
-- Rendering two cards looks weird. Look over the card arrangement algorithm.
-- Clarify whose turn it is using another, more obvious visual cue, such as changing the background of the active player
-- What happens if deck runs out of cards?
-- Optimise build size for better loading time: https://docs.godotengine.org/en/stable/development/compiling/optimizing_for_size.html
-- The click area of the card shadows were not completely intuitive. Might have been fixed with the increased vertical click area.
-- Bug: Room ID disappears when starting new game
-- New game vote doesn't show when you or the opponent voted
-- Card rotation when drawn from deck should be fixed so it looks smoooooth
 - Translate notifications to Swedish
 
 Features:
