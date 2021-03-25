@@ -10,8 +10,7 @@ import { Socket } from './src/socket'
 import { RoomController } from './src/room'
 
 const app = express()
-// Temporarily disabling during event
-// app.use(auth)
+app.use(auth)
 app.use(express.static(__dirname + '/public'))
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/klimatkoll.html')
