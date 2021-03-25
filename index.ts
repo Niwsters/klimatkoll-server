@@ -10,7 +10,8 @@ import { Socket } from './src/socket'
 import { RoomController } from './src/room'
 
 const app = express()
-app.use(auth)
+// Temporarily disabling during event
+// app.use(auth)
 app.use(express.static(__dirname + '/public'))
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/klimatkoll.html')
@@ -32,6 +33,7 @@ const wsServer = new WebSocketServer({
   autoAcceptConnections: false
 })
 
+// TODO: FIX THIS. SECURITY ISSUE.
 function originIsAllowed(origin: string) {
   // put logic here to detect whether the specified origin is allowed.
   return true
