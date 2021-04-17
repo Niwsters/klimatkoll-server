@@ -29,11 +29,19 @@ export class Socket {
     })
 
     connection.on('message', (msg: any) => {
+      let event: SocketEvent | undefined
+
       if (msg.type == 'binary') {
-        const event: SocketEvent = JSON.parse(msg.binaryData)
-        event.payload = { socketID: this.socketID, ...event.payload }
-        this.events$.next(event)
+        event = JSON.parse(msg.binaryData)
       }
+
+      if (msg.type == 'utf8') {
+        event = JSON.parse(msg.utf8Data)
+      }
+
+      if (!event) throw new Error("Failed to parse socket message of type " + msg.type)
+      event.payload = { socketID: this.socketID, ...event.payload }
+      this.events$.next(event)
     })
   }
 
