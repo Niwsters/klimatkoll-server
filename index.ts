@@ -33,12 +33,17 @@ const wsServer = new WebSocketServer({
   autoAcceptConnections: false
 })
 
-// TODO: FIX THIS. SECURITY ISSUE.
 function originIsAllowed(origin: string) {
   console.log(origin)
+  if (
+    origin === 'http://213.164.204.255' || 
+    origin === 'http://localhost:4200' ||
+    origin === 'http://localhost:3000'
+  ) {
+    return true
+  }
 
-  // put logic here to detect whether the specified origin is allowed.
-  return true
+  return false
 }
 
 interface Data {
