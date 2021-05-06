@@ -78,8 +78,15 @@ export class Game {
       })
 
     this.events$.subscribe(events => {
-      const state = GameState.fromEvents(events)
-      player.sendEvent("events", state.clientEvents)
+      // If game crashes (i.e. fromEvents can't compile), log the error and
+      // disconnect the player
+      try {
+        const state = GameState.fromEvents(events)
+        player.sendEvent("events", state.clientEvents)
+      } catch (e) {
+        console.log(e)
+        player.sendEvent("room_left", { socketID: player.socketID })
+      }
     })
   }
 
