@@ -1,5 +1,5 @@
 import seedrandom from 'seedrandom'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, Subscription } from 'rxjs'
 import { filter, map } from 'rxjs/operators'
 import cardData, { Card, CardData } from './cards'
 import { Socket, SocketEvent } from './socket'
@@ -36,6 +36,7 @@ const cards = cardData.map((card: CardData) => {
 export class Game {
   events$: BehaviorSubject<GameEvent[]> = new BehaviorSubject<GameEvent[]>([])
   lastGameEventID: number = 0
+  subscriptions: Subscription[] = []
   private player1: Socket
   private player2?: Socket
 
@@ -63,7 +64,7 @@ export class Game {
   }
 
   subscribePlayer(player: Socket) {
-    player.events$
+    const sub = player.events$
       .pipe(
         filter((event: SocketEvent) => event.context == "game"),
         map((event: SocketEvent): GameEvent => {
@@ -77,6 +78,8 @@ export class Game {
         ])
       })
 
+    this.subscriptions.push(sub)
+
     this.events$.subscribe(events => {
       // If game crashes (i.e. fromEvents can't compile), log the error and
       // disconnect the player
@@ -88,6 +91,10 @@ export class Game {
         player.sendEvent("room_left", { socketID: player.socketID })
       }
     })
+  }
+
+  unsubscribePlayers() {
+    this.subscriptions.forEach(sub => sub.unsubscribe())
   }
 
   addPlayer2(player2: Socket) {

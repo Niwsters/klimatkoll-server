@@ -86,11 +86,11 @@ export class RoomController {
 
   disconnect(socket: Socket): void {
     const room = this.getSocketRoom(socket)
-
     if (!room) {
-      console.log("Warning: Trying to disconnect socket that doesn't exist")
       return
     }
+
+    room.game.unsubscribePlayers()
 
     room.sockets.forEach((socket: Socket) => {
       socket.sendEvent("room_left", { socketID: socket.socketID })
