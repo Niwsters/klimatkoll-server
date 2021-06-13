@@ -22,8 +22,8 @@ canvas, #app {
   display: block;
   margin: auto;
 
-  width: 960px;
-  height: 540px;
+  width: 100%;
+  height: 56.25vw;
   background: white;
 }
 
@@ -33,10 +33,10 @@ canvas, #app {
   flex-direction: column;
   font-family: 'Roboto';
   box-sizing: border-box;
-  width: 230px;
-  height: 540px;
+  width: 24vw;
+  height: 56.25vw;
   background: #F3EFEC;
-  margin-top: -540px;
+  margin-top: -56.25vw;
   position: relative;
   color: #444;
 }
@@ -47,19 +47,19 @@ canvas, #app {
   font-family: 'Roboto';
   color: #333;
   width: 100%;
-  height: 40px;
+  height: 4.17vw;
 }
 
 #status-bar .room-id {
-  padding-left: 40px;
-  padding-top: 20px;
-  font-size: 20px;
+  padding-left: 4.17vw;
+  padding-top: 2.1vw;
+  font-size: 2.1vw;
 }
 
 .status-bar-message {
-  font-size: 32px;
-  padding-left: 40px;
-  padding-right: 23px;
+  font-size: 3.33vw;
+  padding-left: 4.17vw;
+  padding-right: 2.4vw;
 }
 
 input, button {
@@ -67,12 +67,12 @@ input, button {
   margin: auto;
   border: none;
   border-radius: 0;
-  padding: 5px 10px;
-  width: 260px;
+  padding: 0.52vw 1.04vw;
+  width: 27.1vw;
   box-sizing: border-box;
-  margin-top: 10px;
+  margin-top: 1.04vw;
   font-family: 'Poppins', sans-serif;
-  font-size: 20px;
+  font-size: 2.1vw;
 }
 
 button.pink {
@@ -93,24 +93,40 @@ button:active {
 }
 
 .notification-container {
-  margin-top: -34px;
+  margin-top: -3.54vw;
 }
 
 .notification {
   width: 100%;
   background: #333;
   color: white;
-  padding: 5px 10px;
+  padding: 0.52vw 1.04vw;
   text-align: center;
   box-sizing: border-box;
   position: absolute;
   top: 0;
   z-index: 999;
-  margin-top: -35px;
-  width: 960px;
+  margin-top: -36.5vw;
+  width: 100vw;
   transition: margin-top 0.2s;
+  font-size: 1.67vw;
 }
 
 .notification.show {
   margin-top: 0;
+}
+
+.menu {
+  background: #181543;
+  width: 100%;
+  height: 100%;
+  padding-top: 10.4vw;
+  box-sizing: border-box;
+}
+
+.menu .logo {
+  display: block;
+  width: 31.25vw;
+  margin: auto;
+  padding-bottom: 3.125vw;
 }
