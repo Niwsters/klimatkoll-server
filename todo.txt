@@ -1,14 +1,17 @@
-Bug fixes and tweaks:
-- Translate notifications to Swedish
+CURRENT:
+- Before anything: Modularize the system like a CDN;
+    <script src="[link to .js file]"></script>
+    <div id="klimatkoll-game"></div>
+- Then create a SEPARATE module that serves pages containing e.g.
+    <div id="klimatkoll-game" language="en"></div>
+    <div id="klimatkoll-game" language="sv"></div>
 
-Features:
-- Turn timer
-- Player name
 
-Fixed but uncommitted:
+- English version
+-- Landing page -> link to Swedish/English version
+-- Put all text in constants or JSON for easier translation
 
-Fixed but unpublished:
-- Emissions line cards are too small and difficult to read. Also you can't zoom in on them.
-- Select card bug: Shadow cards should update visibility when opponent card is played to emissions line, since new shadow card is added.
-- Allow deselecting card by clicking elsewhere than on the card.
-- Disallow selecting card unless it is your turn.
+WAITING FOR DOMAIN SHAT:
+- Domain stuff
+-- Work it like a CDN: Let the user create a <div id="klimatkoll-game"></div> element, then attach a CDN <script src="spela.klimatkoll.se"></script> at the top. Maybe let people pay to use the CDN and protect it with some internal code stuff.
+-- Get spela.klimatkoll.se actually working <_<'

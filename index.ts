@@ -36,7 +36,7 @@ const wsServer = new WebSocketServer({
 function originIsAllowed(origin: string) {
   console.log(origin)
   if (
-    origin === 'http://213.164.204.255' || 
+    origin === 'https://spela.kortspeletklimatkoll.se' || 
     origin === 'http://localhost:4200' ||
     origin === 'http://localhost:3000'
   ) {
