@@ -1,7 +1,7 @@
 import seedrandom from 'seedrandom'
 import { BehaviorSubject, Subscription } from 'rxjs'
 import { filter, map } from 'rxjs/operators'
-import cardData, { Card, CardData } from './cards'
+import { Card, CardData } from './cards'
 import { Socket, SocketEvent } from './socket'
 
 export class GameEvent {
@@ -25,14 +25,6 @@ export class Player {
   }
 }
 
-let lastCardID = 0
-const cards = cardData.map((card: CardData) => {
-  return {
-    ...card,
-    id: lastCardID++
-  }
-})
-
 export class Game {
   events$: BehaviorSubject<GameEvent[]> = new BehaviorSubject<GameEvent[]>([])
   lastGameEventID: number = 0
@@ -52,12 +44,20 @@ export class Game {
     return this.events$.value
   }
 
-  constructor(player1: Socket) {
+  constructor(player1: Socket, cardData: CardData[]) {
     this.player1 = player1
     this.subscribePlayer(player1)
 
+    let lastCardID = 0
+    const deck = cardData.map((card: CardData) => {
+      return {
+        ...card,
+        id: lastCardID++
+      }
+    })
+
     const events = [
-      this.gameEvent("game_started", { seed: this.newSeed() }),
+      this.gameEvent("game_started", { seed: this.newSeed(), deck: deck }),
       this.gameEvent("player_connected", { socketID: player1.socketID })
     ]
     this.events$.next(events)
@@ -139,7 +139,7 @@ export class GameState {
   player1?: Player
   player2?: Player
   playerTurn?: number
-  deck: Card[] = cards.slice()
+  deck: Card[] = []
   clientEvents: GameEvent[] = []
   emissionsLine: Card[] = []
 
@@ -202,10 +202,11 @@ export class GameState {
       const playerCount = p1 + p2 
       if (type == "game_started") {
         const seed = event.payload.seed
+        const deck = event.payload.deck
 
         return {
           ...state,
-          deck: GameState.shuffle(state.deck, seed)
+          deck: GameState.shuffle(deck, seed)
         }
       } else if (type == "player_connected") {
         // Ignore if all players already set

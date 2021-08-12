@@ -2,6 +2,7 @@ import { filter } from 'rxjs/operators'
 
 import { Socket, SocketEvent } from './socket';
 import { Game } from './game';
+import { CardData } from './cards';
 
 /* FEATURES
  * - Disconnect from room
@@ -19,9 +20,9 @@ export class Room {
     return this.game.sockets
   }
 
-  constructor(id: string, player1: Socket) {
+  constructor(id: string, player1: Socket, cardData: CardData[]) {
     this.id = id
-    this.game = new Game(player1)
+    this.game = new Game(player1, cardData)
     player1.sendEvent("room_joined", { roomID: this.id })
   }
 
@@ -59,6 +60,11 @@ export class Room {
 export class RoomController {
   rooms: Room[] = []
   sockets: Socket[] = []
+  cardData: CardData[]
+
+  constructor(cardData: CardData[]) {
+    this.cardData = cardData
+  }
 
   addSocket(socket: Socket) {
     this.sockets.push(socket)
@@ -137,7 +143,7 @@ export class RoomController {
       return
     }
 
-    const room = new Room(roomID, socket)
+    const room = new Room(roomID, socket, this.cardData)
     this.rooms.push(room)
   }
 

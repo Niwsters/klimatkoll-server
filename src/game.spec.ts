@@ -51,9 +51,22 @@ describe('GameState', () => {
       deck = createDeck()
     })
 
+    it('uses specified deck', () => {
+      const card = { emissions: 1337, id: 1, name: "blargh" }
+      deck = [card]
+
+      const events: GameEvent[] = [
+        createServerEvent("game_started", { seed: 'some-seed', deck: deck })
+      ]
+
+      const state = GameState.fromEvents(events)
+
+      assert.deepEqual(state.deck, [card])
+    })
+
     it('shuffles deck based on seed', () => {
       const events: GameEvent[] = [
-        createServerEvent("game_started", { seed: 'some-seed' })
+        createServerEvent("game_started", { seed: 'some-seed', deck: deck })
       ]
 
       const state = GameState.fromEvents(events)
@@ -77,7 +90,7 @@ describe('GameState', () => {
 
     it('sets player1 on first player connected', () => {
       const events: GameEvent[] = [
-        createServerEvent("game_started", { seed: 'some-seed' }),
+        createServerEvent("game_started", { seed: 'some-seed', deck: deck }),
         createServerEvent("player_connected", { socketID: playerID })
       ]
 
@@ -208,7 +221,7 @@ describe('GameState', () => {
       beforeEach(() => {
         deck = createDeck()
         events = [
-          createServerEvent('game_started', { seed: "some-seed" }),
+          createServerEvent('game_started', { seed: "some-seed", deck: deck }),
           createServerEvent('player_connected', { socketID: playerID }),
           createServerEvent('player_connected', { socketID: opponentID }),
         ]
