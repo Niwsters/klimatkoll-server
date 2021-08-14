@@ -7,7 +7,10 @@
     "test": "mocha --bail -r ts-node/register ./src/**/*.spec.ts --watch --watch-files ./src/**/*.ts",
     "dev": "nodemon index.ts",
     "start": "node compiled/index.js",
-    "build": "tsc --build && rm -r compiled/public && cp -r public compiled/public"
+    "build": "tsc --build && rm -r compiled/public && cp -r public compiled/public",
+    "create-ca": "node node_modules/mkcert/src/cli.js create-ca",
+    "create-cert": "node node_modules/mkcert/src/cli.js create-cert",
+    "setup-https": "npm run create-ca && npm run create-cert"
   },
   "author": "",
   "license": "ISC",

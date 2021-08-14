@@ -162,7 +162,7 @@ export const cards: CardData[] = [
     "emissions": 350
   },
   {
-    "name": "shipping-air-china",
+    "name": "shipping-air-china-europe",
     "emissions": 250
   },
   {

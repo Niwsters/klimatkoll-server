@@ -3,6 +3,7 @@ import http, { Server as HTTPServer } from 'http'
 import express, { Application } from 'express'
 import cors from 'cors'
 import path from 'path'
+import fs from 'fs'
 
 import auth from './auth'
 import cardsSV from './cards-sv'
@@ -23,16 +24,22 @@ export class CDNServer {
   roomCtrlSV: RoomController
   roomCtrlEN: RoomController
 
-  constructor(port: number = 4200) {
+  constructor(port: number = 3000) {
     const app = this.app
 
-    app.use('/fonts/*', cors({
-      origin: ['http://localhost:3000'],
+    const corsSettings = {
+      origin: ['http://localhost:4200'],
       methods: ['GET', 'HEAD'],
       allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept']
-    }))
+    }
+
+//    app.use('/fonts/*', cors(corsSettings))
+    app.use('/*', cors(corsSettings))
 
     app.use(express.static(__dirname + '/../public'))
+
+    const files = fs.readdirSync('./')
+    console.log(files)
 
     this.httpServer = http.createServer(app)
     const httpServer = this.httpServer

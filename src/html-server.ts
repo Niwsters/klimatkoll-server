@@ -2,6 +2,7 @@ import { server as WebSocketServer, connection as WebSocketConnection } from 'we
 import http, { Server as HTTPServer } from 'http'
 import express, { Application, Request } from 'express'
 import path from 'path'
+import fs from 'fs'
 
 import { originIsAllowed } from './origin'
 
@@ -14,7 +15,7 @@ export class HTMLServer {
   app: Application = express()
   httpServer: HTTPServer 
 
-  constructor(port: number = 3000) {
+  constructor(port: number = 4200) {
     const app = this.app
 
     app.use(express.static(__dirname + '/../public'))
