@@ -71,14 +71,12 @@ export class CDNServer {
 
       switch (protocol) {
         case "sv": {
-          console.log("SV!")
           const connection = request.accept('sv', request.origin)
           const socket = new Socket(connection)
           this.roomCtrlSV.addSocket(socket)
           break
         }
         case "en": {
-          console.log("EN!")
           const connection = request.accept('en', request.origin)
           const socket = new Socket(connection)
           this.roomCtrlEN.addSocket(socket)
