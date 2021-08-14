@@ -38,9 +38,6 @@ export class CDNServer {
 
     app.use(express.static(__dirname + '/../public'))
 
-    const files = fs.readdirSync('./')
-    console.log(files)
-
     this.httpServer = http.createServer(app)
     const httpServer = this.httpServer
 
