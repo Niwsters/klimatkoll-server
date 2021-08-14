@@ -1,7 +1,8 @@
 import 'mocha'
 import assert from 'assert'
 import { GameState, GameEvent, Player } from './game'
-import cards, { Card, CardData } from './cards'
+import { Card, CardData } from './cards'
+import cards from './cards-sv'
 import seedrandom = require('seedrandom');
 
 function createDeck() {
@@ -42,8 +43,8 @@ describe('GameState', () => {
 
   describe('getServerState', () => {
     let deck: Card[] = createDeck()
-    const nextCard = () => {
-      const card = deck.pop()
+    const nextCard = (_deck: Card[] = deck) => {
+      const card = _deck.pop()
       if (!card) throw new Error("Deck ran out of cards")
       return card
     }
@@ -104,10 +105,15 @@ describe('GameState', () => {
 
     describe('second player connected (game started)', () => {
       const random = seedrandom('seeded')
+      deck = createDeck()
 
       const events: GameEvent[] = [
+        createServerEvent("game_started", { seed: 'some-seed', deck: [...deck] }),
         createServerEvent("player_connected", { socketID: playerID }),
       ]
+
+      deck = GameState.shuffle(deck, 'some-seed')
+
       const beforeState = GameState.fromEvents(events)
       events.push(createServerEvent("player_connected", { socketID: opponentID }))
       const state = GameState.fromEvents(events)
@@ -119,8 +125,40 @@ describe('GameState', () => {
       })
 
       it('assigns player hands on second player connect', () => {
-        const expectedP1Cards = [1,2,3].map(i => deck.pop()) 
-        const expectedP2Cards = [1,2,3].map(i => deck.pop()) 
+        const expectedP1Cards = [
+          {
+            emissions: 60,
+            id: 7,
+            name: 'bussresa-malmo-chamonix'
+          },
+          {
+            emissions: 160,
+            id: 25,
+            name: 'laderskor'
+          },
+          {
+            emissions: 1000,
+            id: 6,
+            name: 'blandkost-kyckling'
+          }
+        ]
+        const expectedP2Cards = [
+          {
+            emissions: 50,
+            id: 40,
+            name: 'rosor-kenya'
+          },
+          {
+            emissions: 60,
+            id: 20,
+            name: 'grot'
+          },
+          {
+            emissions: 500,
+            id: 11,
+            name: 'duscha-15min'
+          }
+        ]
 
         if (!state.player1) throw new Error("Player 1 undefined")
         assert.deepEqual(state.player1.hand, expectedP1Cards)
@@ -130,6 +168,7 @@ describe('GameState', () => {
       })
 
       it('plays deck card to emissions line', () => {
+        deck = GameState.shuffle(deck, 'some-seed')
         Array.of(1,2,3,4,5,6).forEach(() => deck.pop())
 
         const card = deck.pop()
@@ -142,6 +181,8 @@ describe('GameState', () => {
       })
 
       it("notifies client of game start", () => {
+        deck = GameState.shuffle(deck, 'some-seed')
+
         lastEventID = beforeState.clientEvents.length
         assert.deepEqual(clientEvents.slice(1,clientEvents.length), [
           createTestEvent("playing"),
@@ -160,6 +201,7 @@ describe('GameState', () => {
 
     it('ignores third player', () => {
       const events: GameEvent[] = [
+        createServerEvent("game_started", { seed: 'some-seed', deck: deck }),
         createServerEvent("player_connected", { socketID: playerID }),
         createServerEvent("player_connected", { socketID: opponentID })
       ]
@@ -187,6 +229,7 @@ describe('GameState', () => {
 
     it("ends game on disconnect", () => {
       const events: GameEvent[] = [
+        createServerEvent("game_started", { seed: 'some-seed', deck: deck }),
         createServerEvent('player_connected', { socketID: playerID }),
         createServerEvent('player_connected', { socketID: opponentID }),
         createServerEvent('player_disconnected', { socketID: opponentID })

@@ -151,7 +151,7 @@ export class GameState {
     }
   }
 
-  static shuffle(deck: Card[], seed: string) {
+  static shuffle(deck: Card[], seed: string): Card[] {
     deck = deck.slice()
     const random = seedrandom(seed)
 
