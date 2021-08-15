@@ -1,0 +1,20 @@
+{
+  "connectedToServer": "Uppkopplad till servern",
+  "roomFull": "Kan inte gå med i rum: Rummet är fullt",
+  "roomExists": "Kunde inte skapa rum: Rum med samma ID existerar redan",
+  "roomLeft": "Lämnade spelet",
+  "roomJoined": "Gick med i spel med ID: ",
+  "roomOpponentLeft": "Andra spelaren lämnade spelet",
+  "reconnecting": "Tappade uppkoppling till servern. Försöker koppla upp igen.",
+  "btnCreateGame": "Skapa spel",
+  "btnJoinGame": "Gå med i spel",
+  "inputRoomID": "Spelets namn",
+  "altClimateCallLogo": "Klimatkoll logga",
+  "waitingForPlayer": "Väntar på spelare #2",
+  "yourTurn": "Din tur",
+  "opponentsTurn": "Andra spelarens tur",
+  "youWon": "Du vann!",
+  "youLost": "Du förlorade!"
+  "labelRoom": "Rum: ",
+  "btnLeaveGame": "Lämna spel"
+}

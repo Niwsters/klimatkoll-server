@@ -1,0 +1,20 @@
+{
+  "connectedToServer": "Connected",
+  "roomFull": "Can't join game: Room is full",
+  "roomExists": "Could not create room: Room already exists with that ID",
+  "roomLeft": "Left game",
+  "roomJoined": "Joined room with ID: ",
+  "roomOpponentLeft": "Other player left the game",
+  "reconnecting": "Lost connection. Reconnecting...",
+  "btnCreateGame": "Create game",
+  "btnJoinGame": "Join game",
+  "inputRoomID": "Game ID",
+  "altClimateCallLogo": "Climate Call logo",
+  "waitingForPlayer": "Waiting for player #2",
+  "yourTurn": "Your turn",
+  "opponentsTurn": "Other player's turn",
+  "youWon": "You won!",
+  "youLost": "You lost!",
+  "labelRoom": "Room: ",
+  "btnLeaveGame": "Leave game"
+}
