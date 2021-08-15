@@ -14,7 +14,7 @@
   "yourTurn": "Din tur",
   "opponentsTurn": "Andra spelarens tur",
   "youWon": "Du vann!",
-  "youLost": "Du förlorade!"
+  "youLost": "Du förlorade!",
   "labelRoom": "Rum: ",
   "btnLeaveGame": "Lämna spel"
 }
