@@ -41,6 +41,135 @@ describe('GameState', () => {
     lastServerEventID = 0
   })
 
+  describe('shuffle', () => {
+    it('shuffles given deck with given seed', () => {
+      const result = GameState.shuffle(deck, 'some-seed')
+
+      assert.deepEqual(result[0], {
+        emissions: 250,
+        id: 38,
+        name: "rida"
+      })
+      assert.deepEqual(result[7], {
+        emissions: 350,
+        id: 26,
+        name: "ny-dator"
+      })
+      assert.deepEqual(result[10], {
+        emissions: 200,
+        id: 33,
+        name: "pendla-buss"
+      })
+    })
+  })
+
+  describe('gameStarted', () => {
+    it('sets state.deck to shuffled given deck', () => {
+      const deck = createDeck()
+      const state = new GameState()
+      const expected = GameState.shuffle(deck, 'some-seed')
+      const result = GameState.gameStarted(new GameState(), { seed: 'some-seed', deck: deck })
+      assert.deepEqual(result, {...state, deck: expected})
+    })
+  })
+
+  describe('createClientEvent', () => {
+    it('creates client event with given type and payload', () => {
+      const state = new GameState()
+      const result = GameState.createClientEvent(state, "blargh", { honk: "1337" })
+      assert.deepEqual(result, {
+        ...state, 
+        clientEvents: [createTestEvent("blargh", { honk: "1337"})]
+      })
+    })
+
+    it('assigns rising event IDs', () => {
+      let state = new GameState()
+      state = GameState.createClientEvent(state, "blargh", { honk: "1337" })
+      const result = GameState.createClientEvent(state, "blargh", { honk: "1337" })
+      assert.deepEqual(result, {
+        ...state,
+        clientEvents: [
+          ...state.clientEvents,
+          new GameEvent(1, "blargh", { honk: "1337" })
+        ]
+      })
+    })
+  })
+
+  describe('playerConnected', () => {
+    it('assigns player1 if no player is connected', () => {
+      const state = new GameState()
+      const result = GameState.playerConnected(state, { socketID: 'blargh' })
+      assert.deepEqual(result, {
+        ...state,
+        player1: {
+          socketID: 'blargh',
+          hand: []
+        },
+        clientEvents: [createTestEvent("waiting_for_players")]
+      })
+    })
+
+    it('assigns player2 if player1 already connected, and starts game', () => {
+      const state = GameState.playerConnected(new GameState(), { socketID: 'blargh' })
+      const result = GameState.playerConnected(state, { socketID: 'honk' })
+      assert.deepEqual(result, {
+        ...state,
+        player2: {
+          socketID: 'honk',
+          hand: []
+        }
+      })
+    })
+
+    it('ignores if all players already set', () => {
+      let state = GameState.playerConnected(new GameState(), { socketID: 'blargh' })
+      state = GameState.playerConnected(state, { socketID: 'honk' })
+      const result = GameState.playerConnected(state, { socketID: 'test' })
+      assert.deepEqual(result, state)
+    })
+  })
+
+  describe('drawCard', () => {
+    it('draws card for given player if player1', () => {
+      const state = new GameState()
+      state.deck = createDeck()
+      state.player1 = new Player(3)
+      const result = GameState.drawCard(state, true)
+      const card = createDeck().pop()
+      assert.deepEqual(result.player1, {
+        ...state.player1,
+        hand: [
+          ...state.player1.hand,
+          card
+        ]
+      })
+      assert.deepEqual(result.deck, state.deck.slice(0, state.deck.length-1))
+      assert.deepEqual(result.clientEvents, [
+        ...state.clientEvents,
+        new GameEvent(0, "draw_card", {
+          card: card, socketID: state.player1.socketID
+        })
+      ])
+    })
+
+    it('draws card for given player if player2', () => {
+      const state = new GameState()
+      state.deck = createDeck()
+      state.player2 = new Player(3)
+      const result = GameState.drawCard(state, false)
+      assert.deepEqual(result.player2, {
+        ...state.player2,
+        hand: [
+          ...state.player2.hand,
+          createDeck().pop()
+        ]
+      })
+      assert.deepEqual(result.deck, state.deck.slice(0, state.deck.length-1))
+    })
+  })
+
   describe('getServerState', () => {
     let deck: Card[] = createDeck()
     const nextCard = (_deck: Card[] = deck) => {
@@ -50,43 +179,6 @@ describe('GameState', () => {
     }
     beforeEach(() => {
       deck = createDeck()
-    })
-
-    it('uses specified deck', () => {
-      const card = { emissions: 1337, id: 1, name: "blargh" }
-      deck = [card]
-
-      const events: GameEvent[] = [
-        createServerEvent("game_started", { seed: 'some-seed', deck: deck })
-      ]
-
-      const state = GameState.fromEvents(events)
-
-      assert.deepEqual(state.deck, [card])
-    })
-
-    it('shuffles deck based on seed', () => {
-      const events: GameEvent[] = [
-        createServerEvent("game_started", { seed: 'some-seed', deck: deck })
-      ]
-
-      const state = GameState.fromEvents(events)
-
-      assert.deepEqual(state.deck[0], {
-        emissions: 250,
-        id: 38,
-        name: "rida"
-      })
-      assert.deepEqual(state.deck[7], {
-        emissions: 350,
-        id: 26,
-        name: "ny-dator"
-      })
-      assert.deepEqual(state.deck[10], {
-        emissions: 200,
-        id: 33,
-        name: "pendla-buss"
-      })
     })
 
     it('sets player1 on first player connected', () => {
@@ -237,10 +329,9 @@ describe('GameState', () => {
 
       const clientEvents = GameState.fromEvents(events).clientEvents
 
-      lastEventID = clientEvents.length - 1
       assert.deepEqual(
         clientEvents[clientEvents.length - 1],
-        createTestEvent("opponent_disconnected")
+        new GameEvent(11, "opponent_disconnected")
       )
     })
 

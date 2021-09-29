@@ -165,16 +165,99 @@ export class GameState {
     return deck
   }
 
+  static gameStarted(state: GameState, payload: any): GameState {
+    return {
+      ...state,
+      deck: [...GameState.shuffle(payload.deck, payload.seed)]
+    }
+  }
+
+  static playerConnected(state: GameState, payload: any) {
+    if (state.player1 === undefined) {
+      return {
+        ...GameState.createClientEvent(state, "waiting_for_players"),
+        player1: {
+          hand: [],
+          socketID: payload.socketID
+        }
+      }
+    } else if (state.player2 === undefined) {
+      return {
+        ...state,
+        player2: {
+          hand: [],
+          socketID: payload.socketID
+        }
+      }
+    }
+
+    return {...state}
+  }
+
+  static createClientEvent(state: GameState, eventType: string, payload: any = {}): GameState {
+    return {
+      ...state,
+      clientEvents: [
+        ...state.clientEvents,
+        new GameEvent(state.clientEvents.length, eventType, payload)
+      ]
+    }
+  }
+
+  static drawCard(state: GameState, player1: boolean): GameState {
+    const card = {...state.deck[state.deck.length-1]}
+    if (!card) throw new Error("Deck ran out of cards")
+
+    let result = {...state}
+    let socketID
+    if (player1 === true) {
+      if (!state.player1) throw new Error("player 1 is undefined")
+
+      socketID = state.player1.socketID
+
+      result = {
+        ...state,
+        player1: {
+          ...state.player1,
+          hand: [
+            ...state.player1.hand,
+            card
+          ]
+        }
+      }
+    } else {
+      if (!state.player2)
+        throw new Error("player 2 is undefined")
+
+      socketID = state.player2.socketID
+
+      result = {
+        ...state,
+        player2: {
+          ...state.player2,
+          hand: [
+            ...state.player2.hand,
+            card
+          ]
+        }
+      }
+    }
+
+    return {
+      ...result,
+      ...GameState.createClientEvent(result, "draw_card", {
+        card: card,
+        socketID: socketID
+      }),
+      deck: state.deck.slice(0, state.deck.length-1)
+    }
+  }
+
   static fromEvents(events: GameEvent[]): GameState {
     const drawCard = (state: GameState): Card => {
       const card = state.deck.pop()
       if (!card) throw new Error("Deck ran out of cards")
       return card
-    }
-
-    let lastClientEventID: number = 0
-    const createClientEvent = (eventType: string, payload: any = {}): GameEvent => {
-      return new GameEvent(lastClientEventID++, eventType, payload)
     }
 
     const getPlayer = (state: GameState, socketID: number): Player => {
@@ -196,72 +279,64 @@ export class GameState {
 
     return events.reduce((state: GameState, event: GameEvent): GameState => {
       state = {...state}
+
+      const createClientEvent = (eventType: string, payload: any = {}): void => {
+        state = GameState.createClientEvent(state, eventType, payload)
+      }
+
       const type = event.event_type
       const p1 = state.player1 ? 1 : 0
       const p2 = state.player2 ? 1 : 0
       const playerCount = p1 + p2 
       if (type == "game_started") {
-        const seed = event.payload.seed
-        const deck = event.payload.deck
-
-        return {
-          ...state,
-          deck: GameState.shuffle(deck, seed)
-        }
+        return GameState.gameStarted(state, event.payload)
       } else if (type == "player_connected") {
         // Ignore if all players already set
         if (state.player1 && state.player2) return state
 
-        if (!state.player1) return {
-          ...state,
-          player1: new Player(event.payload.socketID),
-          clientEvents: [
-            ...state.clientEvents,
-            createClientEvent("waiting_for_players")
-          ]
+        if (!state.player1) {
+          state = GameState.createClientEvent(state, "waiting_for_players")
+
+          return {
+            ...state,
+            player1: new Player(event.payload.socketID)
+          }
         }
 
         if (!state.player2) state.player2 = new Player(event.payload.socketID)
 
         // Now both players are set, so we draw their hands
-
         const player1 = state.player1
         const player2 = state.player2
         if (!player1) throw new Error("Player 1 is undefined")
         if (!player2) throw new Error("Player 2 is undefined")
-        state.player1.hand = [0,0,0].map(() => drawCard(state))
-        state.player2.hand = [0,0,0].map(() => drawCard(state))
+        state = GameState.createClientEvent(state, "playing")
+        state = GameState.drawCard(state, true)
+        state = GameState.drawCard(state, true)
+        state = GameState.drawCard(state, true)
+        state = GameState.drawCard(state, false)
+        state = GameState.drawCard(state, false)
+        state = GameState.drawCard(state, false)
 
         state.playerTurn = player1.socketID
 
         const emissionsLineCard = drawCard(state)
 
+        state = GameState.createClientEvent(state, "card_played_from_deck", {
+          card: emissionsLineCard, position: 0
+        })
+
+        createClientEvent("player_turn", { socketID: state.playerTurn })
+        createClientEvent("next_card", { card: state.deck[state.deck.length - 1] })
+
         return {
           ...state,
-          emissionsLine: [emissionsLineCard],
-          clientEvents: [
-            ...state.clientEvents,
-            createClientEvent("playing"),
-            ...state.player1.hand.map((card: Card) => {
-              return createClientEvent("draw_card", { card: card, socketID: player1.socketID })
-            }),
-            ...state.player2.hand.map((card: Card) => {
-              return createClientEvent("draw_card", { card: card, socketID: player2.socketID })
-            }),
-            createClientEvent("card_played_from_deck", { card: emissionsLineCard, position: 0 }),
-            createClientEvent("player_turn", { socketID: state.playerTurn }),
-            createClientEvent("next_card", { card: state.deck[state.deck.length - 1] })
-          ]
+          emissionsLine: [emissionsLineCard]
         }
       } else if (type == "player_disconnected") {
         // Notify client
-        return {
-          ...state,
-          clientEvents: [
-            ...state.clientEvents,
-            createClientEvent("opponent_disconnected")
-          ]
-        }
+        createClientEvent("opponent_disconnected")
+        return {...state}
       } else if (type == "card_played_from_hand") {
         const socketID = event.payload.socketID
         const cardID = event.payload.cardID
@@ -280,7 +355,7 @@ export class GameState {
 
         const opponentID = getOpponent(state, player.socketID).socketID
         state.playerTurn = opponentID
-        state.clientEvents.push(createClientEvent("player_turn", { socketID: state.playerTurn }))
+        createClientEvent("player_turn", { socketID: state.playerTurn })
 
         // Pull card from hand
         const card: Card | undefined = player.hand.find((card: Card) => card.id === cardID)
@@ -310,23 +385,23 @@ export class GameState {
           const newCard = drawCard(state)
           player.hand.push(newCard)
 
+          createClientEvent("incorrect_card_placement", {
+            cardID: card.id,
+            socketID: player.socketID
+          })
+
+          createClientEvent("draw_card", {
+            card: newCard,
+            socketID: player.socketID
+          })
+
+          createClientEvent("next_card", {
+            card: state.deck[state.deck.length - 1]
+          })
+
           return {
             ...state,
-            deck: [card, ...state.deck],
-            clientEvents: [
-              ...state.clientEvents,
-              createClientEvent("incorrect_card_placement", {
-                cardID: card.id,
-                socketID: player.socketID
-              }),
-              createClientEvent("draw_card", {
-                card: newCard,
-                socketID: player.socketID
-              }),
-              createClientEvent("next_card", {
-                card: state.deck[state.deck.length - 1]
-              })
-            ]
+            deck: [card, ...state.deck]
           }
         }
         
@@ -343,23 +418,21 @@ export class GameState {
         }, [])
 
         // Notify clients that card was played correctly
-        state.clientEvents.push(createClientEvent("card_played_from_hand", event.payload))
+        createClientEvent("card_played_from_hand", event.payload)
 
         // If player ran out of cards, notify clients that they won
         if (player.hand.length == 0) {
-          state.clientEvents.push(createClientEvent("game_won", { socketID: player.socketID }))
+          createClientEvent("game_won", { socketID: player.socketID })
         }
 
         return {
           ...state,
         }
       } else if (type == "vote_new_game") {
+        createClientEvent("vote_new_game", event.payload)
+
         return {
           ...state,
-          clientEvents: [
-            ...state.clientEvents,
-            createClientEvent("vote_new_game", event.payload)
-          ]
         }
       }
 
