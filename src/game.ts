@@ -143,6 +143,18 @@ export class GameState {
   clientEvents: GameEvent[] = []
   emissionsLine: Card[] = []
 
+  static new(seed: string, deck: Card[], socketID: number): GameState {
+    let state: GameState = {
+      ...new GameState(),
+      deck: GameState.shuffle(deck, seed),
+      player1: new Player(socketID)
+    }
+
+    state = GameState.createClientEvent(state, "waiting_for_players")
+
+    return state
+  }
+
   static getPlayer(state: GameState, socketID: number): Player {
     if (state.player1 && state.player1.socketID === socketID)
       return state.player1
@@ -161,14 +173,6 @@ export class GameState {
     if (state.player2.socketID === socketID) return state.player1
 
     throw new Error("SocketID does not match any player")
-  }
-
-  static createEvent(eventID: number, type: string, payload: any = {}): GameEvent {
-    return {
-      event_id: eventID,
-      event_type: type,
-      payload: payload
-    }
   }
 
   static shuffle(deck: Card[], seed: string): Card[] {

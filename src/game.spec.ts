@@ -49,6 +49,24 @@ describe('GameState', () => {
     lastServerEventID = 0
   })
 
+  describe('new', () => {
+    it('creates gamestate with given seed, deck, and player', () => {
+      const events: GameEvent[] = [
+        createServerEvent("game_started", { seed: 'some-seed', deck: deck }),
+        createServerEvent("player_connected", { socketID: 3 })
+      ]
+      const state = GameState.new('some-seed', deck, 3)
+      assert.deepEqual(state, {
+        ...new GameState(),
+        deck: GameState.shuffle(deck, 'some-seed'),
+        player1: new Player(3),
+        clientEvents: [
+          new GameEvent(0, 'waiting_for_players')
+        ]
+      })
+    })
+  })
+
   describe('shuffle', () => {
     it('shuffles given deck with given seed', () => {
       const result = GameState.shuffle(deck, 'some-seed')

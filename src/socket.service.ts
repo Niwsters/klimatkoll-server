@@ -2,22 +2,19 @@ import { server as WebSocketServer, connection as WebSocketConnection } from 'we
 import http, { Server as HTTPServer } from 'http'
 import express, { Application } from 'express'
 import cors from 'cors'
-import path from 'path'
-import fs from 'fs'
+import { Subject } from 'rxjs'
 
 import auth from './auth'
-import cardsSV from './cards-sv'
-import cardsEN from './cards-en'
-import { Socket } from './socket'
-import { RoomController } from './room'
 import { originIsAllowed } from './origin'
+import { Socket, SocketEvent } from './socket'
 
-export class CDNServer {
+export class SocketService {
   app: Application = express()
   httpServer: HTTPServer 
   wsServer: WebSocketServer
-  roomCtrlSV: RoomController
-  roomCtrlEN: RoomController
+  sockets: Socket[] = []
+
+  events$: Subject<SocketEvent> = new Subject()
 
   constructor(port: number = 3000) {
     const app = this.app
@@ -28,7 +25,6 @@ export class CDNServer {
       allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept']
     }
 
-//    app.use('/fonts/*', cors(corsSettings))
     app.use('/*', cors(corsSettings))
 
     app.use(express.static(__dirname + '/../public'))
@@ -51,9 +47,6 @@ export class CDNServer {
     })
     const wsServer = this.wsServer
 
-    this.roomCtrlSV = new RoomController(cardsSV)
-    this.roomCtrlEN = new RoomController(cardsEN)
-
     wsServer.on('request', (request) => {
       if (!originIsAllowed(request.origin)) {
         // Make sure we only accept requests from an allowed origin
@@ -64,24 +57,17 @@ export class CDNServer {
 
       const protocol = request.requestedProtocols[0]
 
-      switch (protocol) {
-        case "sv": {
-          const connection = request.accept('sv', request.origin)
-          const socket = new Socket(connection)
-          this.roomCtrlSV.addSocket(socket)
-          break
-        }
-        case "en": {
-          const connection = request.accept('en', request.origin)
-          const socket = new Socket(connection)
-          this.roomCtrlEN.addSocket(socket)
-          break
-        }
-        default: {
-          request.reject()
-          return
-        }
+      if (!Socket.isProtocolAllowed(protocol)) {
+        request.reject()
+        return
       }
+
+      const connection = request.accept(protocol, request.origin)
+      const socket = new Socket(connection, protocol)
+      socket.events$.subscribe((e: SocketEvent) => this.events$.next(e))
+      this.sockets.push(socket)
+
+      this.events$.next(new SocketEvent('connected', 'socket', { socketID: socket.socketID }))
     })
   }
 }
