@@ -4,15 +4,22 @@ import { filter, map } from 'rxjs/operators'
 import { connection as WebSocketConnection } from 'websocket'
 
 export class SocketEvent {
-  context: string
+//  context: string
   type: string
   payload: any
 
-  constructor(type: string, context: string, payload: any = {}) {
+  constructor(type: string, payload: any = {}) {
+//    this.context = context
     this.type = type
-    this.context = context
     this.payload = payload
   }
+}
+
+export interface SocketResponse {
+  socketID: number
+  event_id: number
+  event_type: string
+  payload: any
 }
 
 export class Socket {

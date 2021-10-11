@@ -66,7 +66,6 @@ export class Game {
   subscribePlayer(player: Socket) {
     const sub = player.events$
       .pipe(
-        filter((event: SocketEvent) => event.context == "game"),
         map((event: SocketEvent): GameEvent => {
           return this.gameEvent(event.type, event.payload)
         })
@@ -80,6 +79,7 @@ export class Game {
 
     this.subscriptions.push(sub)
 
+    /*
     this.events$.subscribe(events => {
       // If game crashes (i.e. fromEvents can't compile), log the error and
       // disconnect the player
@@ -91,6 +91,7 @@ export class Game {
         player.sendEvent("room_left", { socketID: player.socketID })
       }
     })
+    */
   }
 
   unsubscribePlayers() {
@@ -136,23 +137,20 @@ export class Game {
 }
 
 export class GameState {
-  player1?: Player
+  player1: Player
   player2?: Player
   playerTurn?: number
   deck: Card[] = []
   clientEvents: GameEvent[] = []
   emissionsLine: Card[] = []
+  roomID: string
 
-  static new(seed: string, deck: Card[], socketID: number): GameState {
-    let state: GameState = {
-      ...new GameState(),
-      deck: GameState.shuffle(deck, seed),
-      player1: new Player(socketID)
-    }
+  constructor(roomID: string, seed: string, deck: Card[], socketID: number) {
+    this.roomID = roomID
+    this.deck = GameState.shuffle(deck, seed)
+    this.player1 = new Player(socketID)
 
-    state = GameState.createClientEvent(state, "waiting_for_players")
-
-    return state
+    return GameState.createClientEvent(this, "waiting_for_players")
   }
 
   static getPlayer(state: GameState, socketID: number): Player {
@@ -197,35 +195,28 @@ export class GameState {
   }
 
   static playerConnected(state: GameState, payload: any) {
-    if (state.player1 === undefined) {
-      return {
-        ...GameState.createClientEvent(state, "waiting_for_players"),
-        player1: {
-          hand: [],
-          socketID: payload.socketID
-        }
-      }
-    } else if (state.player2 === undefined) {
-      state = {
-        ...state,
-        player2: {
-          hand: [],
-          socketID: payload.socketID
-        }
-      }
+    if (state.player2 !== undefined)
+      return {...state}
 
-      const player1 = state.player1 as Player
-      const player2 = state.player2 as Player
-      state = GameState.createClientEvent(state, "playing")
-      state = GameState.drawCard(state, player1.socketID)
-      state = GameState.drawCard(state, player1.socketID)
-      state = GameState.drawCard(state, player1.socketID)
-      state = GameState.drawCard(state, player2.socketID)
-      state = GameState.drawCard(state, player2.socketID)
-      state = GameState.drawCard(state, player2.socketID)
-      state = GameState.setPlayerTurn(state, player1.socketID)
-      state = GameState.playCardFromDeck(state)
+    state = {
+      ...state,
+      player2: {
+        hand: [],
+        socketID: payload.socketID
+      }
     }
+
+    const player1 = state.player1 as Player
+    const player2 = state.player2 as Player
+    state = GameState.createClientEvent(state, "playing")
+    state = GameState.drawCard(state, player1.socketID)
+    state = GameState.drawCard(state, player1.socketID)
+    state = GameState.drawCard(state, player1.socketID)
+    state = GameState.drawCard(state, player2.socketID)
+    state = GameState.drawCard(state, player2.socketID)
+    state = GameState.drawCard(state, player2.socketID)
+    state = GameState.setPlayerTurn(state, player1.socketID)
+    state = GameState.playCardFromDeck(state)
 
     return {...state}
   }
@@ -435,7 +426,8 @@ export class GameState {
     return state
   }
 
-  static fromEvents(events: GameEvent[]): GameState {
+  /*
+  static fromEvents(roomID: string, events: GameEvent[]): GameState {
     return events.reduce((state: GameState, event: GameEvent): GameState => {
       state = {...state}
 
@@ -448,6 +440,7 @@ export class GameState {
         return GameState.gameStarted(state, event.payload)
       } else if (type == "player_connected") {
         return GameState.playerConnected(state, event.payload)
+      // TODO: Before you remove this, make sure ALL the events are implemented in separate functions
       } else if (type == "player_disconnected") {
         // Notify client
         createClientEvent("opponent_disconnected")
@@ -464,6 +457,7 @@ export class GameState {
       }
 
       return state
-    }, new GameState())
+    }, new GameState(roomID))
   }
+  */
 }
