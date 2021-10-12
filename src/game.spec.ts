@@ -58,7 +58,8 @@ describe('GameState', () => {
         deck: GameState.shuffle(deck, 'some-seed'),
         player1: new Player(3),
         clientEvents: [
-          new GameEvent(0, 'waiting_for_players')
+          new GameEvent(0, 'room_joined', { roomID: "blargh" }),
+          new GameEvent(1, 'waiting_for_players')
         ],
         emissionsLine: []
       })
@@ -84,16 +85,6 @@ describe('GameState', () => {
         id: 33,
         name: "pendla-buss"
       })
-    })
-  })
-
-  describe('gameStarted', () => {
-    it('sets state.deck to shuffled given deck', () => {
-      const deck = createDeck()
-      const state = Factory.GameState()
-      const expected = GameState.shuffle(deck, 'some-seed')
-      const result = GameState.gameStarted(Factory.GameState(), { seed: 'some-seed', deck: deck })
-      assert.deepEqual(result, {...state, deck: expected})
     })
   })
 
@@ -474,49 +465,49 @@ describe('GameState', () => {
     })
   })
 
-  /*
-  describe('fromEvents', () => {
-    let deck: Card[] = createDeck()
-    const nextCard = (_deck: Card[] = deck) => {
-      const card = _deck.pop()
-      if (!card) throw new Error("Deck ran out of cards")
-      return card
-    }
-    beforeEach(() => {
-      deck = createDeck()
-    })
-
-    it('ignores third player', () => {
-      const events: GameEvent[] = [
-        createServerEvent("game_started", { seed: 'some-seed', deck: deck }),
-        createServerEvent("player_connected", { socketID: playerID }),
-        createServerEvent("player_connected", { socketID: opponentID })
-      ]
-
-      const state = GameState.fromEvents(events)
-
-      events.push(createServerEvent("player_connected", { socketID: 3 }))
-
-      const state2 = GameState.fromEvents(events)
-
-      assert.deepEqual(state2, state)
-    })
-
-    it("ends game on disconnect", () => {
-      const events: GameEvent[] = [
-        createServerEvent("game_started", { seed: 'some-seed', deck: deck }),
-        createServerEvent('player_connected', { socketID: playerID }),
-        createServerEvent('player_connected', { socketID: opponentID }),
-        createServerEvent('player_disconnected', { socketID: opponentID })
-      ]
-
-      const clientEvents = GameState.fromEvents(events).clientEvents
-
+  describe('playerDisconnected', () => {
+    it('should notify other player', () => {
+      let state = Factory.GameState()
+      let result = GameState.playerDisconnected(state, {})
       assert.deepEqual(
-        clientEvents[clientEvents.length - 1],
-        new GameEvent(17, "opponent_disconnected")
-      )
+        result.clientEvents[result.clientEvents.length-1],
+        new GameEvent(2, "opponent_disconnected"))
     })
   })
-  */
+
+  describe('handleEvent', () => {
+    let state: GameState
+    beforeEach(() => {
+      state = Factory.GameState()
+    })
+
+    it('handles player_connected events', () => {
+      let payload = { socketID: 3 }
+      let result = GameState.handleEvent(state,
+        new GameEvent(0, "player_connected", payload))
+
+      assert.deepEqual(result, GameState.playerConnected(state, payload))
+    })
+
+    it('handles player_disconnected events', () => {
+      const result = GameState.handleEvent(state, new GameEvent(0, "player_disconnected"))
+      assert.deepEqual(result, GameState.playerDisconnected(state, {}))
+    })
+
+    it('handles card_played_from_hand events', () => {
+      state.player2 = new Player(1337)
+      const payload = {
+        socketID: 5,
+        cardID: 3,
+        position: 0
+      }
+      const result = GameState.handleEvent(state,
+        new GameEvent(0, "card_played_from_hand", payload))
+      assert.deepEqual(result, GameState.playCard(
+        state,
+        payload.socketID,
+        payload.cardID,
+        payload.position))
+    })
+  })
 })

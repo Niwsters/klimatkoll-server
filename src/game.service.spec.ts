@@ -2,7 +2,7 @@ import 'mocha'
 import assert from 'assert'
 import { State } from './game.service'
 import { Card } from './cards'
-import { GameState, GameEvent } from './game'
+import { GameState, GameEvent, Player } from './game'
 import { SocketResponse } from './socket'
 import { Factory } from './test-factory'
 
@@ -21,6 +21,21 @@ describe('GameServiceState', () => {
         deck: deck,
         games: []
       })
+    })
+  })
+
+  describe('getGame', () => {
+    it('returns game containing player with given socketID', () => {
+      const game = {
+        ...Factory.GameState(),
+        player1: new Player(1)
+      }
+      state.games = [
+        Factory.GameState(),
+        game
+      ]
+      const result = State.getGame(state, 1)
+      assert.deepEqual(result, game)
     })
   })
 

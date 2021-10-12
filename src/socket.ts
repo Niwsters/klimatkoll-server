@@ -4,12 +4,10 @@ import { filter, map } from 'rxjs/operators'
 import { connection as WebSocketConnection } from 'websocket'
 
 export class SocketEvent {
-//  context: string
   type: string
   payload: any
 
   constructor(type: string, payload: any = {}) {
-//    this.context = context
     this.type = type
     this.payload = payload
   }
@@ -64,7 +62,7 @@ export class Socket {
     this.socketID = Socket.nextSocketID++
 
     connection.send(JSON.stringify({ type: "socketID", payload: this.socketID }))
-    connection.on('close', () => this.receiveEvent(new SocketEvent('disconnected', 'socket')))
+    connection.on('close', () => this.receiveEvent(new SocketEvent('disconnected')))
     connection.on('message', (msg: any) => this.receiveEvent(Socket.parseMessage(msg)))
   }
 

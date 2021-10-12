@@ -1,6 +1,6 @@
-import { CardData } from './cards'
+import { CardData, Card } from './cards'
 
-export const cards: CardData[] = [
+export const cards: Card[] = [
 	{
 		"name": "aggmackor",
 		"emissions": 120
@@ -217,6 +217,11 @@ export const cards: CardData[] = [
 		"name": "yoghurt",
 		"emissions": 200
 	}
-]
+].map((c: CardData, i: number) => {
+  return {
+    ...c,
+    id: i+1
+  }
+})
 
 export default cards

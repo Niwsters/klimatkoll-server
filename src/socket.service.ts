@@ -6,7 +6,7 @@ import { Subject } from 'rxjs'
 
 import auth from './auth'
 import { originIsAllowed } from './origin'
-import { Socket, SocketEvent } from './socket'
+import { Socket, SocketEvent, SocketResponse } from './socket'
 
 export class SocketService {
   app: Application = express()
@@ -15,6 +15,16 @@ export class SocketService {
   sockets: Socket[] = []
 
   events$: Subject<SocketEvent> = new Subject()
+
+  handleResponse(response: SocketResponse) {
+    const socket = this.sockets.find((s: Socket) => s.socketID === response.socketID)
+    if (!socket)
+      throw new Error(`Could not find socket with ID: ${response.socketID}`)
+    socket.sendEvent(
+      response.event_type,
+      response.payload
+    )
+  }
 
   constructor(port: number = 3000) {
     const app = this.app
@@ -67,7 +77,7 @@ export class SocketService {
       socket.events$.subscribe((e: SocketEvent) => this.events$.next(e))
       this.sockets.push(socket)
 
-      this.events$.next(new SocketEvent('connected', 'socket', { socketID: socket.socketID }))
+      this.events$.next(new SocketEvent('connected', { socketID: socket.socketID }))
     })
   }
 }
