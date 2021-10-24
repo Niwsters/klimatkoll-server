@@ -12,13 +12,20 @@ export class State {
     this.deck = deck
   }
 
-  static getGame(state: State, socketID: number): GameState {
-    const game = state.games
-      .find((g: GameState) => g.player1.socketID === socketID ||
-                              (g.player2 && g.player2.socketID === socketID))
+  getGame(filters: any): GameState {
+    let game: GameState | undefined
+    const socketID = filters.socketID
+    const roomID = filters.roomID
+    if (socketID !== undefined)
+      game = this.games
+        .find((g: GameState) => g.player1.socketID === socketID ||
+                                (g.player2 && g.player2.socketID === socketID))
+    else if (roomID !== undefined)
+      game = this.games
+        .find((g: GameState) => g.roomID === roomID)
 
     if (!game)
-      throw new Error(`Can't find game containing player with socketID: ${socketID}`)
+      throw new Error(`Can't find game using filters: ${JSON.stringify(filters)}`)
 
     return game
   }
@@ -27,7 +34,16 @@ export class State {
     return Object.assign(new State(this.deck), {...this, ...props})
   }
 
-  createGame(payload: any, seed: string): [State, SocketResponse[]] {
+  getMethod(name: string): (payload: any) => [State, SocketResponse[]] {
+    const method: any = (this as any)[name];
+
+    if (method === undefined)
+      return () => [this.new(), []];
+
+    return method
+  }
+
+  create_game(payload: any, seed: string): [State, SocketResponse[]] {
     const socketID = payload.socketID
     const roomID = payload.roomID
 
@@ -56,6 +72,36 @@ export class State {
       }),
       responses
     ]
+  }
+
+  join_game(payload: any): [State, SocketResponse[]] {
+    const games = [...this.games]
+    const game_i = this.games.findIndex(g => g.roomID === payload.roomID)
+
+    games[game_i] = GameState["playerConnected"](games[game_i], payload)
+    const game = games[game_i]
+    
+    const c1r = game.clientEvents
+      .map((event: GameEvent) => {
+        return {
+          ...event,
+          socketID: game.player1.socketID
+        }
+      })
+
+    let c2r: SocketResponse[] = []
+    if (game.player2) {
+      const player2 = game.player2
+      c2r = game.clientEvents
+        .map((event: GameEvent) => {
+          return {
+            ...event,
+            socketID: player2.socketID
+          }
+        })
+    }
+
+    return [this.new({ games: games }), [...c1r, ...c2r]]
   }
 
   /*
@@ -113,40 +159,9 @@ export class GameService {
     return result
   }
 
-  createGame(event: SocketEvent) {
-    /*
-    let responses: SocketResponse[]
-    [this.state, responses] = this.state.createGame(event.payload, newSeed())
-    [this.state, responses] = State.createGame(
-      this.state,
-      event.payload.socketID,
-      this.newSeed(),
-      event.payload.roomID
-    )
-    responses.forEach((r: SocketResponse) => this.responses$.next(r))
-    */
-  }
-
-  /*
-  joinGame(event: SocketEvent) {
-    let responses: SocketResponse[]
-    [this.state, responses] = State.joinGame(this.state, event)
-  }
-  */
-
   handleEvent(event: SocketEvent) {
-    switch(event.type) {
-      case "create_game": {
-        this.createGame(event)
-        break
-      }
-
-      /*
-      case "join_game": {
-        this.joinGame(event)
-        break
-      }
-      */
-    }
+    let responses: SocketResponse[] = [];
+    [this.state, responses] = this.state.getMethod(event.type).bind(this.state)(event.payload);
+    responses.forEach((r: SocketResponse) => this.responses$.next(r))
   }
 }

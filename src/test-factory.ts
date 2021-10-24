@@ -7,19 +7,19 @@ export class GameStateFactory {
   _seed: string = 'some-seed'
   _roomID: string = 'blargh'
 
-  createdBy(socketID: number) {
+  createdBy(socketID: number): GameStateFactory {
     return this.new({ createdBySocketID: socketID })
   }
 
-  roomID(roomID: string) {
+  roomID(roomID: string): GameStateFactory {
     return this.new({ _roomID: roomID })
   }
 
-  deck(deck: Card[]) {
+  deck(deck: Card[]): GameStateFactory {
     return this.new({ _deck: deck })
   }
 
-  seed(seed: string) {
+  seed(seed: string): GameStateFactory {
     return this.new({ _seed: seed })
   }
 
