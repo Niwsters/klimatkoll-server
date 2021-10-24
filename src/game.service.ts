@@ -23,6 +23,42 @@ export class State {
     return game
   }
 
+  new(props: any = {}): State {
+    return Object.assign(new State(this.deck), {...this, ...props})
+  }
+
+  createGame(payload: any, seed: string): [State, SocketResponse[]] {
+    const socketID = payload.socketID
+    const roomID = payload.roomID
+
+    if (socketID === undefined)
+      throw new Error("Can't create game: Must provide socketID in payload")
+
+    if (roomID === undefined)
+      throw new Error("Can't create game: Must provide roomID in payload")
+
+    const gameState = new GameState(roomID, seed, [...this.deck], socketID)
+
+    const responses = gameState.clientEvents
+      .map((event: GameEvent) => {
+        return {
+          ...event,
+          socketID: socketID
+        }
+      })
+
+    return [
+      this.new({
+        games: [
+          ...this.games,
+          gameState
+        ]
+      }),
+      responses
+    ]
+  }
+
+  /*
   static createGame(
     state: State,
     socketID: number,
@@ -49,6 +85,7 @@ export class State {
       responses
     ]
   }
+  */
 
   /*
   static handleEvent(
@@ -77,7 +114,9 @@ export class GameService {
   }
 
   createGame(event: SocketEvent) {
+    /*
     let responses: SocketResponse[]
+    [this.state, responses] = this.state.createGame(event.payload, newSeed())
     [this.state, responses] = State.createGame(
       this.state,
       event.payload.socketID,
@@ -85,7 +124,15 @@ export class GameService {
       event.payload.roomID
     )
     responses.forEach((r: SocketResponse) => this.responses$.next(r))
+    */
   }
+
+  /*
+  joinGame(event: SocketEvent) {
+    let responses: SocketResponse[]
+    [this.state, responses] = State.joinGame(this.state, event)
+  }
+  */
 
   handleEvent(event: SocketEvent) {
     switch(event.type) {
@@ -93,6 +140,13 @@ export class GameService {
         this.createGame(event)
         break
       }
+
+      /*
+      case "join_game": {
+        this.joinGame(event)
+        break
+      }
+      */
     }
   }
 }

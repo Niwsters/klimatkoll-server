@@ -90,7 +90,7 @@ describe('GameState', () => {
 
   describe('createClientEvent', () => {
     it('creates client event with given type and payload', () => {
-      const state = Factory.GameState()
+      const state = Factory.GameState.get()
       const result = GameState.createClientEvent(state, "blargh", { honk: "1337" })
       assert.deepEqual(result, {
         ...state, 
@@ -102,7 +102,7 @@ describe('GameState', () => {
     })
 
     it('assigns rising event IDs', () => {
-      let state = Factory.GameState()
+      let state = Factory.GameState.get()
       state = GameState.createClientEvent(state, "blargh", { honk: "1337" })
       const result = GameState.createClientEvent(state, "blargh", { honk: "1337" })
       assert.deepEqual(result, {
@@ -117,7 +117,7 @@ describe('GameState', () => {
 
   describe('getPlayer', () => {
     it('returns player with given socket ID', () => {
-      let state = Factory.GameState()
+      let state = Factory.GameState.get()
       state.player1 = new Player(1)
       state.player2 = new Player(2)
 
@@ -128,7 +128,7 @@ describe('GameState', () => {
 
   describe('getOpponent', () => {
     it('returns the socketID of the other player', () => {
-      let state = Factory.GameState()
+      let state = Factory.GameState.get()
       state.player1 = new Player(1)
       state.player2 = new Player(2)
       assert.deepEqual(GameState.getOpponent(state, 1), state.player2)
@@ -141,7 +141,7 @@ describe('GameState', () => {
     let player1: Player
     let player2: Player
     beforeEach(() => {
-      state = Factory.GameState()
+      state = Factory.GameState.get()
       state.player1 = { socketID: 2, hand: [] }
       state.player2 = { socketID: 3, hand: [] }
       player1 = state.player1
@@ -177,7 +177,7 @@ describe('GameState', () => {
   describe('playerConnected', () => {
     /*
     it('assigns player1 if no player is connected', () => {
-      const state = Factory.GameState()
+      const state = Factory.GameState.get()
       const result = GameState.playerConnected(state, { socketID: 'blargh' })
       assert.deepEqual(result, {
         ...state,
@@ -192,7 +192,7 @@ describe('GameState', () => {
 
     it('assigns player2 if player1 already connected, and starts game', () => {
       const state: GameState = {
-        ...Factory.GameState(),
+        ...Factory.GameState.get(),
         player1: new Player(2)
       }
       state.deck = createDeck()
@@ -219,7 +219,7 @@ describe('GameState', () => {
     })
 
     it('ignores if all players already set', () => {
-      let state = GameState.playerConnected(Factory.GameState(), { socketID: 498 })
+      let state = GameState.playerConnected(Factory.GameState.get(), { socketID: 498 })
       const result = GameState.playerConnected(state, { socketID: 198 })
       assert.deepEqual(result, state)
     })
@@ -227,7 +227,7 @@ describe('GameState', () => {
 
   describe('drawCard', () => {
     it('draws card for player1', () => {
-      const state = Factory.GameState()
+      const state = Factory.GameState.get()
       state.deck = createDeck()
       state.player1 = new Player(3)
       const result = GameState.drawCard(state, state.player1.socketID)
@@ -252,7 +252,7 @@ describe('GameState', () => {
     })
 
     it('draws card for player2', () => {
-      const state = Factory.GameState()
+      const state = Factory.GameState.get()
       state.deck = createDeck()
       state.player2 = new Player(4)
       const result = GameState.drawCard(state, state.player2.socketID)
@@ -269,7 +269,7 @@ describe('GameState', () => {
 
   describe('playCardFromDeck', () => {
     it('plays card from top of deck to emissions line and notifies client', () => {
-      const state = Factory.GameState()
+      const state = Factory.GameState.get()
 
       const card1 = createCard(0, "blargh", 10)
       const card2 = createCard(1, "honk", 20)
@@ -306,7 +306,7 @@ describe('GameState', () => {
     let player1: Player
     let player2: Player
     beforeEach(() => {
-      state = Factory.GameState() 
+      state = Factory.GameState.get() 
       state.player1 = new Player(1)
       state.player2 = new Player(2)
       state.playerTurn = state.player1.socketID
@@ -467,7 +467,7 @@ describe('GameState', () => {
 
   describe('playerDisconnected', () => {
     it('should notify other player', () => {
-      let state = Factory.GameState()
+      let state = Factory.GameState.get()
       let result = GameState.playerDisconnected(state, {})
       assert.deepEqual(
         result.clientEvents[result.clientEvents.length-1],
@@ -478,7 +478,7 @@ describe('GameState', () => {
   describe('handleEvent', () => {
     let state: GameState
     beforeEach(() => {
-      state = Factory.GameState()
+      state = Factory.GameState.get()
     })
 
     it('handles player_connected events', () => {
