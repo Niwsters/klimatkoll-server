@@ -67,7 +67,7 @@ export class Game {
     const sub = player.events$
       .pipe(
         map((event: SocketEvent): GameEvent => {
-          return this.gameEvent(event.type, event.payload)
+          return this.gameEvent(event.event_type, event.payload)
         })
       )
       .subscribe((event: GameEvent) => {

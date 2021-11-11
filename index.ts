@@ -14,5 +14,6 @@ const gameService = new GameService(cardsSV)
 const socketService = new SocketService()
 
 socketService.events$.subscribe((event: SocketEvent) => gameService.handleEvent(event))
-socketService.events$.subscribe((event: SocketEvent) => console.log(event))
+socketService.events$.subscribe((event: SocketEvent) => console.log("From client:", event))
 gameService.responses$.subscribe((r: SocketResponse) => socketService.handleResponse(r))
+gameService.responses$.subscribe((r: SocketResponse) => console.log("Response:", r))

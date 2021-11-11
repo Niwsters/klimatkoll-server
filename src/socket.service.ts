@@ -17,6 +17,8 @@ export class SocketService {
   events$: Subject<SocketEvent> = new Subject()
 
   handleResponse(response: SocketResponse) {
+    console.log("Response:", response)
+
     const socket = this.sockets.find((s: Socket) => s.socketID === response.socketID)
     if (!socket)
       throw new Error(`Could not find socket with ID: ${response.socketID}`)

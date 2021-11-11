@@ -103,42 +103,6 @@ export class State {
 
     return [this.new({ games: games }), [...c1r, ...c2r]]
   }
-
-  /*
-  static createGame(
-    state: State,
-    socketID: number,
-    seed: string,
-    roomID: string
-  ): [State, SocketResponse[]] {
-    const gameState = new GameState(roomID, seed, [...state.deck], socketID)
-    const responses = gameState.clientEvents
-      .map((event: GameEvent) => {
-        return {
-          ...event,
-          socketID: socketID
-        }
-      })
-
-    return [
-      {
-        ...state,
-        games: [
-          ...state.games,
-          gameState
-        ]
-      },
-      responses
-    ]
-  }
-  */
-
-  /*
-  static handleEvent(
-    state: GameState, event: SocketEvent
-  ): [State, SocketResponse[]] {
-  }
-  */
 }
 
 export class GameService {
@@ -161,7 +125,8 @@ export class GameService {
 
   handleEvent(event: SocketEvent) {
     let responses: SocketResponse[] = [];
-    [this.state, responses] = this.state.getMethod(event.type).bind(this.state)(event.payload);
+    console.log(event.event_type);
+    [this.state, responses] = this.state.getMethod(event.event_type).bind(this.state)(event.payload);
     responses.forEach((r: SocketResponse) => this.responses$.next(r))
   }
 }

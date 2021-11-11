@@ -4,11 +4,15 @@ import { filter, map } from 'rxjs/operators'
 import { connection as WebSocketConnection } from 'websocket'
 
 export class SocketEvent {
-  type: string
+  event_type: string
   payload: any
 
-  constructor(type: string, payload: any = {}) {
-    this.type = type
+  get type(): string {
+    return this.event_type
+  }
+
+  constructor(event_type: string, payload: any = {}) {
+    this.event_type = event_type
     this.payload = payload
   }
 }
@@ -67,10 +71,8 @@ export class Socket {
   }
 
   receiveEvent(event: SocketEvent) {
-    this.events$.next({
-      ...event,
-      payload: { socketID: this.socketID, ...event.payload }
-    })
+    event.payload = { socketID: this.socketID, ...event.payload }
+    this.events$.next(event)
   }
 
   sendEvent(eventType: string, payload: any = {}) {
