@@ -76,9 +76,13 @@ export class State {
 
   join_game(payload: any): [State, SocketResponse[]] {
     const games = [...this.games]
-    const game_i = this.games.findIndex(g => g.roomID === payload.roomID)
+    const roomID = payload.roomID
+    const game_i = this.games.findIndex(g => g.roomID === roomID)
+    if (game_i === -1)
+      throw new Error("Can't find game with roomID: " + roomID)
 
     games[game_i] = GameState["playerConnected"](games[game_i], payload)
+
     const game = games[game_i]
     
     const c1r = game.clientEvents

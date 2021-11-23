@@ -204,6 +204,7 @@ export class GameState {
 
     const player1 = state.player1 as Player
     const player2 = state.player2 as Player
+    state = GameState.createClientEvent(state, "room_joined", { roomID: state.roomID })
     state = GameState.createClientEvent(state, "playing")
     state = GameState.drawCard(state, player1.socketID)
     state = GameState.drawCard(state, player1.socketID)
