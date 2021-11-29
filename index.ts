@@ -5,11 +5,6 @@ import { SocketService } from './src/socket.service'
 import { SocketEvent, SocketResponse } from './src/socket'
 import { cards as cardsSV } from './src/cards-sv'
 
-/*
-const cdnPort: number = process.env.PORT ? parseInt(process.env.PORT) : 3000
-const cdnServer = new CDNServer(cdnPort)
-*/
-
 const gameService = new GameService(cardsSV)
 const socketService = new SocketService()
 

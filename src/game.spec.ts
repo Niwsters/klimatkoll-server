@@ -27,12 +27,14 @@ function createCard(id: number, name: string, emissions: number): Card {
 describe('GameState', () => {
   let deck: Card[] = createDeck()
   let lastEventID = 0
+  let state: GameState
   const playerID = 0
   const opponentID = 1
 
   beforeEach(() => {
     lastEventID = 0
     deck = createDeck()
+    state = Factory.GameState.get()
   })
 
   describe('constructor', () => {
@@ -75,7 +77,6 @@ describe('GameState', () => {
 
   describe('createClientEvent', () => {
     it('creates client event with given type and payload', () => {
-      const state = Factory.GameState.get()
       const result = GameState.createClientEvent(state, "blargh", { honk: "1337" })
       assert.deepEqual(result, {
         ...state, 
@@ -87,7 +88,6 @@ describe('GameState', () => {
     })
 
     it('assigns rising event IDs', () => {
-      let state = Factory.GameState.get()
       state = GameState.createClientEvent(state, "blargh", { honk: "1337" })
       const result = GameState.createClientEvent(state, "blargh", { honk: "1337" })
       assert.deepEqual(result, {
@@ -102,31 +102,39 @@ describe('GameState', () => {
 
   describe('getPlayer', () => {
     it('returns player with given socket ID', () => {
-      let state = Factory.GameState.get()
       state.player1 = new Player(1)
       state.player2 = new Player(2)
 
       assert.deepEqual(GameState.getPlayer(state, 1), state.player1)
       assert.deepEqual(GameState.getPlayer(state, 2), state.player2)
     })
+
+    it("throws error if player doesn't exist", () => {
+      state.player1 = new Player(1)
+      state.player2 = new Player(2)
+
+      assert.throws(() => GameState.getPlayer(state, 3), new Error("No player with socketID: " + 3))
+    })
   })
 
   describe('getOpponent', () => {
     it('returns the socketID of the other player', () => {
-      let state = Factory.GameState.get()
       state.player1 = new Player(1)
       state.player2 = new Player(2)
       assert.deepEqual(GameState.getOpponent(state, 1), state.player2)
       assert.deepEqual(GameState.getOpponent(state, 2), state.player1)
     })
+
+    it('throws error if either player is undefined', () => {
+      state.player1 = new Player(1)
+      assert.throws(() => GameState.getOpponent(state, 1), new Error("Both players must be defined to return an opponent"))
+    })
   })
 
   describe('setPlayerTurn', () => {
-    let state: GameState
     let player1: Player
     let player2: Player
     beforeEach(() => {
-      state = Factory.GameState.get()
       state.player1 = { socketID: 2, hand: [] }
       state.player2 = { socketID: 3, hand: [] }
       player1 = state.player1
@@ -157,6 +165,11 @@ describe('GameState', () => {
       )
       assert.deepEqual(result, expected)
     })
+
+    it("throws error if player 2 is undefined", () => {
+      state.player2 = undefined;
+      assert.throws(() => GameState.setPlayerTurn(state, player1.socketID), new Error("Player 2 is undefined"))
+    })
   })
 
   describe('playerConnected', () => {
@@ -180,7 +193,6 @@ describe('GameState', () => {
         ...Factory.GameState.get(),
         player1: new Player(2)
       }
-      state.deck = createDeck()
       let result = GameState.playerConnected(state, { socketID: 3 })
 
       let expected = {...state}
@@ -213,7 +225,6 @@ describe('GameState', () => {
 
   describe('drawCard', () => {
     it('draws card for player1', () => {
-      const state = Factory.GameState.get()
       state.deck = createDeck()
       state.player1 = new Player(3)
       const result = GameState.drawCard(state, state.player1.socketID)
@@ -238,7 +249,6 @@ describe('GameState', () => {
     })
 
     it('draws card for player2', () => {
-      const state = Factory.GameState.get()
       state.deck = createDeck()
       state.player2 = new Player(4)
       const result = GameState.drawCard(state, state.player2.socketID)
@@ -250,6 +260,18 @@ describe('GameState', () => {
         ]
       })
       assert.deepEqual(result.deck, state.deck.slice(0, state.deck.length-1))
+    })
+
+    it("throws error if trying to draw for a player not in the game", () => {
+      state.player1 = new Player(1)
+      state.player2 = new Player(2)
+      assert.throws(() => GameState.drawCard(state, 3), new Error("Player not in game with socketID: " + 3))
+    })
+
+    it("throws error if deck runs out of cards", () => {
+      state.deck = []
+      state.player1 = new Player(1)
+      assert.throws(() => GameState.drawCard(state, state.player1.socketID), new Error("Deck ran out of cards"))
     })
   })
 
@@ -405,6 +427,21 @@ describe('GameState', () => {
       result = GameState.playCard(result, player1.socketID, card2.id, 2)
       assert.deepEqual(result.emissionsLine, [card1, card2, card4])
       assert.deepEqual(result.player1, {...state.player1, hand: [card3]})
+    })
+
+    it("throws error if player 2 is undefined", () => {
+      state.player2 = undefined
+      assert.throws(() => GameState.playCard(state, player1.socketID, card1.id, 0), new Error("Can't play card: player 2 is undefined"))
+    })
+
+    it("throws error if player doesn't have card", () => {
+      player1.hand = [card1]
+      player2.hand = [card2]
+      assert.throws(() => GameState.playCard(state, player1.socketID, card2.id, 0),
+        new Error("Player 1 does not have card with ID: " + card2.id))
+      state.playerTurn = player2.socketID
+      assert.throws(() => GameState.playCard(state, player2.socketID, card1.id, 0),
+        new Error("Player 2 does not have card with ID: " + card1.id))
     })
 
     describe('placement incorrect', () => {

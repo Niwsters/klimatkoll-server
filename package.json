@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "test": "nyc mocha --bail --require ts-node/register ./src/**/*.spec.ts --watch --watch-files ./src/**/*.ts",
-    "coverage": "nyc mocha --require ts-node/register ./src/**/*.spec.ts",
+    "coverage": "nyc --reporter=html --reporter=text mocha --require ts-node/register ./src/**/*.spec.ts",
     "dev": "nodemon index.ts",
     "start": "node compiled/index.js",
     "build": "tsc --build && rm -r compiled/public && cp -r public compiled/public",

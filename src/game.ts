@@ -25,117 +25,6 @@ export class Player {
   }
 }
 
-export class Game {
-  events$: BehaviorSubject<GameEvent[]> = new BehaviorSubject<GameEvent[]>([])
-  lastGameEventID: number = 0
-  subscriptions: Subscription[] = []
-  private player1: Socket
-  private player2?: Socket
-
-  get sockets(): Socket[] {
-    if (this.player2) {
-      return [this.player1, this.player2]
-    }
-
-    return [this.player1]
-  }
-
-  get events(): GameEvent[] {
-    return this.events$.value
-  }
-
-  constructor(player1: Socket, cardData: CardData[]) {
-    this.player1 = player1
-    this.subscribePlayer(player1)
-
-    let lastCardID = 0
-    const deck = cardData.map((card: CardData) => {
-      return {
-        ...card,
-        id: lastCardID++
-      }
-    })
-
-    const events = [
-      this.gameEvent("game_started", { seed: this.newSeed(), deck: deck }),
-      this.gameEvent("player_connected", { socketID: player1.socketID })
-    ]
-    this.events$.next(events)
-  }
-
-  subscribePlayer(player: Socket) {
-    const sub = player.events$
-      .pipe(
-        map((event: SocketEvent): GameEvent => {
-          return this.gameEvent(event.event_type, event.payload)
-        })
-      )
-      .subscribe((event: GameEvent) => {
-        this.events$.next([
-          ...this.events,
-          event
-        ])
-      })
-
-    this.subscriptions.push(sub)
-
-    /*
-    this.events$.subscribe(events => {
-      // If game crashes (i.e. fromEvents can't compile), log the error and
-      // disconnect the player
-      try {
-        const state = GameState.fromEvents(events)
-        player.sendEvent("events", state.clientEvents)
-      } catch (e) {
-        console.log(e)
-        player.sendEvent("room_left", { socketID: player.socketID })
-      }
-    })
-    */
-  }
-
-  unsubscribePlayers() {
-    this.subscriptions.forEach(sub => sub.unsubscribe())
-  }
-
-  addPlayer2(player2: Socket) {
-    if (!this.player2) this.player2 = player2
-
-    this.subscribePlayer(player2)
-
-    this.events$.next([
-      ...this.events,
-      this.gameEvent("player_connected", { socketID: player2.socketID })
-    ])
-  }
-
-  newSeed(): string {
-    let result           = ''
-    const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    const charactersLength = characters.length
-    for ( var i = 0; i < 10; i++ ) {
-      result += characters.charAt(Math.floor(seedrandom()() * charactersLength))
-    }
-    return result
-  }
-
-  newGame(): void {
-    if (!this.player2) {
-      throw new Error("Trying to start new game with only one player")
-    }
-
-    this.events$.next([
-      this.gameEvent("game_started", { seed: this.newSeed() }),
-      this.gameEvent("player_connected", { socketID: this.player1.socketID }),
-      this.gameEvent("player_connected", { socketID: this.player2.socketID })
-    ])
-  }
-
-  gameEvent(eventType: string, payload: any = {}) {
-    return new GameEvent(this.lastGameEventID++, eventType, payload)
-  }
-}
-
 export class GameState {
   player1: Player
   player2?: Player
@@ -163,17 +52,20 @@ export class GameState {
     if (state.player2 && state.player2.socketID === socketID)
       return state.player2
 
-    throw new Error(`No player with ID: ${socketID}`)
+    throw new Error(`No player with socketID: ${socketID}`)
   }
 
   static getOpponent(state: GameState, socketID: number): Player {
-    if (!state.player1) throw new Error("Player 1 is undefined")
-    if (!state.player2) throw new Error("Player 2 is undefined")
+    const player = GameState.getPlayer(state, socketID)
 
-    if (state.player1.socketID === socketID) return state.player2
-    if (state.player2.socketID === socketID) return state.player1
+    if (!state.player2)
+      throw new Error("Both players must be defined to return an opponent")
 
-    throw new Error("SocketID does not match any player")
+    if (state.player1.socketID === player.socketID) {
+      return state.player2
+    } else {
+      return state.player1
+    }
   }
 
   static shuffle(deck: Card[], seed: string): Card[] {
@@ -231,8 +123,9 @@ export class GameState {
   static drawCard(oldState: GameState, socketID: number): GameState {
     let state = {...oldState}
 
-    const card = {...state.deck[state.deck.length-1]}
-    if (!card) throw new Error("Deck ran out of cards")
+    const foundCard = state.deck[state.deck.length-1];
+    if (!foundCard) throw new Error("Deck ran out of cards")
+    const card: Card = { ...foundCard };
 
     if (state.player1 && state.player1.socketID === socketID) {
       state = {
@@ -256,6 +149,8 @@ export class GameState {
           ]
         }
       }
+    } else {
+      throw new Error("Player not in game with socketID: " + socketID)
     }
 
     state = {
@@ -274,9 +169,6 @@ export class GameState {
   }
 
   static setPlayerTurn(state: GameState, socketID: number): GameState {
-    if (state.player1 === undefined)
-      throw new Error("Player 1 is undefined")
-
     if (state.player2 === undefined)
       throw new Error("Player 2 is undefined")
 
@@ -315,10 +207,7 @@ export class GameState {
 
   static playCard(oldState: GameState, socketID: number, cardID: number, position: number): GameState {
     let state = {...oldState}
-    let card: Card | undefined = undefined
-
-    if (!state.player1)
-      throw new Error("Can't play card: player 1 is undefined")
+    let card: Card
 
     if (!state.player2)
       throw new Error("Can't play card: player 2 is undefined")
@@ -328,13 +217,18 @@ export class GameState {
         state.player2.hand.length === 0)
       return state
 
-    if (state.player1.socketID === socketID) {
-      if (state.playerTurn !== state.player1.socketID)
-        return state
+    // If it is not player's turn, ignore event
 
-      card = state.player1.hand.find((c: Card) => c.id === cardID)
-      if (card === undefined)
+    if (
+      (state.player1.socketID === socketID && state.playerTurn !== state.player1.socketID) ||
+      (state.player2.socketID === socketID && state.playerTurn !== state.player2.socketID)
+    ) return state
+
+    if (state.player1.socketID === socketID) {
+      const foundCard = state.player1.hand.find((c: Card) => c.id === cardID)
+      if (foundCard === undefined)
         throw new Error(`Player 1 does not have card with ID: ${cardID}`)
+      card = foundCard
 
       state = {
         ...state,
@@ -344,12 +238,10 @@ export class GameState {
         }
       }
     } else {
-      if (state.playerTurn !== state.player2.socketID)
-        return state
-
-      card = state.player2.hand.find((c: Card) => c.id === cardID)
-      if (card === undefined)
+      const foundCard = state.player2.hand.find((c: Card) => c.id === cardID)
+      if (foundCard === undefined)
         throw new Error(`Player 2 does not have card with ID: ${cardID}`)
+      card = foundCard
 
       state = {
         ...state,
@@ -359,9 +251,6 @@ export class GameState {
         }
       }
     }
-
-    if (!card)
-      throw new Error("Can't play card: card undefined")
 
     // Position works like this: [s,0,s,1,s,2,s] where s is a "shadow card" where
     // card can be placed, and 0,1,2 are card indexes in the emissions line

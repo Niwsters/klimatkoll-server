@@ -1,5 +1,6 @@
 import { GameState } from './game'
-import { Card } from './cards'
+import { Card, CardData } from './cards'
+import cards from './cards-sv'
 
 export class GameStateFactory {
   createdBySocketID: number = 0
@@ -13,10 +14,6 @@ export class GameStateFactory {
 
   roomID(roomID: string): GameStateFactory {
     return this.new({ _roomID: roomID })
-  }
-
-  deck(deck: Card[]): GameStateFactory {
-    return this.new({ _deck: deck })
   }
 
   seed(seed: string): GameStateFactory {
@@ -36,9 +33,13 @@ export class GameStateFactory {
 
 export class DeckFactory {
   get(): Card[] {
-    return [
-      new Card(1, 'blargh', 10)
-    ]
+    let lastCardID = 0
+    return cards.map((card: CardData) => {
+      return {
+        ...card,
+        id: lastCardID++
+      }
+    })
   }
 }
 
@@ -50,10 +51,4 @@ export class Factory {
   static get GameState(): GameStateFactory {
     return new GameStateFactory()
   }
-
-  /*
-  static GameState() {
-    return new GameState("blargh", 'some-seed', Factory.Deck(), 3)
-  }
-  */
 }

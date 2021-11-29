@@ -3,17 +3,22 @@ import { RoomController } from './room'
 import { filter, map } from 'rxjs/operators'
 import { connection as WebSocketConnection } from 'websocket'
 
+export interface ISocketEvent {
+  event_type: string
+  payload: any
+}
+
 export class SocketEvent {
   event_type: string
   payload: any
 
-  get type(): string {
-    return this.event_type
-  }
-
   constructor(event_type: string, payload: any = {}) {
     this.event_type = event_type
     this.payload = payload
+  }
+
+  get type(): string {
+    return this.event_type
   }
 }
 
@@ -31,12 +36,6 @@ export class Socket {
   connection: WebSocketConnection
 
   events$: Subject<SocketEvent> = new Subject()
-  get closed$(): Observable<undefined> {
-    return this.events$.pipe(
-      filter((event: SocketEvent) => event.type === "disconnected"),
-      map(() => undefined)
-    )
-  }
 
   static isProtocolAllowed(protocol: string): boolean {
     if (protocol === 'sv' || protocol === 'en')
@@ -70,7 +69,8 @@ export class Socket {
     connection.on('message', (msg: any) => this.receiveEvent(Socket.parseMessage(msg)))
   }
 
-  receiveEvent(event: SocketEvent) {
+  receiveEvent(receivedEvent: ISocketEvent) {
+    const event = new SocketEvent(receivedEvent.event_type, receivedEvent.payload)
     event.payload = { socketID: this.socketID, ...event.payload }
     this.events$.next(event)
   }
