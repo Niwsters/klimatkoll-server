@@ -24,30 +24,15 @@ function createCard(id: number, name: string, emissions: number): Card {
   }
 }
 
-let lastServerEventID = 0
-function createServerEvent(eventType: string, payload: any = {}): GameEvent {
-  return new GameEvent(lastServerEventID++, eventType, payload)
-}
-
 describe('GameState', () => {
   let deck: Card[] = createDeck()
   let lastEventID = 0
   const playerID = 0
   const opponentID = 1
 
-  const createTestEvent = (type: string, payload: any = {}) => {
-    return {
-      event_id: lastEventID++,
-      event_type: type,
-      payload: payload
-    }
-  }
-
   beforeEach(() => {
     lastEventID = 0
     deck = createDeck()
-
-    lastServerEventID = 0
   })
 
   describe('constructor', () => {
@@ -205,6 +190,7 @@ describe('GameState', () => {
       }
       const player1 = new Player(2)
       const player2 = new Player(3)
+      expected = GameState.createClientEvent(expected, "room_joined", { roomID: "blargh" })
       expected = GameState.createClientEvent(expected, "playing")
       expected = GameState.drawCard(expected, player1.socketID)
       expected = GameState.drawCard(expected, player1.socketID)

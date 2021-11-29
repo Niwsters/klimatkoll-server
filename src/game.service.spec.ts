@@ -1,10 +1,56 @@
 import 'mocha'
 import assert from 'assert'
-import { State } from './game.service'
+import { GameService, State } from './game.service'
 import { Card } from './cards'
 import { GameState, GameEvent, Player } from './game'
-import { SocketResponse } from './socket'
+import { SocketEvent, SocketResponse } from './socket'
 import { Factory } from './test-factory'
+
+describe('GameService', () => {
+  let service: GameService
+  beforeEach(() => {
+    const deck: Card[] = []
+    service = new GameService(deck)
+  })
+
+  describe('newSeed', () => {
+    it('returns randomised string', () => {
+      const seed1 = service.newSeed()
+      const seed2 = service.newSeed()
+      assert.equal(seed1.length, 10)
+      assert.notEqual(seed2, seed1)
+    })
+  })
+
+  describe('handleEvent', () => {
+    it('calls relevant event method and pushes responses to event stream', () => {
+      let calledWith: any[] = [];
+      (service.state as any).blargh = (...args: any[]) => {
+        calledWith = args
+        return [{}, []]
+      }
+      service.handleEvent(new SocketEvent('blargh', { lolpan: '1337' }))
+
+      assert.deepEqual(calledWith, [{ lolpan: '1337' }]);
+    })
+
+    it('pushes responses to event stream', () => {
+      const response: SocketResponse = { socketID: 3, event_id: 2, event_type: 'test', payload: {} };
+      const responsesSent: any[] = []
+      service.responses$.subscribe(res => responsesSent.push(res))
+
+      let calledWith: any[] = [];
+      (service.state as any).blargh = (...args: any[]) => {
+        calledWith = args
+        return [{}, [response, response]]
+      }
+      service.handleEvent(new SocketEvent('blargh', { lolpan: '1337' }))
+
+      assert.deepEqual(calledWith, [{ lolpan: '1337' }]);
+      assert.deepEqual(responsesSent, [response, response]);
+    })
+  })
+})
 
 describe('GameServiceState', () => {
   let state: State
@@ -43,28 +89,6 @@ describe('GameServiceState', () => {
     })
   })
 
-  describe('getGame', () => {
-    it('returns game containing player with given socketID', () => {
-      const game = Factory.GameState.createdBy(1).get()
-      state.games = [
-        Factory.GameState.createdBy(3).get(),
-        game
-      ]
-      const result = state.getGame({ socketID: 1 })
-      assert.deepEqual(result, game)
-    })
-
-    it('returns game with given roomID', () => {
-      const game = Factory.GameState.roomID('blargh').get()
-      state.games = [
-        Factory.GameState.roomID('honk').get(),
-        game
-      ]
-      const result = state.getGame({ roomID: 'blargh' })
-      assert.deepEqual(result, game)
-    })
-  })
-
   describe('create_game', () => {
     it('creates new GameState for given socket ID', () => {
       let responses: SocketResponse[]
@@ -86,6 +110,11 @@ describe('GameServiceState', () => {
             }
           })
       )
+    })
+
+    it('throws error if payload is invalid', () => {
+      assert.throws(() => state.create_game({ roomID: 'blargh' }, 'some-seed'))
+      assert.throws(() => state.create_game({ socketID: 3 }, 'some-seed'))
     })
 
     // TODO: If game already exists
@@ -127,7 +156,23 @@ describe('GameServiceState', () => {
       )
     })
 
-    // TODO: If game doesn't exist
+    it("throws error if game doesn't exist", () => {
+      state.games = [ Factory.GameState.roomID('blargh').get() ];
+      assert.throws(() => state.join_game({ socketID: 4, roomID: 'honk' }))
+    })
+
+    it("throws error if gamestate.playerConnected results in player2 being undefined", () => {
+      const oldGameState = GameState;
+      const gamestate: GameState = Factory.GameState.createdBy(3).roomID('blargh').get();
+      state.games = [gamestate]
+
+      const oldPlayerConnected = GameState.playerConnected;
+      GameState.playerConnected = () => { return gamestate }
+
+      assert.throws(() => state.join_game({ socketID: 4, roomID: 'blargh' }), new Error("gamestate.player2 is undefined"))
+
+      GameState.playerConnected = oldPlayerConnected;
+    })
   })
 
   describe('getMethod', () => {

@@ -12,24 +12,6 @@ export class State {
     this.deck = deck
   }
 
-  getGame(filters: any): GameState {
-    let game: GameState | undefined
-    const socketID = filters.socketID
-    const roomID = filters.roomID
-    if (socketID !== undefined)
-      game = this.games
-        .find((g: GameState) => g.player1.socketID === socketID ||
-                                (g.player2 && g.player2.socketID === socketID))
-    else if (roomID !== undefined)
-      game = this.games
-        .find((g: GameState) => g.roomID === roomID)
-
-    if (!game)
-      throw new Error(`Can't find game using filters: ${JSON.stringify(filters)}`)
-
-    return game
-  }
-
   new(props: any = {}): State {
     return Object.assign(new State(this.deck), {...this, ...props})
   }
@@ -93,17 +75,17 @@ export class State {
         }
       })
 
-    let c2r: SocketResponse[] = []
-    if (game.player2) {
-      const player2 = game.player2
-      c2r = game.clientEvents
-        .map((event: GameEvent) => {
-          return {
-            ...event,
-            socketID: player2.socketID
-          }
-        })
-    }
+    if (!game.player2)
+      throw new Error("gamestate.player2 is undefined")
+
+    const player2 = game.player2
+    const c2r: SocketResponse[] = game.clientEvents
+      .map((event: GameEvent) => {
+        return {
+          ...event,
+          socketID: player2.socketID
+        }
+      })
 
     return [this.new({ games: games }), [...c1r, ...c2r]]
   }
@@ -129,7 +111,6 @@ export class GameService {
 
   handleEvent(event: SocketEvent) {
     let responses: SocketResponse[] = [];
-    console.log(event.event_type);
     [this.state, responses] = this.state.getMethod(event.event_type).bind(this.state)(event.payload);
     responses.forEach((r: SocketResponse) => this.responses$.next(r))
   }
