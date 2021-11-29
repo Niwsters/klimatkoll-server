@@ -65,7 +65,7 @@ export class Socket {
     this.connection = connection
     this.socketID = Socket.nextSocketID++
 
-    connection.send(JSON.stringify({ type: "socketID", payload: this.socketID }))
+    connection.send(JSON.stringify({ type: "socket_id", payload: { socketID: this.socketID } }))
     connection.on('close', () => this.receiveEvent(new SocketEvent('disconnected')))
     connection.on('message', (msg: any) => this.receiveEvent(Socket.parseMessage(msg)))
   }
