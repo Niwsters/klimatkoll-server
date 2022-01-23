@@ -2,6 +2,14 @@ import { GameState } from './game'
 import { Card, CardData } from './cards'
 import cards from './cards-sv'
 
+interface GameStateSpec {
+  createdBy?: number
+  joinedBy?: number
+  roomID?: string
+  seed?: string
+  deck?: Card[]
+}
+
 export class GameStateFactory {
   createdBySocketID: number = 0
   _deck: Card[] = Factory.Deck.get()
@@ -26,8 +34,21 @@ export class GameStateFactory {
       {...this, ...props})
   }
 
-  get(): GameState {
-    return new GameState(this._roomID, this._seed, this._deck, this.createdBySocketID)
+  get(spec: GameStateSpec = {}): GameState {
+    const roomID = spec.roomID || "blargh"
+
+    let state = new GameState(
+      roomID,
+      spec.seed || "some-seed",
+      spec.deck || Factory.Deck.get(),
+      spec.createdBy || 0
+    )
+
+    if (spec.joinedBy !== undefined) {
+      state = GameState.playerConnected(state, { roomID: roomID, socketID: spec.joinedBy })
+    }
+
+    return state
   }
 }
 

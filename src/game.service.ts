@@ -89,6 +89,19 @@ export class State {
 
     return [this.new({ games: games }), [...c1r, ...c2r]]
   }
+
+  disconnected(payload: any): [State, SocketResponse[]] {
+    let state = this.new()
+    const socketID = payload.socketID
+
+    state.games = state.games.filter((game: GameState) => {
+      return game.player1.socketID !== socketID &&
+      (game.player2 === undefined || game.player2.socketID !== socketID) &&
+      socketID !== undefined
+    })
+
+    return [state, []]
+  }
 }
 
 export class GameService {

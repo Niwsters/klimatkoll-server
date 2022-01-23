@@ -218,7 +218,6 @@ export class GameState {
       return state
 
     // If it is not player's turn, ignore event
-
     if (
       (state.player1.socketID === socketID && state.playerTurn !== state.player1.socketID) ||
       (state.player2.socketID === socketID && state.playerTurn !== state.player2.socketID)
