@@ -79,7 +79,7 @@ export class SocketService {
       socket.events$.subscribe((e: SocketEvent) => this.events$.next(e))
       this.sockets.push(socket)
 
-      this.events$.next(new SocketEvent('connected', { socketID: socket.socketID }))
+      this.events$.next(new SocketEvent('connected', socket.socketID, { socketID: socket.socketID }))
     })
   }
 }

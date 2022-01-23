@@ -1,5 +1,6 @@
 import 'mocha'
 import assert from 'assert'
+import { expect } from 'chai'
 import { Socket, SocketEvent } from './socket'
 import { Subject } from 'rxjs'
 
@@ -9,20 +10,21 @@ describe('SocketEvent', () => {
   describe('constructor', () => {
     it('sets properties', () => {
       const payload = { blargh: 'honk' }
-      const event = new SocketEvent('blargh', payload)
-      assert.equal(event.event_type, 'blargh')
-      assert.deepEqual(event.payload, payload)
+      const event = new SocketEvent('blargh', 2, payload)
+      expect(event.event_type).to.equal('blargh')
+      expect(event.socketID).to.equal(2)
+      expect(event.payload).to.equal(payload)
     })
 
     it('assigns empty payload by default', () => {
-      const event = new SocketEvent('blargh')
+      const event = new SocketEvent('blargh', 0)
       assert.deepEqual(event.payload, {})
     })
   })
 
   describe('type', () => {
     it('returns event.event_type', () => {
-      const event = new SocketEvent('blargh', {})
+      const event = new SocketEvent('blargh', 0, {})
       assert.equal(event.type, 'blargh')
     })
   })
@@ -48,19 +50,19 @@ describe('Socket', () => {
       const socket = new Socket(connection, 'blargh')
       socket.events$.subscribe(e => resultEvents.push(e))
       callbacks.close('blargh')
-      assert.deepEqual(resultEvents[0], new SocketEvent('disconnected', { socketID: 2 }))
+      assert.deepEqual(resultEvents[0], new SocketEvent('disconnected', socket.socketID, { socketID: 2 }))
       callbacks.message({
         type: 'utf8',
         utf8Data: JSON.stringify({ event_type: 'blargh' })
       })
-      assert.deepEqual(resultEvents[1], new SocketEvent('blargh', { socketID: 2 }))
+      assert.deepEqual(resultEvents[1], new SocketEvent('blargh', socket.socketID, { socketID: 2 }))
     })
   })
 
   describe('receiveEvent', () => {
     it("attaches socketID to event", () => {
       const eventsSent: any[] = [];
-      const event = new SocketEvent('blargh', {})
+      const event = new SocketEvent('blargh', 3, {})
       socket.socketID = 3
       socket.events$.subscribe(e => eventsSent.push(e))
       socket.receiveEvent(event)
@@ -84,7 +86,7 @@ describe('Socket', () => {
     })
 
     it("calls connection.send with event data", () => {
-      const event = new SocketEvent('blargh', { test: '1337' })
+      const event = new SocketEvent('blargh', 0, { test: '1337' })
       socket.sendEvent(event.type, event.payload)
       assert.equal(eventDataReceived, JSON.stringify({
         type: event.type,

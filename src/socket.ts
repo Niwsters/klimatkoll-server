@@ -6,15 +6,18 @@ import { connection as WebSocketConnection } from 'websocket'
 export interface ISocketEvent {
   event_type: string
   payload: any
+  socketID: number
 }
 
 export class SocketEvent {
   event_type: string
   payload: any
+  socketID: number
 
-  constructor(event_type: string, payload: any = {}) {
+  constructor(event_type: string, socketID: number, payload: any = {}) {
     this.event_type = event_type
     this.payload = payload
+    this.socketID = socketID
   }
 
   get type(): string {
@@ -65,12 +68,12 @@ export class Socket {
     this.socketID = Socket.nextSocketID++
 
     connection.send(JSON.stringify({ type: "socket_id", payload: { socketID: this.socketID } }))
-    connection.on('close', () => this.receiveEvent(new SocketEvent('disconnected')))
+    connection.on('close', () => this.receiveEvent(new SocketEvent('disconnected', this.socketID)))
     connection.on('message', (msg: any) => this.receiveEvent(Socket.parseMessage(msg)))
   }
 
   receiveEvent(receivedEvent: ISocketEvent) {
-    const event = new SocketEvent(receivedEvent.event_type, receivedEvent.payload)
+    const event = new SocketEvent(receivedEvent.event_type, this.socketID, receivedEvent.payload)
     event.payload = { socketID: this.socketID, ...event.payload }
     this.events$.next(event)
   }

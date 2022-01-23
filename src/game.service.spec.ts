@@ -30,7 +30,7 @@ describe('GameService', () => {
         calledWith = args
         return [{}, []]
       }
-      service.handleEvent(new SocketEvent('blargh', { lolpan: '1337' }))
+      service.handleEvent(new SocketEvent('blargh', 0, { lolpan: '1337' }))
 
       assert.deepEqual(calledWith, [{ lolpan: '1337' }]);
     })
@@ -45,7 +45,7 @@ describe('GameService', () => {
         calledWith = args
         return [{}, [response, response]]
       }
-      service.handleEvent(new SocketEvent('blargh', { lolpan: '1337' }))
+      service.handleEvent(new SocketEvent('blargh', 0, { lolpan: '1337' }))
 
       assert.deepEqual(calledWith, [{ lolpan: '1337' }]);
       assert.deepEqual(responsesSent, [response, response]);
@@ -193,13 +193,86 @@ describe('GameServiceState', () => {
     })
   })
 
+  describe('play_card_request', () => {
+    it("calls playCard in GameState", () => {
+      let gamestate: GameState = Factory.GameState.get({
+        createdBy: 3,
+        joinedBy: 4
+      })
+
+      state.games = [gamestate]
+
+      const payload = { socketID: 3, cardID: gamestate.player1.hand[0].id, position: 0 }
+      state = state.play_card_request(payload)[0]
+
+      expect(state.games[0]).to.deep.equal(GameState.playCard(
+        gamestate,
+        payload.socketID,
+        payload.cardID,
+        payload.position
+      ))
+    })
+  })
+
+  describe('delegate', () => {
+    it("delegates event to player's GameState", () => {
+      const socketID = 4
+
+      let gamestate: any = Factory.GameState.get({
+        createdBy: 3,
+        joinedBy: socketID
+      });
+
+      const responses: GameEvent[] = [{ event_id: 1, event_type: "a", payload: { blargh: "honk" }}];
+      (GameState as any).func = (state: any, payload: any): any => {
+        state.calledWith = payload
+        state.clientEvents = responses
+        return state
+      }
+
+      const payload: any = { blargh: "honk" }
+      state.games = [gamestate]
+      let resultResponses: SocketResponse[];
+      [state, resultResponses] = state.delegate(new SocketEvent("func", socketID, payload))
+
+      const expectedResponses = responses.reduce((responses: SocketResponse[], event: GameEvent): SocketResponse[] => {
+        return [
+          ...responses,
+          {
+            ...event,
+            socketID: gamestate.player1.socketID
+          },
+          {
+            ...event,
+            socketID: gamestate.player2.socketID
+          }
+        ]
+      }, [])
+
+      expect((state.games[0] as any).calledWith).to.deep.equal(payload)
+      expect(resultResponses).to.deep.equal(expectedResponses)
+
+      delete (GameState as any).func
+    })
+  })
+
   describe('getMethod', () => {
     it('returns existing method on object', () => {
-      assert.deepEqual(state.getMethod('join_game'), state.join_game)
+      assert.deepEqual(state.getMethod(new SocketEvent("join_game", 0)), state.join_game)
+    })
+
+    it('returns delegate if GameState method exists', () => {
+      const expected = "blargh";
+      (GameState as any).func = (state: any, payload: any): any => {}
+      state.delegate = (): any => {
+        return expected
+      }
+      const result = state.getMethod(new SocketEvent("func", 0))({})
+      expect(result).to.equal(expected)
     })
 
     it('does nothing on nonexisting method', () => {
-      const [newState, responses] = state.getMethod('nonexistant_method')({})
+      const [newState, responses] = state.getMethod(new SocketEvent("nonexistant", 0))({})
       assert.deepEqual(state, newState)
       assert.deepEqual(responses, [])
     })
