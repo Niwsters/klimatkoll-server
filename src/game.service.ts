@@ -40,7 +40,7 @@ export class State {
       game.player1.socketID === socketID || (game.player2 !== undefined && game.player2.socketID === socketID)
     )
     let game = state.games[gameIndex]
-    state.games[gameIndex] = (GameState as any)[event.type](game, event.payload)
+    game = (GameState as any)[event.type](game, event.payload)
 
     const c1r = game.clientEvents
       .map((event: GameEvent) => {
@@ -61,6 +61,13 @@ export class State {
           }
         })
     }
+
+    game.clientEvents = []
+
+    state.games[gameIndex] = game
+
+    console.log("######### BEHOLD, MY STUFF ##########")
+    console.log([...c1r, ...c2r])
 
     return [state, [...c1r, ...c2r]]
   }
@@ -84,6 +91,8 @@ export class State {
           socketID: socketID
         }
       })
+
+    gameState.clientEvents = []
 
     return [
       this.new({
@@ -127,6 +136,8 @@ export class State {
         }
       })
 
+    game.clientEvents = []
+
     return [this.new({ games: games }), [...c1r, ...c2r]]
   }
 
@@ -139,18 +150,6 @@ export class State {
       (game.player2 === undefined || game.player2.socketID !== socketID) &&
       socketID !== undefined
     })
-
-    return [state, []]
-  }
-
-  play_card_request(payload: any): [State, SocketResponse[]] {
-    let state = this.new()
-    const socketID = payload.socketID
-
-    const gameIndex = state.games.findIndex((game: GameState) => 
-      game.player1.socketID === socketID || (game.player2 !== undefined && game.player2.socketID === socketID)
-    )
-    state.games[gameIndex] = GameState.playCard(state.games[gameIndex], payload.socketID, payload.cardID, payload.position)
 
     return [state, []]
   }

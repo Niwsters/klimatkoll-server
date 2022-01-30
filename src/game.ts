@@ -205,9 +205,13 @@ export class GameState {
     }
   }
 
-  static playCard(oldState: GameState, socketID: number, cardID: number, position: number): GameState {
+  static play_card_request(oldState: GameState, payload: any): GameState {
     let state = {...oldState}
     let card: Card
+
+    const socketID = payload.socketID
+    const cardID = payload.cardID
+    const position = payload.position
 
     if (!state.player2)
       throw new Error("Can't play card: player 2 is undefined")
@@ -250,6 +254,9 @@ export class GameState {
         }
       }
     }
+
+    // Change player's turn
+    state = GameState.setPlayerTurn(state, GameState.getOpponent(state, socketID).socketID)
 
     // Position works like this: [s,0,s,1,s,2,s] where s is a "shadow card" where
     // card can be placed, and 0,1,2 are card indexes in the emissions line
@@ -297,9 +304,6 @@ export class GameState {
     }, [])
 
     state = {...state, emissionsLine: emissionsLine}
-
-    // Change player's turn
-    state = GameState.setPlayerTurn(state, GameState.getOpponent(state, socketID).socketID)
 
     // If player ran out of cards, they won
     const player = GameState.getPlayer(state, socketID)
