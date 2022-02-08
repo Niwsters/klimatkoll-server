@@ -90,27 +90,15 @@ describe('GameServiceState', () => {
     })
   })
 
-  /*
   describe('create_game', () => {
     it('creates new GameState for given socket ID', () => {
       let responses: SocketResponse[]
-      let responses2: SocketResponse[]
-      const gs1 = Factory.GameState.get({ createdBy: 3, roomID: 'blargh', seed: 'some-seed' });
-      const gs2 = Factory.GameState.get({ createdBy: 4, roomID: 'honk', seed: 'other-seed' });
+      let expectedResponses: SocketResponse[]
+      let gs1 = Factory.GameState.get({ createdBy: 3, roomID: 'blargh', seed: 'some-seed' });
+      [gs1, expectedResponses] = GameState.consumeResponses(gs1);
       [state, responses] = state.create_game({ socketID: 3, roomID: 'blargh' }, 'some-seed');
-      [state, responses2] = state.create_game({ socketID: 4, roomID: 'honk' }, 'other-seed');
-      expect(state.games).to.deep.equal([gs1, gs2])
-
-      const expected = gs1
-        .clientEvents
-        .map((event: GameEvent) => {
-          return {
-            ...event,
-            socketID: 3
-          }
-        })
-
-      expect(responses).to.deep.equal(expected)
+      expect(state.games).to.deep.equal([gs1])
+      expect(responses).to.deep.equal(expectedResponses)
     })
 
     it('throws error if payload is invalid', () => {
@@ -120,7 +108,6 @@ describe('GameServiceState', () => {
 
     // TODO: If game already exists
   })
-  */
 
   /*
   describe('join_game', () => {

@@ -66,6 +66,24 @@ export class GameState {
     return c2r;
   }
 
+  static consumeResponses(oldGame: GameState): [GameState, SocketResponse[]] {
+    let game = {...oldGame}
+    const c1r = GameState.getPlayer1Responses(game)
+    const c2r = GameState.getPlayer2Responses(game)
+    game.clientEvents = []
+    return [game, [...c1r, ...c2r]]
+  }
+
+  static call(game: GameState, event: SocketEvent): GameState {
+    return (GameState as any)[event.type](game, event.payload)
+  }
+
+  static delegate(oldGame: GameState, event: SocketEvent): [GameState, SocketResponse[]] {
+    let game = {...oldGame}
+    game = GameState.call(game, event);
+    return GameState.consumeResponses(game);
+  }
+
   static getPlayer(state: GameState, socketID: number): Player {
     if (state.player1 && state.player1.socketID === socketID)
       return state.player1
@@ -103,32 +121,34 @@ export class GameState {
     return deck
   }
 
-  static playerConnected(state: GameState, payload: any) {
+  static addPlayer2(oldState: GameState, socketID: number) {
+    return {
+      ...oldState,
+      player2: {
+        hand: [],
+        socketID: socketID
+      }
+    }
+  }
+
+  static playerConnected(oldState: GameState, payload: any) {
+    let state = {...oldState}
+
     if (state.player2 !== undefined)
       return {...state}
 
-    state = {
-      ...state,
-      player2: {
-        hand: [],
-        socketID: payload.socketID
-      }
-    }
+    state = GameState.addPlayer2(state, payload.socketID)
 
-    const player1 = state.player1 as Player
+    const player1 = state.player1
     const player2 = state.player2 as Player
     state = GameState.createClientEvent(state, "room_joined", { roomID: state.roomID })
     state = GameState.createClientEvent(state, "playing")
-    state = GameState.drawCard(state, player1.socketID)
-    state = GameState.drawCard(state, player1.socketID)
-    state = GameState.drawCard(state, player1.socketID)
-    state = GameState.drawCard(state, player2.socketID)
-    state = GameState.drawCard(state, player2.socketID)
-    state = GameState.drawCard(state, player2.socketID)
+    state = GameState.drawCards(state, player1.socketID, 3)
+    state = GameState.drawCards(state, player2.socketID, 3)
     state = GameState.setPlayerTurn(state, player1.socketID)
     state = GameState.playCardFromDeck(state)
 
-    return {...state}
+    return state
   }
 
   static createClientEvent(state: GameState, eventType: string, payload: any = {}): GameState {
@@ -141,49 +161,66 @@ export class GameState {
     }
   }
 
-  static drawCard(oldState: GameState, socketID: number): GameState {
+  static drawCards(oldState: GameState, socketID: number, count: number): GameState {
+    let state = {...oldState}
+    for (let i=0; i<count; i++)
+      state = GameState.drawCard(state, socketID)
+    return state
+  }
+
+  static giveCardToPlayer(oldState: GameState, card: Card, playerNumber: 1 | 2): GameState {
+    let state = {...oldState}
+    const player = (state as any)['player' + playerNumber];
+    return {
+      ...state,
+      ['player' + playerNumber]: {
+        ...player,
+        hand: [
+          ...player.hand,
+          card
+        ]
+      }
+    }
+  }
+
+  static getPlayerNumber(state: GameState, socketID: number): 1 | 2 {
+    if (state.player1.socketID === socketID)
+      return 1
+    else if (state.player2 && state.player2.socketID === socketID)
+      return 2
+
+    throw new Error(`Player with socketID ${socketID} is not in the game`)
+  }
+
+  static getNextCard(state: GameState): Card {
+    return {...state.deck[state.deck.length-1]}
+  }
+
+  static drawNextCard(oldState: GameState): [GameState, Card] {
     let state = {...oldState}
 
-    const foundCard = state.deck[state.deck.length-1];
-    if (!foundCard) throw new Error("Deck ran out of cards")
-    const card: Card = { ...foundCard };
+    if (state.deck.length === 0) throw new Error("Deck ran out of cards");
 
-    if (state.player1 && state.player1.socketID === socketID) {
-      state = {
-        ...state,
-        player1: {
-          ...state.player1,
-          hand: [
-            ...state.player1.hand,
-            card
-          ]
-        }
-      }
-    } else if (state.player2 && state.player2.socketID === socketID) {
-      state = {
-        ...state,
-        player2: {
-          ...state.player2,
-          hand: [
-            ...state.player2.hand,
-            card
-          ]
-        }
-      }
-    } else {
-      throw new Error("Player not in game with socketID: " + socketID)
-    }
+    const card = {...state.deck[state.deck.length-1]}
+    state.deck = state.deck.slice(0, state.deck.length - 1)
 
-    state = {
-      ...state,
-      deck: state.deck.slice(0, state.deck.length-1)
-    }
+    state = GameState.createClientEvent(state, "next_card", {
+      card: GameState.getNextCard(state)
+    })
+
+    return [state, card]
+  }
+
+  static drawCard(oldState: GameState, socketID: number): GameState {
+    let state = {...oldState}
+    let card: Card;
+
+    [state, card] = GameState.drawNextCard(state)
+    state = GameState.giveCardToPlayer(state, card, GameState.getPlayerNumber(state, socketID))
+
     state = GameState.createClientEvent(state, "draw_card", {
       card: card,
       socketID: socketID
-    })
-    state = GameState.createClientEvent(state, "next_card", {
-      card: {...state.deck[state.deck.length-1]}
     })
 
     return state
@@ -206,28 +243,129 @@ export class GameState {
   static playCardFromDeck(oldState: GameState): GameState {
     let state = {...oldState}
 
-    const emissionsLine = state.deck.slice(state.deck.length-1, state.deck.length)
+    let card: Card;
+    [state, card] = GameState.drawNextCard(state);
+
+    const emissionsLine = [card]
 
     state = GameState.createClientEvent(state, "card_played_from_deck", {
-      card: {...emissionsLine[0]},
+      card: card,
       position: 0
-    })
-
-    const deck = state.deck.slice(0, state.deck.length-1)
-
-    state = GameState.createClientEvent(state, "next_card", {
-      card: {...deck[deck.length-1]}
     })
 
     return {
       ...state,
-      deck: deck,
       emissionsLine: emissionsLine
     }
   }
 
   static playCard(oldState: GameState, socketID: number, cardID: number, position: number): GameState {
     return GameState.play_card_request(oldState, { socketID, cardID, position })
+  }
+
+  static pullCardFromPlayer(oldState: GameState, cardID: number, playerNumber: number): [GameState, Card] {
+    let state = {...oldState}
+
+    const player = (state as any)['player' + playerNumber];
+    const card = player.hand.find((c: Card) => c.id === cardID)
+
+    if (!card) throw new Error(`Player ${playerNumber} does not have card with ID: ${cardID}`)
+
+    state = {
+      ...oldState,
+      ['player' + playerNumber]: {
+        ...player,
+        hand: player.hand.filter((c: Card) => c.id !== cardID)
+      }
+    }
+
+    return [state, card]
+  }
+
+  static isGameOver(state: GameState): boolean {
+    if (!state.player2)
+      throw new Error("Player 2 is undefined")
+
+    return state.player1.hand.length === 0 ||
+           state.player2.hand.length === 0
+  }
+
+  static isPlayersTurn(state: GameState, socketID: number): boolean {
+    return (state.player1.socketID === socketID && state.playerTurn === state.player1.socketID) ||
+           (state.player2 !== undefined && state.player2.socketID === socketID && state.playerTurn === state.player2.socketID)
+  }
+
+  static getShadowedEmissionsLine(state: GameState): (Card | null)[] {
+    return state.emissionsLine.reduce((shadowedEL: (Card | null)[], card: Card) => {
+      return [
+        ...shadowedEL,
+        card,
+        null
+      ]
+    }, [null])
+  }
+
+  static isPlacementCorrect(state: GameState, card: Card, position: number): boolean {
+    const shadowedEL = GameState.getShadowedEmissionsLine(state)
+    const cardBefore = shadowedEL[position - 1]
+    const cardAfter = shadowedEL[position + 1]
+
+    return (!cardBefore || cardBefore.emissions <= card.emissions) &&
+           (!cardAfter || cardAfter.emissions >= card.emissions)
+  }
+
+  static playCardFromHand(oldState: GameState, card: Card, position: number, socketID: number): GameState {
+    let state = {...oldState}
+
+    const shadowedEL = GameState.getShadowedEmissionsLine(state)
+    shadowedEL[position] = card
+
+    state = GameState.createClientEvent(state, "card_played_from_hand", {
+      cardID: card.id, position: position, socketID: socketID
+    })
+
+    state.emissionsLine = shadowedEL.reduce((EL: Card[], card: Card | null) => {
+      if (!card) return EL
+
+      return [
+        ...EL,
+        card
+      ]
+    }, [])
+
+    return state
+  }
+
+  static didPlayerWin(state: GameState, socketID: number): boolean {
+    const player = GameState.getPlayer(state, socketID)
+    return player.hand.length === 0
+  }
+
+  static checkWinCondition(oldState: GameState, socketID: number): GameState {
+    let state = {...oldState}
+
+    if (GameState.didPlayerWin(state, socketID)) {
+      return GameState.createClientEvent(state, "game_won", {
+        socketID: socketID
+      })
+    }
+
+    return state
+  }
+
+  static incorrectCardPlacement(oldState: GameState, card: Card, socketID: number): GameState {
+    let state = {...oldState}
+
+    state = GameState.drawCard(state, socketID)
+    state = GameState.createClientEvent(state, "incorrect_card_placement", {
+      cardID: card.id,
+      socketID: socketID
+    })
+
+    return {
+      ...state,
+      deck: [card, ...state.deck]
+    }
   }
 
   static play_card_request(oldState: GameState, payload: any): GameState {
@@ -238,104 +376,17 @@ export class GameState {
     const cardID = payload.cardID
     const position = payload.position
 
-    if (!state.player2)
-      throw new Error("Can't play card: player 2 is undefined")
+    if (GameState.isGameOver(state)) return state;
+    if (!GameState.isPlayersTurn(state, socketID)) return state;
 
-    // If either player's hand is empty, i.e. game is over, ignore event
-    if (state.player1.hand.length === 0 ||
-        state.player2.hand.length === 0)
-      return state
-
-    // If it is not player's turn, ignore event
-    if (
-      (state.player1.socketID === socketID && state.playerTurn !== state.player1.socketID) ||
-      (state.player2.socketID === socketID && state.playerTurn !== state.player2.socketID)
-    ) return state
-
-    if (state.player1.socketID === socketID) {
-      const foundCard = state.player1.hand.find((c: Card) => c.id === cardID)
-      if (foundCard === undefined)
-        throw new Error(`Player 1 does not have card with ID: ${cardID}`)
-      card = foundCard
-
-      state = {
-        ...state,
-        player1: {
-          ...state.player1,
-          hand: state.player1.hand.filter((c: Card) => c.id !== cardID)
-        }
-      }
-    } else {
-      const foundCard = state.player2.hand.find((c: Card) => c.id === cardID)
-      if (foundCard === undefined)
-        throw new Error(`Player 2 does not have card with ID: ${cardID}`)
-      card = foundCard
-
-      state = {
-        ...state,
-        player2: {
-          ...state.player2,
-          hand: state.player2.hand.filter((c: Card) => c.id !== cardID)
-        }
-      }
-    }
-
-    // Change player's turn
+    [state, card] = GameState.pullCardFromPlayer(state, cardID, GameState.getPlayerNumber(state, socketID));
     state = GameState.setPlayerTurn(state, GameState.getOpponent(state, socketID).socketID)
 
-    // Position works like this: [s,0,s,1,s,2,s] where s is a "shadow card" where
-    // card can be placed, and 0,1,2 are card indexes in the emissions line
-    const shadowedEL = state.emissionsLine.reduce((shadowedEL: (Card | null)[], card: Card) => {
-      return [
-        ...shadowedEL,
-        card,
-        null
-      ]
-    }, [null])
+    if (!GameState.isPlacementCorrect(state, card, position))
+      return GameState.incorrectCardPlacement(state, card, socketID)
 
-    // If card placement is incorrect, move card to bottom of deck
-    const cardBefore = shadowedEL[position - 1]
-    const cardAfter = shadowedEL[position + 1]
-    if (
-      (cardBefore && cardBefore.emissions > card.emissions) ||
-      (cardAfter && cardAfter.emissions < card.emissions)
-    ) {
-      state = GameState.drawCard(state, socketID)
-      state = GameState.createClientEvent(state, "incorrect_card_placement", {
-        cardID: card.id,
-        socketID: socketID
-      })
-
-      return {
-        ...state,
-        deck: [card, ...state.deck]
-      }
-    }
-    
-    // If card placement is correct, play card to emissions line 
-    shadowedEL[position] = card
-
-    state = GameState.createClientEvent(state, "card_played_from_hand", {
-      cardID: card.id, position: position, socketID: socketID
-    })
-
-    const emissionsLine = shadowedEL.reduce((EL: Card[], card: Card | null) => {
-      if (!card) return EL
-
-      return [
-        ...EL,
-        card
-      ]
-    }, [])
-
-    state = {...state, emissionsLine: emissionsLine}
-
-    // If player ran out of cards, they won
-    const player = GameState.getPlayer(state, socketID)
-    if (player.hand.length === 0)
-      state = GameState.createClientEvent(state, "game_won", {
-        socketID: player.socketID
-      })
+    state = GameState.playCardFromHand(state, card, position, socketID)
+    state = GameState.checkWinCondition(state, socketID)
 
     return state
   }
@@ -356,20 +407,4 @@ export class GameState {
 
     return {...state}
   }
-
-  /*
-  static fromEvents(roomID: string, events: GameEvent[]): GameState {
-    return events.reduce((state: GameState, event: GameEvent): GameState => {
-      state = {...state}
-
-      const createClientEvent = (eventType: string, payload: any = {}): void => {
-        state = GameState.createClientEvent(state, eventType, payload)
-      }
-
-      const type = event.event_type
-
-      return state
-    }, new GameState(roomID))
-  }
-  */
 }

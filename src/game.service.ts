@@ -31,14 +31,6 @@ export class State {
     return method
   }
 
-  getResponses(oldGame: GameState): [GameState, SocketResponse[]] {
-    let game = {...oldGame}
-    const c1r = GameState.getPlayer1Responses(game)
-    const c2r = GameState.getPlayer2Responses(game)
-    game.clientEvents = []
-    return [game, [...c1r, ...c2r]]
-  }
-
   callGameStateMethod(name: string, game: GameState, event: SocketEvent): GameState {
     return (GameState as any)[event.type](game, event.payload)
   }
@@ -54,10 +46,8 @@ export class State {
     const socketID = event.socketID
     const gameIndex = this.getGameIndexBySocketID(socketID)
 
-    state.games[gameIndex] = this.callGameStateMethod(event.type, state.games[gameIndex], event);
-
     let responses: SocketResponse[] = [];
-    [state.games[gameIndex], responses] = this.getResponses(state.games[gameIndex]);
+    [state.games[gameIndex], responses] = GameState.delegate(state.games[gameIndex], event);
 
     return [state, responses]
   }
@@ -72,17 +62,9 @@ export class State {
     if (roomID === undefined)
       throw new Error("Can't create game: Must provide roomID in payload")
 
-    const gameState = new GameState(roomID, seed, [...this.deck], socketID)
-
-    const responses = gameState.clientEvents
-      .map((event: GameEvent) => {
-        return {
-          ...event,
-          socketID: socketID
-        }
-      })
-
-    gameState.clientEvents = []
+    let gameState = new GameState(roomID, seed, [...this.deck], socketID);
+    let responses: SocketResponse[] = [];
+    [gameState, responses] = GameState.consumeResponses(gameState);
 
     return [
       this.new({

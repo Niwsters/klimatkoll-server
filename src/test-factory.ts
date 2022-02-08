@@ -8,6 +8,7 @@ interface GameStateSpec {
   roomID?: string
   seed?: string
   deck?: Card[]
+  dropEvents?: boolean
 }
 
 export class GameStateFactory {
@@ -47,6 +48,9 @@ export class GameStateFactory {
     if (spec.joinedBy !== undefined) {
       state = GameState.playerConnected(state, { roomID: roomID, socketID: spec.joinedBy })
     }
+
+    if (spec.dropEvents)
+      state.clientEvents = []
 
     return state
   }
