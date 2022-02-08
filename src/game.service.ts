@@ -19,57 +19,47 @@ export class State {
   getMethod(event: SocketEvent): (payload: any) => [State, SocketResponse[]] {
     const name = event.type
     const socketID = event.socketID
-    const method: any = (this as any)[name];
+    let method: any = () => [this.new(), []]
 
-    if (method === undefined) {
-      if (GameState.hasOwnProperty(name)) {
-        return () => this.delegate(event)
-      } else {
-        return () => [this.new(), []];
-      }
+    const ownMethod: any = (this as any)[name]
+    if (ownMethod !== undefined)
+      method = ownMethod
+    else if (GameState.hasOwnProperty(name)) {
+      method = () => this.delegate(event)
     }
 
     return method
   }
 
+  getResponses(oldGame: GameState): [GameState, SocketResponse[]] {
+    let game = {...oldGame}
+    const c1r = GameState.getPlayer1Responses(game)
+    const c2r = GameState.getPlayer2Responses(game)
+    game.clientEvents = []
+    return [game, [...c1r, ...c2r]]
+  }
+
+  callGameStateMethod(name: string, game: GameState, event: SocketEvent): GameState {
+    return (GameState as any)[event.type](game, event.payload)
+  }
+
+  getGameIndexBySocketID(socketID: number) {
+    return this.games.findIndex((game: GameState) => 
+      game.player1.socketID === socketID || (game.player2 !== undefined && game.player2.socketID === socketID)
+    )
+  }
+
   delegate(event: SocketEvent): [State, SocketResponse[]] {
     let state = this.new()
     const socketID = event.socketID
+    const gameIndex = this.getGameIndexBySocketID(socketID)
 
-    const gameIndex = state.games.findIndex((game: GameState) => 
-      game.player1.socketID === socketID || (game.player2 !== undefined && game.player2.socketID === socketID)
-    )
-    let game = state.games[gameIndex]
-    game = (GameState as any)[event.type](game, event.payload)
+    state.games[gameIndex] = this.callGameStateMethod(event.type, state.games[gameIndex], event);
 
-    const c1r = game.clientEvents
-      .map((event: GameEvent) => {
-        return {
-          ...event,
-          socketID: game.player1.socketID
-        }
-      })
+    let responses: SocketResponse[] = [];
+    [state.games[gameIndex], responses] = this.getResponses(state.games[gameIndex]);
 
-    const player2 = game.player2
-    let c2r: SocketResponse[] = []
-    if (player2 !== undefined) {
-      c2r = game.clientEvents
-        .map((event: GameEvent) => {
-          return {
-            ...event,
-            socketID: player2.socketID
-          }
-        })
-    }
-
-    game.clientEvents = []
-
-    state.games[gameIndex] = game
-
-    console.log("######### BEHOLD, MY STUFF ##########")
-    console.log([...c1r, ...c2r])
-
-    return [state, [...c1r, ...c2r]]
+    return [state, responses]
   }
 
   create_game(payload: any, seed: string): [State, SocketResponse[]] {

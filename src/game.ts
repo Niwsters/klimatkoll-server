@@ -2,7 +2,7 @@ import seedrandom from 'seedrandom'
 import { BehaviorSubject, Subscription } from 'rxjs'
 import { filter, map } from 'rxjs/operators'
 import { Card, CardData } from './cards'
-import { Socket, SocketEvent } from './socket'
+import { Socket, SocketEvent, SocketResponse } from './socket'
 
 export class GameEvent {
   event_id: number
@@ -43,6 +43,27 @@ export class GameState {
     state = GameState.createClientEvent(state, "waiting_for_players")
 
     return state
+  }
+
+  static clientEventsToResponses(clientEvents: GameEvent[], socketID: number): SocketResponse[] {
+    return clientEvents.map((event: GameEvent) => {
+      return {
+        ...event,
+        socketID: socketID
+      }
+    })
+  }
+
+  static getPlayer1Responses(game: GameState): SocketResponse[] {
+    return GameState.clientEventsToResponses(game.clientEvents, game.player1.socketID)
+  }
+
+  static getPlayer2Responses(game: GameState): SocketResponse[] {
+    const player2 = game.player2
+    let c2r: SocketResponse[] = []
+    if (player2 !== undefined)
+      c2r = GameState.clientEventsToResponses(game.clientEvents, player2.socketID)
+    return c2r;
   }
 
   static getPlayer(state: GameState, socketID: number): Player {
@@ -203,6 +224,10 @@ export class GameState {
       deck: deck,
       emissionsLine: emissionsLine
     }
+  }
+
+  static playCard(oldState: GameState, socketID: number, cardID: number, position: number): GameState {
+    return GameState.play_card_request(oldState, { socketID, cardID, position })
   }
 
   static play_card_request(oldState: GameState, payload: any): GameState {

@@ -90,6 +90,7 @@ describe('GameServiceState', () => {
     })
   })
 
+  /*
   describe('create_game', () => {
     it('creates new GameState for given socket ID', () => {
       let responses: SocketResponse[]
@@ -119,7 +120,9 @@ describe('GameServiceState', () => {
 
     // TODO: If game already exists
   })
+  */
 
+  /*
   describe('join_game', () => {
     it('calls playerConnected on existing game', () => {
       const gs: GameState = Factory.GameState.get({ createdBy: 3, roomID: 'blargh' });
@@ -173,6 +176,7 @@ describe('GameServiceState', () => {
       GameState.playerConnected = oldPlayerConnected;
     })
   })
+  */
 
   describe('disconnected', () => {
     it("deletes existing game that player was connected to", () => {
@@ -190,27 +194,6 @@ describe('GameServiceState', () => {
       ]
 
       expect(state.disconnected({ socketID: 4 })[0].games).to.deep.equal([gamestate2])
-    })
-  })
-
-  describe('play_card_request', () => {
-    it("calls playCard in GameState", () => {
-      let gamestate: GameState = Factory.GameState.get({
-        createdBy: 3,
-        joinedBy: 4
-      })
-
-      state.games = [gamestate]
-
-      const payload = { socketID: 3, cardID: gamestate.player1.hand[0].id, position: 0 }
-      state = state.play_card_request(payload)[0]
-
-      expect(state.games[0]).to.deep.equal(GameState.playCard(
-        gamestate,
-        payload.socketID,
-        payload.cardID,
-        payload.position
-      ))
     })
   })
 
