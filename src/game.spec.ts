@@ -500,40 +500,4 @@ describe('GameState', () => {
         new GameEvent(2, "opponent_disconnected"))
     })
   })
-
-  describe('handleEvent', () => {
-    let state: GameState
-    beforeEach(() => {
-      state = Factory.GameState.get()
-    })
-
-    it('handles player_connected events', () => {
-      let payload = { socketID: 3 }
-      let result = GameState.handleEvent(state,
-        new GameEvent(0, "player_connected", payload))
-
-      assert.deepEqual(result, GameState.playerConnected(state, payload))
-    })
-
-    it('handles player_disconnected events', () => {
-      const result = GameState.handleEvent(state, new GameEvent(0, "player_disconnected"))
-      assert.deepEqual(result, GameState.playerDisconnected(state, {}))
-    })
-
-    it('handles card_played_from_hand events', () => {
-      state.player2 = new Player(1337)
-      const payload = {
-        socketID: 5,
-        cardID: 3,
-        position: 0
-      }
-      const result = GameState.handleEvent(state,
-        new GameEvent(0, "card_played_from_hand", payload))
-      assert.deepEqual(result, GameState.playCard(
-        state,
-        payload.socketID,
-        payload.cardID,
-        payload.position))
-    })
-  })
 })

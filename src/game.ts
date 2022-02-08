@@ -394,17 +394,4 @@ export class GameState {
   static playerDisconnected(state: GameState, payload: any): GameState {
     return GameState.createClientEvent(state, "opponent_disconnected")
   }
-
-  static handleEvent(state: GameState, event: GameEvent): GameState {
-    switch(event.event_type) {
-      case "player_connected": {
-        return GameState.playerConnected(state, event.payload)
-      }
-      case "player_disconnected": {
-        return GameState.playerDisconnected(state, event.payload)
-      }
-    }
-
-    return {...state}
-  }
 }

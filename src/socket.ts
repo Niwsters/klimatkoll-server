@@ -1,5 +1,4 @@
 import { Subject, Observable } from 'rxjs'
-import { RoomController } from './room'
 import { filter, map } from 'rxjs/operators'
 import { connection as WebSocketConnection } from 'websocket'
 
