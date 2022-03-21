@@ -113,9 +113,8 @@ export class State {
     return [this.new({ games: games }), [...c1r, ...c2r]]
   }
 
-  disconnected(payload: any): [State, SocketResponse[]] {
+  private removeGame(socketID: number): State {
     let state = this.new()
-    const socketID = payload.socketID
 
     state.games = state.games.filter((game: GameState) => {
       return game.player1.socketID !== socketID &&
@@ -123,7 +122,16 @@ export class State {
       socketID !== undefined
     })
 
-    return [state, []]
+    return state
+  }
+
+  leave_game(payload: any): [State, SocketResponse[]] {
+    return [this.removeGame(payload.socketID), []]
+  }
+
+  disconnected(payload: any): [State, SocketResponse[]] {
+    const socketID = payload.socketID
+    return [this.removeGame(socketID), []]
   }
 }
 
