@@ -113,8 +113,24 @@ export class State {
     return [this.new({ games: games }), [...c1r, ...c2r]]
   }
 
-  private removeGame(socketID: number): State {
+  private removeGame(socketID: number): [State, SocketResponse[]] {
     let state = this.new()
+
+    const game = state.games.find(game => game.player1.socketID === socketID || game.player2?.socketID === socketID)
+
+    if (!game)
+      return [state, []]
+
+    const responses: SocketResponse[] = []
+    responses.push({
+      event_id: game.clientEvents.length,
+      socketID: game.player1.socketID,
+      event_type: "game_removed",
+      payload: {}
+    })
+
+    if (game.player2)
+      responses.push({...responses[0], event_id: responses[0].event_id + 1, socketID: game.player2.socketID })
 
     state.games = state.games.filter((game: GameState) => {
       return game.player1.socketID !== socketID &&
@@ -122,16 +138,16 @@ export class State {
       socketID !== undefined
     })
 
-    return state
+    return [state, responses]
   }
 
   leave_game(payload: any): [State, SocketResponse[]] {
-    return [this.removeGame(payload.socketID), []]
+    return this.removeGame(payload.socketID)
   }
 
   disconnected(payload: any): [State, SocketResponse[]] {
     const socketID = payload.socketID
-    return [this.removeGame(socketID), []]
+    return this.removeGame(socketID)
   }
 }
 
@@ -154,8 +170,12 @@ export class GameService {
   }
 
   handleEvent(event: SocketEvent) {
-    let responses: SocketResponse[] = [];
-    [this.state, responses] = this.state.getMethod(event).bind(this.state)(event.payload);
-    responses.forEach((r: SocketResponse) => this.responses$.next(r))
+    try {
+      let responses: SocketResponse[] = [];
+      [this.state, responses] = this.state.getMethod(event).bind(this.state)(event.payload);
+      responses.forEach((r: SocketResponse) => this.responses$.next(r))
+    } catch(e) {
+      console.log(`Error processing event: ${e}`)
+    }
   }
 }

@@ -391,6 +391,10 @@ export class GameState {
     return state
   }
 
+  static leave_game(state: GameState): GameState {
+    return state
+  }
+
   static playerDisconnected(state: GameState, payload: any): GameState {
     return GameState.createClientEvent(state, "opponent_disconnected")
   }
