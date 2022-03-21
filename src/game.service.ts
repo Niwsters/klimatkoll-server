@@ -5,20 +5,21 @@ import { GameState, GameEvent } from './game'
 import { Card } from './cards'
 
 export class State {
-  deck: Card[]
+  swedishDeck: Card[]
+  englishDeck: Card[]
   games: GameState[] = []
 
-  constructor(deck: Card[]) {
-    this.deck = deck
+  constructor(swedishDeck: Card[], englishDeck: Card[]) {
+    this.swedishDeck = swedishDeck
+    this.englishDeck = englishDeck
   }
 
   new(props: any = {}): State {
-    return Object.assign(new State(this.deck), {...this, ...props})
+    return Object.assign(new State(this.swedishDeck, this.englishDeck), {...this, ...props})
   }
 
   getMethod(event: SocketEvent): (payload: any) => [State, SocketResponse[]] {
     const name = event.type
-    const socketID = event.socketID
     let method: any = () => [this.new(), []]
 
     const ownMethod: any = (this as any)[name]
@@ -31,7 +32,7 @@ export class State {
     return method
   }
 
-  callGameStateMethod(name: string, game: GameState, event: SocketEvent): GameState {
+  callGameStateMethod(_: string, game: GameState, event: SocketEvent): GameState {
     return (GameState as any)[event.type](game, event.payload)
   }
 
@@ -62,7 +63,14 @@ export class State {
     if (roomID === undefined)
       throw new Error("Can't create game: Must provide roomID in payload")
 
-    let gameState = new GameState(roomID, seed, [...this.deck], socketID);
+    let deck = [...this.swedishDeck]
+
+    console.log(payload.language)
+
+    if (payload.language === "en")
+      deck = [...this.englishDeck]
+
+    let gameState = new GameState(roomID, seed, deck, socketID);
     let responses: SocketResponse[] = [];
     [gameState, responses] = GameState.consumeResponses(gameState);
 
@@ -155,8 +163,8 @@ export class GameService {
   state: State
   responses$: Subject<SocketResponse> = new Subject()
 
-  constructor(deck: Card[]) {
-    this.state = new State(deck)
+  constructor(swedishDeck: Card[], englishDeck: Card[]) {
+    this.state = new State(swedishDeck, englishDeck)
   }
 
   newSeed(): string {

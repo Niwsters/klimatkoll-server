@@ -1,5 +1,4 @@
-import { Subject, Observable } from 'rxjs'
-import { filter, map } from 'rxjs/operators'
+import { Subject } from 'rxjs'
 import { connection as WebSocketConnection } from 'websocket'
 
 export interface ISocketEvent {
@@ -62,9 +61,12 @@ export class Socket {
     return event
   }
 
+  private language: string
+
   constructor(connection: WebSocketConnection, protocol: string) {
     this.connection = connection
     this.socketID = Socket.nextSocketID++
+    this.language = protocol 
 
     connection.send(JSON.stringify({ type: "socket_id", payload: { socketID: this.socketID } }))
     connection.on('close', () => this.receiveEvent(new SocketEvent('disconnected', this.socketID)))
@@ -73,7 +75,7 @@ export class Socket {
 
   receiveEvent(receivedEvent: ISocketEvent) {
     const event = new SocketEvent(receivedEvent.event_type, this.socketID, receivedEvent.payload)
-    event.payload = { socketID: this.socketID, ...event.payload }
+    event.payload = { socketID: this.socketID, language: this.language, ...event.payload }
     this.events$.next(event)
   }
 
