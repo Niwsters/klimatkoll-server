@@ -11,7 +11,7 @@ describe('GameService', () => {
   let service: GameService
   beforeEach(() => {
     const deck: Card[] = []
-    service = new GameService(deck)
+    service = new GameService(deck, [])
   })
 
   describe('newSeed', () => {
@@ -59,12 +59,12 @@ describe('GameServiceState', () => {
   let responses: SocketResponse[]
   beforeEach(() => {
     deck = Factory.Deck.get()
-    state = new State(deck)
+    state = new State(deck, [])
   })
 
   describe('constructor', () => {
     it('sets properties', () => {
-      state = new State(deck)
+      state = new State(deck, [])
       assert.deepEqual(state, {
         deck: deck,
         games: []
