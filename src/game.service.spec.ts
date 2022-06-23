@@ -62,16 +62,6 @@ describe('GameServiceState', () => {
     state = new State(deck, [])
   })
 
-  describe('constructor', () => {
-    it('sets properties', () => {
-      state = new State(deck, [])
-      assert.deepEqual(state, {
-        deck: deck,
-        games: []
-      })
-    })
-  })
-
   describe('new', () => {
     it('returns new instance of itself', () => {
       const newState = state.new()

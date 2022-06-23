@@ -42,39 +42,6 @@ describe('Socket', () => {
     it('sets properties', () => {
       assert.deepEqual(socket.events$, new Subject<SocketEvent>())
     })
-
-    it("subscribes to connection.on and forwards to receiveEvent", () => {
-      const resultEvents: SocketEvent[] = []
-      let callbacks: any = {}
-      connection.on = (msgType: string, callback: any) => callbacks[msgType] = callback;
-      const socket = new Socket(connection, 'blargh')
-      socket.events$.subscribe(e => resultEvents.push(e))
-      callbacks.close('blargh')
-      assert.deepEqual(resultEvents[0], new SocketEvent('disconnected', socket.socketID, { socketID: 2 }))
-      callbacks.message({
-        type: 'utf8',
-        utf8Data: JSON.stringify({ event_type: 'blargh' })
-      })
-      assert.deepEqual(resultEvents[1], new SocketEvent('blargh', socket.socketID, { socketID: 2 }))
-    })
-  })
-
-  describe('receiveEvent', () => {
-    it("attaches socketID to event", () => {
-      const eventsSent: any[] = [];
-      const event = new SocketEvent('blargh', 3, {})
-      socket.socketID = 3
-      socket.events$.subscribe(e => eventsSent.push(e))
-      socket.receiveEvent(event)
-      assert.deepEqual(eventsSent, [
-        {
-          ...event,
-          payload: {
-            socketID: 3
-          }
-        }
-      ])
-    })
   })
 
   describe('sendEvent', () => {
