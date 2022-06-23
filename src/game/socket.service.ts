@@ -39,7 +39,7 @@ export class SocketService {
 
     app.use('/*', cors(corsSettings))
 
-    app.use(express.static(__dirname + '/../public'))
+    app.use(express.static(__dirname + '/../../public'))
 
     this.httpServer = http.createServer(app)
     const httpServer = this.httpServer
