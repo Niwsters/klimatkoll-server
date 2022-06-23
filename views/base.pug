@@ -1,0 +1,21 @@
+mixin container
+  div(style="display: flex; height: 100vh; width: 100%;")
+    block
+
+mixin content
+  div(style="background: #ccc; flex-grow: 1;")
+    block
+
+mixin sidebar
+  div(style="width: 20rem;")
+    a(href="/upload-pdf") Upload PDF
+
+mixin base
+  html(lang="sv")
+    head
+      title Klimatkoll Digital Kortdatabas
+    body(style="margin: 0; padding: 0;")
+      +container
+        +sidebar
+        +content
+          block
