@@ -1,15 +1,26 @@
 import http from 'http'
 import express from 'express'
 
+type Route = {
+  url: string
+  view: string
+}
+
+function route(url: string, view: string): Route {
+  return { url, view }
+}
+
+function routes () {
+  return [
+    route('/', 'card-db'),
+    route('/upload-pdf', 'upload-pdf')
+  ]
+}
+
 function app() {
   const e = express()
   e.set('view engine', 'pug')
-  e.get('/', (_req, res) => {
-    res.render('card-db')
-  })
-  e.get('/upload-pdf', (_req, res) => {
-    res.render('upload-pdf')
-  })
+  routes().forEach(route => e.get(route.url, (_req, res) => res.render(route.view)))
   return e
 }
 
