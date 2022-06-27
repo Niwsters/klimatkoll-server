@@ -6,14 +6,20 @@ mixin content
   div(style="background: #ccc; flex-grow: 1;")
     block
 
+mixin link(url, label)
+  div
+    a(href=url)= label
+
 mixin sidebar
   div(style="width: 20rem;")
-    a(href="/upload-pdf") Upload PDF
+    +link("/languages", "Languages")
+    +link("/upload", "Upload cards")
+    +link("/cards", "Cards")
 
 mixin base
-  html(lang="sv")
+  html(lang="en")
     head
-      title Klimatkoll Digital Kortdatabas
+      title Klimatkoll Digital Card Database
     body(style="margin: 0; padding: 0;")
       +container
         +sidebar
