@@ -1,0 +1,9 @@
+mixin link(url, label)
+  div
+    a(href=url)= label
+
+mixin navigation
+  div
+    +link("/languages", "Manage languages")
+    +link("/upload", "Upload card images")
+    +link("/assign-images", "Assign images to cards")

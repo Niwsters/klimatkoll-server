@@ -1,3 +1,5 @@
+include navigation
+
 mixin container
   div(style="display: flex; height: 100vh; width: 100%;")
     block
@@ -6,15 +8,9 @@ mixin content
   div(style="background: #ccc; flex-grow: 1;")
     block
 
-mixin link(url, label)
-  div
-    a(href=url)= label
-
 mixin sidebar
   div(style="width: 20rem;")
-    +link("/languages", "Languages")
-    +link("/upload", "Upload cards")
-    +link("/cards", "Cards")
+    +navigation
 
 mixin base
   html(lang="en")
