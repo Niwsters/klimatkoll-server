@@ -1,0 +1,20 @@
+include base
+include card
+
+mixin card-image(src)
+  img(src=src style="max-width: 20rem; padding-bottom: 1rem; padding-right: 1rem;")
+
+mixin image-list(images)
+  div(style="overflow: scroll; max-height: 33rem;")
+    each image in images
+      +card-image(image)
+
++base
+  +card("Match front and back of card images")
+    p Front shows emissions, back does not show emissions
+  +card("Front")
+    +image-list(images)
+  +card("Back")
+    +image-list(images)
+  div(style="position: fixed; bottom: 0; width: 100%; background: white; text-align: center; left: 0;")
+    button(style="width: 100%;") Create card

@@ -1,7 +1,7 @@
 include navigation
 
 mixin container
-  div(style="display: flex; height: 100vh; width: 100%;")
+  div(style="display: flex; min-height: 100vh; width: 100%;")
     block
 
 mixin content
@@ -9,7 +9,7 @@ mixin content
     block
 
 mixin sidebar
-  div(style="width: 20rem;")
+  div(style="width: 20rem; flex-shrink: 0;")
     +navigation
 
 mixin base

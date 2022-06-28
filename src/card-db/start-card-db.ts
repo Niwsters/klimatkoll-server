@@ -5,23 +5,10 @@ import uniqid from 'uniqid'
 import fs from 'fs'
 import { startProcessingPDFFiles } from './process-pdf-files'
 import { startProcessingSVGFiles } from './process-svg-files'
+import { routes } from './routes'
 
-type Route = {
-  url: string
-  view: string
-}
-
-function route(url: string, view: string): Route {
-  return { url, view }
-}
-
-function routes () {
-  return [
-    route('/', 'card-db'),
-    route('/upload', 'upload'),
-    route('/languages', 'languages'),
-    route('/cards', 'cards')
-  ]
+function imagePairs(): any[] {
+  return []
 }
 
 async function upload(req: Request, res: Response) {
@@ -53,9 +40,10 @@ function app() {
   const e = express()
 
   e.use(fileUpload())
+  e.use(express.static('png'))
 
   e.set('view engine', 'pug')
-  routes().forEach(route => e.get(route.url, async (_req, res) => res.render(route.view)))
+  routes().forEach(route => e.get(route.url, route.controller))
 
   e.post('/upload', upload)
   return e
