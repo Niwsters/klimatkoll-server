@@ -1,5 +1,6 @@
 import fs from 'fs'
 import { spawn } from 'child_process'
+import { sleep } from './sleep'
 
 async function pageCount(pdfFile: string): Promise<number> {
   return new Promise(resolve => {
@@ -40,10 +41,6 @@ async function processPDFFiles() {
   for (const file of files) {
     await processPDFFile(file)
   }
-}
-
-async function sleep(millis: number) {
-  return new Promise(resolve => setTimeout(resolve, millis))
 }
 
 export async function startProcessingPDFFiles() {

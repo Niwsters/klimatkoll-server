@@ -4,6 +4,7 @@ import fileUpload, { UploadedFile } from 'express-fileupload'
 import uniqid from 'uniqid'
 import fs from 'fs'
 import { startProcessingPDFFiles } from './process-pdf-files'
+import { startProcessingSVGFiles } from './process-svg-files'
 
 type Route = {
   url: string
@@ -33,14 +34,21 @@ async function upload(req: Request, res: Response) {
   res.send("oh hi")
 }
 
-function createPDFDir() {
-  if (!fs.existsSync('./pdf'))
-    fs.mkdirSync('./pdf')
+function createDirIfNotExists(dir: string) {
+  if (!fs.existsSync(dir))
+    fs.mkdirSync(dir)
+}
+
+function createDirs() {
+  createDirIfNotExists('pdf')
+  createDirIfNotExists('svg')
+  createDirIfNotExists('png')
 }
 
 function app() {
-  createPDFDir()
+  createDirs()
   startProcessingPDFFiles()
+  startProcessingSVGFiles()
 
   const e = express()
 
