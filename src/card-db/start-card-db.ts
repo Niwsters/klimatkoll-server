@@ -6,6 +6,7 @@ import { startProcessingPDFFiles } from './process-pdf-files'
 import { startProcessingSVGFiles } from './process-svg-files'
 import { routes } from './routes'
 import { spawn } from 'child_process'
+import bodyParser from 'body-parser'
 
 function createDirIfNotExists(dir: string) {
   if (!fs.existsSync(dir))
@@ -44,6 +45,7 @@ async function app() {
 
   e.use(fileUpload())
   e.use(express.static('png'))
+  e.use(bodyParser.json())
 
   e.set('view engine', 'pug')
   routes().forEach(route => {

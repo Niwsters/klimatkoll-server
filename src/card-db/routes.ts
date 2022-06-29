@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { pairImages } from "./pair-images"
+import { pairImages, pairImagesView } from "./pair-images"
 import { uploadPDF } from "./upload-pdf"
 
 export type Controller = (req: Request, res: Response) => void
@@ -24,7 +24,8 @@ export function routes(): Route[] {
     route('/upload', renderView('upload')),
     route('/languages', renderView('languages')),
     route('/cards', renderView('cards')),
-    route('/pair-images', pairImages),
+    route('/pair-images', pairImagesView),
+    route('/pair-images', pairImages, "post"),
     route('/upload', uploadPDF, "post")
   ]
 }
