@@ -14,13 +14,14 @@ async function pdf2svg(
   svgFile: string,
   pageNumber: number
 ): Promise<null> {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const process = spawn('pdf2svg', [
       `./pdf/${pdfFile}`,
       `./svg/${svgFile}`,
       `${pageNumber}`
     ], { shell: true })
     process.on('exit', resolve)
+    process.stderr.on('data', data => reject(data.toString()))
   })
 }
 

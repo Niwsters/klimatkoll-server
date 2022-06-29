@@ -25,6 +25,7 @@
     "rxjs": "^6.6.3",
     "seedrandom": "^3.0.5",
     "sqlite3": "^5.0.8",
+    "svgexport": "^0.4.2",
     "uniqid": "^5.4.0",
     "websocket": "^1.0.32"
   },

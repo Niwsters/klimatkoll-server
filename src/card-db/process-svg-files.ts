@@ -1,19 +1,15 @@
 import { sleep } from "./sleep";
 import fs from 'fs'
-import { spawn } from 'child_process'
-
-// inkscape $1 --export-filename="$2" -w $3
-
-async function exec(cmd: string) {
-  return new Promise(resolve => {
-    const split = cmd.split(' ')
-    const process = spawn(split[0], split.slice(1), { shell: true })
-    process.on('exit', resolve,)
-  })
-}
+import svgexport from 'svgexport'
 
 async function svg2png(svgFile: string, pngFile: string, width: number) {
-  await exec(`inkscape ${svgFile} --export-filename="${pngFile}" -w ${width}`)
+  //await exec(`inkscape ${svgFile} -o "${pngFile}" -w ${width}`)
+  return new Promise(resolve => {
+    svgexport.render({
+      input: [svgFile],
+      output: [[pngFile, '100%', `${width}:${width*1.5}`]]
+    }, resolve)
+  })
 }
 
 function svgPath(svgFile: string): string {

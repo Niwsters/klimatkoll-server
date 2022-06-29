@@ -6,6 +6,7 @@ import fs from 'fs'
 import { startProcessingPDFFiles } from './process-pdf-files'
 import { startProcessingSVGFiles } from './process-svg-files'
 import { routes } from './routes'
+import { spawn } from 'child_process'
 
 function imagePairs(): any[] {
   return []
@@ -32,7 +33,24 @@ function createDirs() {
   createDirIfNotExists('png')
 }
 
-function app() {
+async function isProgramInstalled(program: string): Promise<boolean> {
+  return new Promise(resolve => {
+    const process = spawn(program, ['--version'], { shell: true })
+    process.stdout.on('data', () => resolve(true))
+    process.stderr.on('data', () => resolve(false))
+  })
+}
+
+async function checkRequirements() {
+  for (const program of ['pdf2svg']) {
+    if (!await isProgramInstalled(program))
+      throw new Error(`${program} not installed`)
+  }
+}
+
+async function app() {
+  await checkRequirements()
+
   createDirs()
   startProcessingPDFFiles()
   startProcessingSVGFiles()
@@ -49,9 +67,9 @@ function app() {
   return e
 }
 
-export function startCardDB() {
+export async function startCardDB() {
   const port = 3001
   http
-    .createServer(app())
+    .createServer(await app())
     .listen(3001, () => console.log(`Server listening on ${port}`))
 }
