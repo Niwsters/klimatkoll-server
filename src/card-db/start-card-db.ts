@@ -1,26 +1,11 @@
 import http from 'http'
-import express, { Request, Response } from 'express'
-import fileUpload, { UploadedFile } from 'express-fileupload'
-import uniqid from 'uniqid'
+import express from 'express'
+import fileUpload from 'express-fileupload'
 import fs from 'fs'
 import { startProcessingPDFFiles } from './process-pdf-files'
 import { startProcessingSVGFiles } from './process-svg-files'
 import { routes } from './routes'
 import { spawn } from 'child_process'
-
-function imagePairs(): any[] {
-  return []
-}
-
-async function upload(req: Request, res: Response) {
-  const cards = req.files?.cards as UploadedFile
-  if (!cards)
-    return res.status(400).send("No cards were uploaded")
-
-  cards.mv(`./pdf/${uniqid()}.pdf`)
-
-  res.send("oh hi")
-}
 
 function createDirIfNotExists(dir: string) {
   if (!fs.existsSync(dir))
@@ -61,9 +46,15 @@ async function app() {
   e.use(express.static('png'))
 
   e.set('view engine', 'pug')
-  routes().forEach(route => e.get(route.url, route.controller))
+  routes().forEach(route => {
+    switch (route.method) {
+      case "post":
+        e.post(route.url, route.controller)
+      default:
+        e.get(route.url, route.controller)
+    }
+  })
 
-  e.post('/upload', upload)
   return e
 }
 

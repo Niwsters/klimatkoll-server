@@ -14,7 +14,7 @@ mixin image-list(images, inputName)
 +base
   style= "[type=radio]:checked + img { outline: 2px solid red; }"
   +card("Match front and back of card images")
-    p Front shows emissions, back does not show emissions
+    p Front does not show emissions, back shows emissions
   +card("Front")
     +image-list(images, "front")
   +card("Back")
