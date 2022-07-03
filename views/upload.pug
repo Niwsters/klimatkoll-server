@@ -1,8 +1,8 @@
 include base
-include card
+include layout-card 
 
 +base
-  +card("Upload cards")
+  +layoutCard("Upload cards")
     form(action="/upload" method="post" enctype="multipart/form-data")
       input(name="cards" type="file" style="display: block")
       br

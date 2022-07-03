@@ -1,5 +1,12 @@
 include base
-include card
+include layout-card
+
+mixin card-image(card)
+  div
+    a(href="/card/"+card.name)
+      img(src=card.image style="max-width: 20rem;")
 
 +base
-  +card("Cards")
+  +layoutCard("Cards")
+    each card in cards
+      +card-image(card)

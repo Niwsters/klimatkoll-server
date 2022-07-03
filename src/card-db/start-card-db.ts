@@ -7,6 +7,7 @@ import { startProcessingSVGFiles } from './process-svg-files'
 import { routes } from './routes'
 import { spawn } from 'child_process'
 import bodyParser from 'body-parser'
+import { ensureCardDBCreated, startProcessingImagePairs } from './cards'
 
 function createDirIfNotExists(dir: string) {
   if (!fs.existsSync(dir))
@@ -17,6 +18,7 @@ function createDirs() {
   createDirIfNotExists('pdf')
   createDirIfNotExists('svg')
   createDirIfNotExists('png')
+  createDirIfNotExists('pairs')
 }
 
 async function isProgramInstalled(program: string): Promise<boolean> {
@@ -37,18 +39,22 @@ async function checkRequirements() {
 async function app() {
   await checkRequirements()
 
+  const db = ensureCardDBCreated()
+
   createDirs()
   startProcessingPDFFiles()
   startProcessingSVGFiles()
+  startProcessingImagePairs(db)
 
   const e = express()
 
   e.use(fileUpload())
   e.use(express.static('png'))
+  e.use(express.static('pairs'))
   e.use(bodyParser.json())
 
   e.set('view engine', 'pug')
-  routes().forEach(route => {
+  routes(db).forEach(route => {
     switch (route.method) {
       case "post":
         e.post(route.url, route.controller)

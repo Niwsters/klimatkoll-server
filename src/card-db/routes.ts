@@ -1,8 +1,8 @@
-import { Request, Response } from "express"
+import { Database } from "sqlite3"
+import { cardDetailView, cardListView } from "./card-view"
 import { pairImages, pairImagesView } from "./pair-images"
+import { Controller } from "./types"
 import { uploadPDF } from "./upload-pdf"
-
-export type Controller = (req: Request, res: Response) => void
 
 export type Route = {
   method: string
@@ -18,12 +18,13 @@ function renderView(view: string): Controller {
   return async (_req, res) => res.render(view)
 }
 
-export function routes(): Route[] {
+export function routes(db: Database): Route[] {
   return [
     route('/', renderView('card-db')),
     route('/upload', renderView('upload')),
     route('/languages', renderView('languages')),
-    route('/cards', renderView('cards')),
+    route('/cards', cardListView(db)),
+    route('/card/:name', cardDetailView(db)),
     route('/pair-images', pairImagesView),
     route('/pair-images', pairImages, "post"),
     route('/upload', uploadPDF, "post")
