@@ -5,7 +5,8 @@ import {
   setEmissionsView,
   cardSetName,
   cardSetEmissions,
-  cardSetLanguage
+  cardSetLanguage,
+  cardListJSON
 } from "./card-view"
 import { pairImages, pairImagesView } from "./pair-images"
 import { Controller } from "./types"
@@ -38,6 +39,7 @@ export function routes(db: Database): Route[] {
     route('/set-emissions', setEmissionsView(db)),
     route('/pair-images', pairImagesView),
     route('/pair-images', pairImages, "post"),
-    route('/upload', uploadPDF, "post")
+    route('/upload', uploadPDF, "post"),
+    route('/cards/json/:language', cardListJSON(db))
   ]
 }

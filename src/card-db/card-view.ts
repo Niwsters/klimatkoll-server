@@ -1,5 +1,12 @@
 import { Database } from "sqlite3";
-import { card, cards, setCardName, setCardEmissions, setCardLanguage } from "./cards";
+import {
+  card,
+  cards,
+  setCardName,
+  setCardEmissions,
+  setCardLanguage,
+  cardsByLanguage
+} from "./cards";
 import { Controller } from "./types";
 
 export function cardListView(db: Database): Controller {
@@ -36,5 +43,11 @@ export function cardSetLanguage(db: Database): Controller {
   return async (req, res) => {
     setCardLanguage(db, req.body.id, req.body.language)
     res.redirect("/cards")
+  }
+}
+
+export function cardListJSON(db: Database): Controller {
+  return async (req, res) => {
+    res.json(await cardsByLanguage(db, req.params.language))
   }
 }
