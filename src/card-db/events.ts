@@ -10,7 +10,7 @@ export type Event = {
 }
 
 function database() {
-  const db = new Database(':memory:')
+  const db = new Database('card-db.db')
   db.exec(`CREATE TABLE IF NOT EXISTS Events (
     id INTEGER NOT NULL PRIMARY KEY,
     timestamp TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,

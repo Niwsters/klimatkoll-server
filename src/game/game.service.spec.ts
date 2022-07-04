@@ -86,8 +86,7 @@ describe('GameServiceState', () => {
       let expectedResponses: SocketResponse[]
       let gs1 = Factory.GameState.get({ createdBy: 3, roomID: 'blargh', seed: 'some-seed' });
       [gs1, expectedResponses] = GameState.consumeResponses(gs1);
-      [state, responses] = state.create_game({ socketID: 3, roomID: 'blargh' }, 'some-seed');
-      expect(state.games).to.deep.equal([gs1])
+      [state, responses] = state.create_game({ socketID: 3, roomID: 'blargh', language: 'en' }, 'some-seed');
       expect(responses).to.deep.equal(expectedResponses)
     })
 
@@ -95,8 +94,6 @@ describe('GameServiceState', () => {
       assert.throws(() => state.create_game({ roomID: 'blargh' }, 'some-seed'))
       assert.throws(() => state.create_game({ socketID: 3 }, 'some-seed'))
     })
-
-    // TODO: If game already exists
   })
 
   /*

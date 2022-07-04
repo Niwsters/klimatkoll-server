@@ -40,6 +40,6 @@ export function routes(db: Database): Route[] {
     route('/pair-images', pairImagesView),
     route('/pair-images', pairImages, "post"),
     route('/upload', uploadPDF, "post"),
-    route('/cards/json/:language', cardListJSON(db))
+    route('/cards/json', cardListJSON(db)),
   ]
 }

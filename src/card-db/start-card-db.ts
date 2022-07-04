@@ -68,8 +68,13 @@ async function app() {
 }
 
 export async function startCardDB() {
-  const port = 3001
-  http
-    .createServer(await app())
-    .listen(3001, () => console.log(`Server listening on ${port}`))
+  return new Promise(async (resolve) => {
+    const port = 3001
+    http
+      .createServer(await app())
+      .listen(3001, () => {
+        console.log(`Card database listening on ${port}`)
+        resolve(null)
+      })
+  })
 }

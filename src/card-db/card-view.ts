@@ -4,8 +4,7 @@ import {
   cards,
   setCardName,
   setCardEmissions,
-  setCardLanguage,
-  cardsByLanguage
+  setCardLanguage
 } from "./cards";
 import { Controller } from "./types";
 
@@ -47,7 +46,7 @@ export function cardSetLanguage(db: Database): Controller {
 }
 
 export function cardListJSON(db: Database): Controller {
-  return async (req, res) => {
-    res.json(await cardsByLanguage(db, req.params.language))
+  return async (_req, res) => {
+    res.json(await cards(db))
   }
 }

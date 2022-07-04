@@ -1,12 +1,13 @@
-import { server as WebSocketServer, connection as WebSocketConnection } from 'websocket'
+import { server as WebSocketServer } from 'websocket'
 import http, { Server as HTTPServer } from 'http'
 import express, { Application } from 'express'
 import cors from 'cors'
 import { Subject } from 'rxjs'
 
-import auth from './auth'
 import { originIsAllowed } from './origin'
 import { Socket, SocketEvent, SocketResponse } from './socket'
+import { Card } from './cards'
+import path from 'path'
 
 export class SocketService {
   app: Application = express()
@@ -28,7 +29,7 @@ export class SocketService {
     )
   }
 
-  constructor(port: number = 3000) {
+  constructor(cardsSV: Card[], cardsEN: Card[], port: number = 3000) {
     const app = this.app
 
     const corsSettings = {
@@ -39,7 +40,21 @@ export class SocketService {
 
     app.use('/*', cors(corsSettings))
 
+    app.get('/:language/cards.json', (req, res) => {
+      switch (req.params.language) {
+        case "en":
+          return res.json(cardsEN)
+        default:
+          return res.json(cardsSV)
+      }
+    })
+
+    app.get('/:language/image/:image', (req, res) => {
+      res.sendFile(path.resolve(`./pairs/${req.params.image}`))
+    })
+
     app.use(express.static(__dirname + '/../../public'))
+    app.use(express.static(__dirname + '/../../pairs'))
 
     this.httpServer = http.createServer(app)
     const httpServer = this.httpServer

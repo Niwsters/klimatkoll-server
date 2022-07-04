@@ -4,7 +4,7 @@ export interface CardData {
 }
 
 export class Card {
-  id: number
+  id: number | string
   name: string
   emissions: number
 

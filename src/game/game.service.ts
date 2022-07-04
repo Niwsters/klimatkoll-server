@@ -4,14 +4,21 @@ import { SocketEvent, SocketResponse } from './socket'
 import { GameState, GameEvent } from './game'
 import { Card } from './cards'
 
+export type DeckCollection = { [language: string]: Card[] }
+
 export class State {
   swedishDeck: Card[]
   englishDeck: Card[]
+  decks: DeckCollection
   games: GameState[] = []
 
   constructor(swedishDeck: Card[], englishDeck: Card[]) {
     this.swedishDeck = swedishDeck
     this.englishDeck = englishDeck
+    this.decks = {
+      "se": swedishDeck,
+      "en": englishDeck
+    }
   }
 
   new(props: any = {}): State {
@@ -53,6 +60,12 @@ export class State {
     return [state, responses]
   }
 
+  private getDeck(language: string): Card[] {
+    const deck = this.decks[language]
+    if (!deck) throw new Error(`Deck not found for language: ${language}`)
+    return deck
+  }
+
   create_game(payload: any, seed: string): [State, SocketResponse[]] {
     const socketID = payload.socketID
     const roomID = payload.roomID
@@ -63,14 +76,7 @@ export class State {
     if (roomID === undefined)
       throw new Error("Can't create game: Must provide roomID in payload")
 
-    let deck = [...this.swedishDeck]
-
-    console.log(payload.language)
-
-    if (payload.language === "en")
-      deck = [...this.englishDeck]
-
-    let gameState = new GameState(roomID, seed, deck, socketID);
+    let gameState = new GameState(roomID, seed, this.getDeck(payload.language), socketID);
     let responses: SocketResponse[] = [];
     [gameState, responses] = GameState.consumeResponses(gameState);
 
