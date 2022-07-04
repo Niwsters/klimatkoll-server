@@ -1,5 +1,12 @@
 import { Database } from "sqlite3"
-import { cardDetailView, cardListView, setEmissionsView } from "./card-view"
+import {
+  cardDetailView,
+  cardListView,
+  setEmissionsView,
+  cardSetName,
+  cardSetEmissions,
+  cardSetLanguage
+} from "./card-view"
 import { pairImages, pairImagesView } from "./pair-images"
 import { Controller } from "./types"
 import { uploadPDF } from "./upload-pdf"
@@ -25,6 +32,9 @@ export function routes(db: Database): Route[] {
     route('/languages', renderView('languages')),
     route('/cards', cardListView(db)),
     route('/card/:name', cardDetailView(db)),
+    route('/card/:id/set-name', cardSetName(db), "post"),
+    route('/card/:id/set-emissions', cardSetEmissions(db), "post"),
+    route('/card/:id/set-language', cardSetLanguage(db), "post"),
     route('/set-emissions', setEmissionsView(db)),
     route('/pair-images', pairImagesView),
     route('/pair-images', pairImages, "post"),

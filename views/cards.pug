@@ -10,28 +10,39 @@ mixin card-image(card)
   div
     img(src=card.image style="width: 20rem; height: 15rem; object-fit: cover; object-position: 100% 0;")
 
+mixin card-form(card, action)
+  form(action="/card/"+card.id+"/"+action method="post" enctype="multipart/form-data")
+    input(type="hidden" name="id" value=card.id)
+    block
+
 mixin card-input(inputLabel, buttonLabel)
   div(style="padding-bottom: 1rem;")
     div= inputLabel
     block
     button= buttonLabel
 
-mixin card-text-input(inputLabel, value, buttonLabel)
+mixin card-text-input(name, inputLabel, value, buttonLabel)
   +card-input(inputLabel, buttonLabel)
-    input(value=value type="text")
+    input(value=value name=name type="text")
 
 mixin card-name(card)
-  +card-text-input("Name", card.name, "Change name")
+  +card-form(card, "set-name")
+    +card-text-input("name", "Name", card.name, "Change name")
 
 mixin card-emissions(card)
-  +card-text-input("Emissions", card.emissions, "Change emissions")
+  +card-form(card, "set-emissions")
+    if card.emissions > -1
+      +card-text-input("emissions", "Emissions", card.emissions, "Change emissions")
+    else
+      +card-text-input("emissions", "Emissions", "", "Change emissions")
 
 mixin card-language(card)
-  +card-input("Language", "Change language")
-    select
-      option No language set
-      option Swedish
-      option English
+  +card-form(card, "set-language")
+    +card-input("Language", "Change language")
+      select(name="language")
+        option(value="none" selected=card.language=="none")
+        option(value="swedish" selected=card.language=="swedish") Swedish
+        option(value="english" selected=card.language=="english") English
 
 mixin card-item(card)
   div(style="display: flex; align-items: center; padding-bottom: 1rem; padding-top: 1rem; border-bottom: 1px solid black;")

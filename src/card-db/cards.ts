@@ -7,7 +7,9 @@ import uniqid from 'uniqid'
 type Card = {
   id: string,
   name: string,
-  image: string
+  image: string,
+  emissions: number,
+  language: string
 }
 
 type CardCreatedEvent = {
@@ -18,21 +20,83 @@ type CardCreatedEvent = {
   }
 }
 
+type CardSetNameEvent = {
+  type: "card_name_set",
+  payload: {
+    id: string,
+    name: string
+  }
+}
+
+type CardSetEmissionsEvent = {
+  type: "card_emissions_set",
+  payload: {
+    id: string,
+    emissions: number
+  }
+}
+
+type CardSetLanguageEvent = {
+  type: "card_language_set",
+  payload: {
+    id: string,
+    language: string
+  }
+}
+
 function card_created(cards: Card[], event: Event): Card[] {
   return [
     ...cards,
     {
       id: event.payload.id,
       name: "No name set",
-      image: event.payload.image
+      image: event.payload.image,
+      emissions: -1,
+      language: "none"
     }
   ]
+}
+
+function card_name_set(cards: Card[], event: Event): Card[] {
+  return cards.map(card => {
+    if (card.id !== event.payload.id) return card
+
+    return {
+      ...card,
+      name: event.payload.name
+    }
+  })
+}
+
+function card_emissions_set(cards: Card[], event: Event): Card[] {
+  return cards.map(card => {
+    if (card.id !== event.payload.id) return card
+
+    return {
+      ...card,
+      emissions: event.payload.emissions
+    }
+  })
+}
+
+function card_language_set(cards: Card[], event: Event): Card[] {
+  return cards.map(card => {
+    if (card.id !== event.payload.id) return card
+
+    return {
+      ...card,
+      language: event.payload.language
+    }
+  })
 }
 
 type Handler = (cards: Card[], event: Event) => Card[]
 
 const handlers: { [eventType: string]: Handler } = {
-  "card_created": card_created
+  "card_created": card_created,
+  "card_name_set": card_name_set,
+  "card_emissions_set": card_emissions_set,
+  "card_language_set": card_language_set
 }
 
 function handler(eventType: string): Handler {
@@ -67,6 +131,30 @@ export async function createCard(db: Database, image: string): Promise<Card> {
   }
   await insertEvent(db, "card", event)
   return card(db, id)
+}
+
+export async function setCardName(db: Database, id: string, name: string) {
+  const event: CardSetNameEvent = {
+    type: "card_name_set",
+    payload: { id, name }
+  }
+  return insertEvent(db, "card", event)
+}
+
+export async function setCardEmissions(db: Database, id: string, emissions: string) {
+  const event: CardSetEmissionsEvent = {
+    type: "card_emissions_set",
+    payload: { id, emissions: parseInt(emissions) }
+  }
+  return insertEvent(db, "card", event)
+}
+
+export async function setCardLanguage(db: Database, id: string, language: string) {
+  const event: CardSetLanguageEvent = {
+    type: "card_language_set",
+    payload: { id, language }
+  }
+  insertEvent(db, "card", event)
 }
 
 // Loops through existing image pairs and adds cards into database if missing
