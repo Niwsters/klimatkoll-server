@@ -5,7 +5,19 @@ mixin card-image(card)
   div
     img(src=card.image style="max-width: 20rem;")
 
+mixin details-input(labelText, param)
+  div(style="padding-bottom: 1rem;")
+    div= labelText
+    input(value=card[param])
+
+mixin card-details(card)
+  div
+    +details-input("Name", "name")
+    +details-input("Emissions", "emissions")
+    +details-input("Language", "language")
+
 +base
-  +layoutCard("Card")
-    p= card.name
-    img(src=card.image)
+  +layoutCard("Details")
+    +card-details(card)
+  +layoutCard("Image")
+    +card-image(card)

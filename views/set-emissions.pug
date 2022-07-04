@@ -1,0 +1,19 @@
+include base
+include layout-card
+
+mixin card-image(card)
+  div
+    img(src=card.image style="max-width: 20rem;")
+
+mixin card-name(card)
+  div= card.name
+
+mixin card-item(card)
+  div
+    +card-name(card)
+    +card-image(card)
+
++base
+  +layoutCard("Set emissions")
+    each card in cards
+      +card-item(card)

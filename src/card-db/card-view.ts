@@ -11,3 +11,9 @@ export function cardDetailView(db: Database): Controller {
     res.render("card", { card: await card(db, req.params.name) })
   }
 }
+
+export function setEmissionsView(db: Database): Controller {
+  return async (_req, res) => {
+    res.render("set-emissions", { cards: await cards(db) })
+  }
+}

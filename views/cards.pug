@@ -6,7 +6,42 @@ mixin card-image(card)
     a(href="/card/"+card.name)
       img(src=card.image style="max-width: 20rem;")
 
+mixin card-image(card)
+  div
+    img(src=card.image style="width: 20rem; height: 15rem; object-fit: cover; object-position: 100% 0;")
+
+mixin card-input(inputLabel, buttonLabel)
+  div(style="padding-bottom: 1rem;")
+    div= inputLabel
+    block
+    button= buttonLabel
+
+mixin card-text-input(inputLabel, value, buttonLabel)
+  +card-input(inputLabel, buttonLabel)
+    input(value=value type="text")
+
+mixin card-name(card)
+  +card-text-input("Name", card.name, "Change name")
+
+mixin card-emissions(card)
+  +card-text-input("Emissions", card.emissions, "Change emissions")
+
+mixin card-language(card)
+  +card-input("Language", "Change language")
+    select
+      option No language set
+      option Swedish
+      option English
+
+mixin card-item(card)
+  div(style="display: flex; align-items: center; padding-bottom: 1rem; padding-top: 1rem; border-bottom: 1px solid black;")
+    +card-image(card)
+    div(style="padding: 1rem;")
+      +card-name(card)
+      +card-emissions(card)
+      +card-language(card)
+
 +base
   +layoutCard("Cards")
     each card in cards
-      +card-image(card)
+      +card-item(card)

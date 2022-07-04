@@ -7,7 +7,8 @@ import { startProcessingSVGFiles } from './process-svg-files'
 import { routes } from './routes'
 import { spawn } from 'child_process'
 import bodyParser from 'body-parser'
-import { ensureCardDBCreated, startProcessingImagePairs } from './cards'
+import { startProcessingImagePairs } from './cards'
+import { ensureEventsDBCreated } from './events'
 
 function createDirIfNotExists(dir: string) {
   if (!fs.existsSync(dir))
@@ -39,7 +40,7 @@ async function checkRequirements() {
 async function app() {
   await checkRequirements()
 
-  const db = ensureCardDBCreated()
+  const db = ensureEventsDBCreated()
 
   createDirs()
   startProcessingPDFFiles()
