@@ -50,7 +50,9 @@ export class SocketService {
     })
 
     app.get('/:language/image/:image', (req, res) => {
-      res.sendFile(path.resolve(`./pairs/${req.params.image}`))
+      if (req.params.image === "space.png")
+        return res.sendFile(path.resolve('./public/space.png'))
+      return res.sendFile(path.resolve(`./pairs/${req.params.image}`))
     })
 
     app.use(express.static(__dirname + '/../../public'))
