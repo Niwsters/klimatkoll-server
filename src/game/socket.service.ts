@@ -41,12 +41,7 @@ export class SocketService {
     app.use('/*', cors(corsSettings))
 
     app.get('/:language/cards.json', (req, res) => {
-      switch (req.params.language) {
-        case "en":
-          return res.json(deck("english"))
-        default:
-          return res.json(deck("swedish"))
-      }
+      return res.json(deck(req.params.language))
     })
 
     app.get('/:language/image/:image', (req, res) => {

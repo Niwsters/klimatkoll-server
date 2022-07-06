@@ -2,28 +2,18 @@ import seedrandom from 'seedrandom'
 import { Subject } from 'rxjs'
 import { SocketEvent, SocketResponse } from './socket'
 import { GameState, GameEvent } from './game'
-import { Card } from './cards'
 import { GetDeck } from './card-fetcher'
 
 export class State {
-  private deck: GetDeck
+  private getDeck: GetDeck
   private games: GameState[] = []
 
   constructor(deck: GetDeck) {
-    this.deck = deck
-  }
-
-  private getDeck(language: string): Card[] {
-    switch (language) {
-      case "se":
-        return this.deck("swedish")
-      default:
-        return this.deck("english")
-    }
+    this.getDeck = deck
   }
 
   new(props: any = {}): State {
-    return Object.assign(new State(this.deck), {...this, ...props})
+    return Object.assign(new State(this.getDeck), {...this, ...props})
   }
 
   getMethod(event: SocketEvent): (payload: any) => [State, SocketResponse[]] {
