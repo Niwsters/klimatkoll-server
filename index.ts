@@ -4,8 +4,7 @@ import { deckGetter } from './src/game/card-fetcher'
 
 async function start() {
   await startCardDB()
-  const deck = deckGetter()
-  startGame(deck)
+  startGame(deckGetter())
 }
 
 start()
