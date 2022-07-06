@@ -41,8 +41,8 @@ mixin card-language(card)
     +card-input("Language", "Change language")
       select(name="language")
         option(value="none" selected=card.language=="none")
-        option(value="swedish" selected=card.language=="swedish") Swedish
-        option(value="english" selected=card.language=="english") English
+        option(value="se" selected=card.language=="se") Swedish
+        option(value="en" selected=card.language=="en") English
 
 mixin card-item(card)
   div(style="display: flex; align-items: center; padding-bottom: 1rem; padding-top: 1rem; border-bottom: 1px solid black;")
