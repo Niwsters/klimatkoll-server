@@ -1,11 +1,11 @@
 import { GameService } from './game.service'
 import { SocketService } from './socket.service'
 import { SocketEvent, SocketResponse } from './socket'
-import { Card } from './cards'
+import { GetDeck } from './card-fetcher'
 
-export function startGame(cardsSV: Card[], cardsEN: Card[]) {
-  const gameService = new GameService(cardsSV, cardsEN)
-  const socketService = new SocketService(cardsSV, cardsEN)
+export function startGame(deck: GetDeck) {
+  const gameService = new GameService(deck)
+  const socketService = new SocketService(deck)
 
   socketService.events$.subscribe((event: SocketEvent) => gameService.handleEvent(event))
   gameService.responses$.subscribe((r: SocketResponse) => socketService.handleResponse(r)) 

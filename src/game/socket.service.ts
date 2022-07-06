@@ -6,8 +6,8 @@ import { Subject } from 'rxjs'
 
 import { originIsAllowed } from './origin'
 import { Socket, SocketEvent, SocketResponse } from './socket'
-import { Card } from './cards'
 import path from 'path'
+import { GetDeck } from './card-fetcher'
 
 export class SocketService {
   app: Application = express()
@@ -29,7 +29,7 @@ export class SocketService {
     )
   }
 
-  constructor(cardsSV: Card[], cardsEN: Card[], port: number = 3000) {
+  constructor(deck: GetDeck, port: number = 3000) {
     const app = this.app
 
     const corsSettings = {
@@ -43,9 +43,9 @@ export class SocketService {
     app.get('/:language/cards.json', (req, res) => {
       switch (req.params.language) {
         case "en":
-          return res.json(cardsEN)
+          return res.json(deck("english"))
         default:
-          return res.json(cardsSV)
+          return res.json(deck("swedish"))
       }
     })
 

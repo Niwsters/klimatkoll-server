@@ -3,26 +3,27 @@ import { Subject } from 'rxjs'
 import { SocketEvent, SocketResponse } from './socket'
 import { GameState, GameEvent } from './game'
 import { Card } from './cards'
-
-export type DeckCollection = { [language: string]: Card[] }
+import { GetDeck } from './card-fetcher'
 
 export class State {
-  swedishDeck: Card[]
-  englishDeck: Card[]
-  decks: DeckCollection
-  games: GameState[] = []
+  private deck: GetDeck
+  private games: GameState[] = []
 
-  constructor(swedishDeck: Card[], englishDeck: Card[]) {
-    this.swedishDeck = swedishDeck
-    this.englishDeck = englishDeck
-    this.decks = {
-      "se": swedishDeck,
-      "en": englishDeck
+  constructor(deck: GetDeck) {
+    this.deck = deck
+  }
+
+  private getDeck(language: string): Card[] {
+    switch (language) {
+      case "se":
+        return this.deck("swedish")
+      default:
+        return this.deck("english")
     }
   }
 
   new(props: any = {}): State {
-    return Object.assign(new State(this.swedishDeck, this.englishDeck), {...this, ...props})
+    return Object.assign(new State(this.deck), {...this, ...props})
   }
 
   getMethod(event: SocketEvent): (payload: any) => [State, SocketResponse[]] {
@@ -58,12 +59,6 @@ export class State {
     [state.games[gameIndex], responses] = GameState.delegate(state.games[gameIndex], event);
 
     return [state, responses]
-  }
-
-  private getDeck(language: string): Card[] {
-    const deck = this.decks[language]
-    if (!deck) throw new Error(`Deck not found for language: ${language}`)
-    return deck
   }
 
   create_game(payload: any, seed: string): [State, SocketResponse[]] {
@@ -169,8 +164,8 @@ export class GameService {
   state: State
   responses$: Subject<SocketResponse> = new Subject()
 
-  constructor(swedishDeck: Card[], englishDeck: Card[]) {
-    this.state = new State(swedishDeck, englishDeck)
+  constructor(deck: GetDeck) {
+    this.state = new State(deck)
   }
 
   newSeed(): string {
