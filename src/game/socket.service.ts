@@ -8,6 +8,7 @@ import { originIsAllowed } from './origin'
 import { Socket, SocketEvent, SocketResponse } from './socket'
 import path from 'path'
 import { GetDeck } from './card-fetcher'
+import { localisation } from './localisation'
 
 export class SocketService {
   app: Application = express()
@@ -48,6 +49,10 @@ export class SocketService {
       if (req.params.image === "space.png")
         return res.sendFile(path.resolve('./public/space.png'))
       return res.sendFile(path.resolve(`./pairs/${req.params.image}`))
+    })
+
+    app.get('/localisation', (_req, res) => {
+      return res.json(localisation)
     })
 
     app.use(express.static(__dirname + '/../../public'))
