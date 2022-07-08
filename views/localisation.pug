@@ -63,8 +63,8 @@ mixin localisation-remove-key(language)
   +localisation-form(language, "remove-key")
     div
       select(name="key")
+        option
         each localisation in localisations
-          option
           option(value=localisation.key)= localisation.key
     button Remove key
 

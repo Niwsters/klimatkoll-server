@@ -1,5 +1,42 @@
 include base
 include layout-card
 
+mixin languages-form(action)
+  form(
+    style="margin: 0; padding: 0; display: inline;"
+    action="/languages/" + action
+    method="post"
+    enctype="multipart/form-data"
+  )
+    block
+
+mixin language-input(name, label)
+  label= label
+    div
+      input(type="text" name=name)
+
+mixin add-language-form
+  +languages-form("add")
+    div
+      +language-input("iso_639_2", "Language code (ISO 639-2)")
+      +language-input("label", "Label")
+      button Add language
+
+mixin language-item(language)
+  div
+    span=language.iso_639_2
+    span(style="padding-left: 1rem;")=language.label
+    span(style="padding-left: 1rem;")
+      +languages-form("remove")
+        input(type="hidden" name="iso_639_2" value=language.iso_639_2)
+        button Remove
+
+mixin language-list(languages)
+  each language in languages
+    +language-item(language)
+
 +base
   +layoutCard("Languages")
+    +language-list(languages)
+  +layoutCard("Add language")
+    +add-language-form

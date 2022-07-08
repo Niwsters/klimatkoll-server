@@ -9,6 +9,7 @@ import {
   cardListJSON
 } from "./card-view"
 import localisation from "./localisation"
+import languages from "./languages"
 import { pairImages, pairImagesView } from "./pair-images"
 import { Controller } from "./types"
 import { uploadPDF } from "./upload-pdf"
@@ -31,7 +32,9 @@ export function routes(db: Database): Route[] {
   return [
     route('/', renderView('card-db')),
     route('/upload', renderView('upload')),
-    route('/languages', renderView('languages')),
+    route('/languages', languages.view(db)),
+    route('/languages/add', languages.add(db), "post"),
+    route('/languages/remove', languages.remove(db), "post"),
     route('/cards', cardListView(db)),
     route('/card/:name', cardDetailView(db)),
     route('/card/:id/set-name', cardSetName(db), "post"),
@@ -47,6 +50,6 @@ export function routes(db: Database): Route[] {
     route('/localisation/:language/add-key', localisation.add(db), "post"),
     route('/localisation/:language/remove-key', localisation.remove(db), "post"),
     route('/localisation/:language/translate', localisation.translate(db), "post"),
-    route('/json/localisation', localisation.json(db))
+    route('/json/localisation', localisation.json(db)),
   ]
 }
