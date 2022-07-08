@@ -32,7 +32,6 @@ function svgFileName(pdfFile: string, pageNumber: number): string {
 async function processPDFFile(pdfFile: string) {
   const count = await pageCount(pdfFile)
   for (let page=1; page<count; page++) {
-    console.log(page)
     await pdf2svg(pdfFile, svgFileName(pdfFile, page), page)
   }
   fs.rmSync(`./pdf/${pdfFile}`)

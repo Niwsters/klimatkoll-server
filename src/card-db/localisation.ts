@@ -50,7 +50,6 @@ async function addKey(db: Database, key: string) {
 
 function view(db: Database): Controller {
   return async (req, res) => {
-    console.log(localisations(await events(db, "localisation"), req.params.language))
     res.render('localisation', {
       localisations: localisations(await events(db, "localisation"), req.params.language),
       language: req.params.language
