@@ -1,15 +1,31 @@
 include base
 include layout-card
 
-mixin column(localisations, key, heading, input)
+mixin localisation-form(language, action)
+  form(
+    action="/localisation/"+language+"/"+action
+    method="post"
+    enctype="multipart/form-data"
+  )
+    block
+
+mixin column(heading)
   div(style="min-width: 10rem;")
     div= heading
+    block
+
+mixin key-column(localisations)
+  +column("Key")
     each localisation in localisations
-      if input == true
-        div
-          input(name=key value=localisation[key])
-      else
-        div=localisation[key]
+        div=localisation.key
+
+mixin translation-column(language, localisations)
+  +column("Translation")
+    each localisation in localisations
+      div
+        input(name="language" type="hidden" value=language)
+        input(name="key" type="hidden" value=localisation.key)
+        input(name="translation" type="text" value=localisation.translation)
 
 mixin localisation-tab(language, currentLanguage)
   if language == currentLanguage
@@ -20,34 +36,35 @@ mixin localisation-tab(language, currentLanguage)
       block
 
 mixin localisation-add-key(language)
-  form(
-    action="/localisation/"+language+"/add-key"
-    method="post"
-    enctype="multipart/form-data"
-  )
+  +localisation-form(language, "add-key")
     div
       label Key:
         input(name="key" type="text")
     button Add key
 
-mixin localisation-remove-key
-  div
-    select
-      each localisation in localisations
-        option
-        option= localisation.key
-  button Remove key
+mixin localisation-remove-key(language)
+  +localisation-form(language, "remove-key")
+    div
+      select(name="key")
+        each localisation in localisations
+          option
+          option(value=localisation.key)= localisation.key
+    button Remove key
+
+mixin localisation-table(language, localisations)
+  +localisation-form(language, "translate")
+    div(style="display: flex; margin-top: 1rem;")
+      +key-column(localisations)
+      +translation-column(language, localisations)
+    div(style="margin-top: 1rem;")
+      button Apply changes
 
 +base
   +layoutCard("Localisation")
     +localisation-tab("sv", language) Swedish
     +localisation-tab("en", language) English
-    div(style="display: flex; margin-top: 1rem;")
-      +column(localisations, "key", "Key", false)
-      +column(localisations, "translation", "Translation", true)
-    div(style="margin-top: 1rem;")
-      button Apply changes
+    +localisation-table(language, localisations)
   +layoutCard("Add key (for all languages)")
     +localisation-add-key(language)
   +layoutCard("Remove key (for all languages)")
-    +localisation-remove-key
+    +localisation-remove-key(language)

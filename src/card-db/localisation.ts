@@ -19,17 +19,38 @@ function keyAdded(localisations: Localisation[], event: Event): Localisation[] {
       return {
         key,
         translation: "",
-        language     
+        language
       }
     })
   return [...localisations, ...added]
 }
 
-function onEvent(localisations: Localisation[], event: Event): Localisation[] {
-  if (event.type === "key-added")
-    return keyAdded(localisations, event)
+function keyRemoved(localisations: Localisation[], event: Event): Localisation[] {
+  const key = event.payload.key
+  return localisations.filter(l => l.key !== key)
+}
 
-  return localisations
+function translationSet(localisations: Localisation[], event: Event): Localisation[] {
+  const { key, translation, language } = event.payload
+  return localisations.map(l => {
+    if (l.key === key && l.language === language)
+      return { ...l, translation: translation }
+
+    return l
+  })
+}
+
+function onEvent(localisations: Localisation[], event: Event): Localisation[] {
+  switch (event.type) {
+    case "key-added":
+      return keyAdded(localisations, event)
+    case "key-removed":
+      return keyRemoved(localisations, event)
+    case "translation-set":
+      return translationSet(localisations, event)
+    default:
+      return localisations
+  }
 }
 
 function localisations(events: Event[], language: string): Localisation[] {
@@ -44,8 +65,30 @@ function keyAddedEvent(key: string): Event {
   }
 }
 
+function keyRemovedEvent(key: string): Event {
+  return {
+    type: "key-removed",
+    payload: { key }
+  }
+}
+
+function translationSetEvent(key: string, translation: string, language: string): Event {
+  return {
+    type: "translation-set",
+    payload: { key, translation, language }
+  }
+}
+
 async function addKey(db: Database, key: string) {
   await insertEvent(db, "localisation", keyAddedEvent(key))
+}
+
+async function removeKey(db: Database, key: string) {
+  await insertEvent(db, "localisation", keyRemovedEvent(key))
+}
+
+async function translate(db: Database, key: string, translation: string, language: string) {
+  await insertEvent(db, "localisation", translationSetEvent(key, translation, language))
 }
 
 function view(db: Database): Controller {
@@ -64,7 +107,23 @@ function addKeyView(db: Database): Controller {
   }
 }
 
+function removeKeyView(db: Database): Controller {
+  return async (req, res) => {
+    await removeKey(db, req.body.key)
+    return view(db)(req, res)
+  }
+}
+
+function translateView(db: Database): Controller {
+  return async (req, res) => {
+    await translate(db, req.body.key, req.body.translation, req.body.language)
+    return view(db)(req, res)
+  }
+}
+
 export default {
   view,
-  add: addKeyView
+  add: addKeyView,
+  remove: removeKeyView,
+  translate: translateView
 } as const
