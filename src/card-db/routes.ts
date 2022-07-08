@@ -47,5 +47,6 @@ export function routes(db: Database): Route[] {
     route('/localisation/:language/add-key', localisation.add(db), "post"),
     route('/localisation/:language/remove-key', localisation.remove(db), "post"),
     route('/localisation/:language/translate', localisation.translate(db), "post"),
+    route('/json/localisation', localisation.json(db))
   ]
 }

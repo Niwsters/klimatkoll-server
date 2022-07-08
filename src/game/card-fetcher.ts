@@ -1,22 +1,9 @@
-import http from 'http'
 import { Card } from '../../src/card-db/cards/card'
 import { sleep } from '../../src/card-db/sleep'
+import { httpGetCardDB } from './http-get-card-db'
 
 async function getCards(): Promise<Card[]> {
-  return new Promise(resolve => {
-    http.request(
-      {
-        host: 'localhost',
-        port: '3001',
-        path: '/cards/json'
-      },
-      response => {
-        let str = ''
-        response.on('data', data => str += data)
-        response.on('end', () => resolve(JSON.parse(str)))
-      })
-      .end()
-  })
+  return httpGetCardDB<Card[]>('/cards/json')
 }
 
 export type GetDeck = (language: string) => Card[]

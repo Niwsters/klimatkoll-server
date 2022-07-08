@@ -8,6 +8,14 @@ type Localisation = {
   language: string
 }
 
+type LocalisationJSON = {
+  [language: string]: {
+    translation: {
+      [key: string]: string
+    }
+  }
+}
+
 const languages = ["sv", "en"]
 
 function keyAdded(localisations: Localisation[], event: Event): Localisation[] {
@@ -53,9 +61,61 @@ function onEvent(localisations: Localisation[], event: Event): Localisation[] {
   }
 }
 
-function localisations(events: Event[], language: string): Localisation[] {
+function localisations(events: Event[], language: string = ""): Localisation[] {
   return events.reduce(onEvent, [])
-               .filter(l => l.language === language)
+               .filter(l => language !== "" ? l.language === language : l)
+}
+
+function jsonTranslations(localisations: Localisation[], language: string): any {
+  return localisations
+    .filter(l => l.language === language)
+    .reduce((translations, localisation) => {
+      return {
+        ...translations,
+        [localisation.key]: localisation.translation
+      }
+    }, {})
+}
+
+function localisationsJSON(events: Event[]): LocalisationJSON {
+  const locs = localisations(events)
+  const languages = [...new Set(locs.map(l => l.language))]
+  return languages
+    .reduce((resource, language) => {
+      return {
+        ...resource,
+        [language]: {
+          translation: jsonTranslations(locs, language)
+        }
+      }
+    }, {})
+  /*
+  return {
+    sv: {
+      translation: {
+        "altLogo": "Klimatkoll logga",
+        "play": "Spela",
+        "go-back": "Tillbaka",
+        "create-game": "Skapa spel",
+        "join-game": "Gå med i spel",
+        "leave-game": "Lämna spel",
+        "room-id": "Spelets namn",
+        "sp-instructions": "Försök spela så många kort du kan",
+        "sp-game-over": "Slut på kort! Du placerade {{cards}} kort på rätt plats",
+        "cards-left": "Kort kvar",
+        "correct-placements": "Kort placerade på rätt plats"
+      }
+    },
+    en: {
+      translation: {
+        "cards-left": "Cards left",
+        "correct-placements": "Correct placements",
+        "sp-game-over": "Game over! You placed {{cards}} cards correctly",
+        "sp-instructions": "Try to play as many cards as you can",
+      }
+    }
+  }
+  */
 }
 
 function keyAddedEvent(key: string): Event {
@@ -93,6 +153,7 @@ async function translate(db: Database, key: string, translation: string, languag
 
 function view(db: Database): Controller {
   return async (req, res) => {
+    console.log(localisations(await events(db, "localisation"), req.params.language))
     res.render('localisation', {
       localisations: localisations(await events(db, "localisation"), req.params.language),
       language: req.params.language
@@ -121,9 +182,16 @@ function translateView(db: Database): Controller {
   }
 }
 
+function jsonView(db: Database): Controller {
+  return async (_req, res) => {
+    return res.json(localisationsJSON(await events(db, "localisation")))
+  }
+}
+
 export default {
   view,
   add: addKeyView,
   remove: removeKeyView,
-  translate: translateView
+  translate: translateView,
+  json: jsonView
 } as const

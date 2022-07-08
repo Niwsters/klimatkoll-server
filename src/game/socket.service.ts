@@ -51,8 +51,8 @@ export class SocketService {
       return res.sendFile(path.resolve(`./pairs/${req.params.image}`))
     })
 
-    app.get('/localisation', (_req, res) => {
-      return res.json(localisation)
+    app.get('/localisation', async (_req, res) => {
+      return res.json(await localisation())
     })
 
     app.use(express.static(__dirname + '/../../public'))
