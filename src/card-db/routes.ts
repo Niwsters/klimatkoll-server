@@ -8,6 +8,7 @@ import {
   cardSetLanguage,
   cardListJSON
 } from "./card-view"
+import localisation from "./localisation"
 import { pairImages, pairImagesView } from "./pair-images"
 import { Controller } from "./types"
 import { uploadPDF } from "./upload-pdf"
@@ -41,5 +42,8 @@ export function routes(db: Database): Route[] {
     route('/pair-images', pairImages, "post"),
     route('/upload', uploadPDF, "post"),
     route('/cards/json', cardListJSON(db)),
+    route('/localisation', localisation.view(db)),
+    route('/localisation/:language', localisation.view(db)),
+    route('/localisation/:language/add-key', localisation.add(db), "post"),
   ]
 }

@@ -1,0 +1,53 @@
+include base
+include layout-card
+
+mixin column(localisations, key, heading, input)
+  div(style="min-width: 10rem;")
+    div= heading
+    each localisation in localisations
+      if input == true
+        div
+          input(name=key value=localisation[key])
+      else
+        div=localisation[key]
+
+mixin localisation-tab(language, currentLanguage)
+  if language == currentLanguage
+    span(style="padding-right: 1rem;")
+      block
+  else
+    a(href="/localisation/"+language style="padding-right: 1rem;")
+      block
+
+mixin localisation-add-key(language)
+  form(
+    action="/localisation/"+language+"/add-key"
+    method="post"
+    enctype="multipart/form-data"
+  )
+    div
+      label Key:
+        input(name="key" type="text")
+    button Add key
+
+mixin localisation-remove-key
+  div
+    select
+      each localisation in localisations
+        option
+        option= localisation.key
+  button Remove key
+
++base
+  +layoutCard("Localisation")
+    +localisation-tab("sv", language) Swedish
+    +localisation-tab("en", language) English
+    div(style="display: flex; margin-top: 1rem;")
+      +column(localisations, "key", "Key", false)
+      +column(localisations, "translation", "Translation", true)
+    div(style="margin-top: 1rem;")
+      button Apply changes
+  +layoutCard("Add key (for all languages)")
+    +localisation-add-key(language)
+  +layoutCard("Remove key (for all languages)")
+    +localisation-remove-key
