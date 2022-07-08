@@ -1,5 +1,6 @@
 import { Database } from "sqlite3";
 import { Event, events, insertEvent } from "./events";
+import { Language, languages } from "./languages";
 import { Controller } from "./types"
 
 type Localisation = {
@@ -16,17 +17,16 @@ type LocalisationJSON = {
   }
 }
 
-const languages = ["sv", "en"]
-
-function keyAdded(localisations: Localisation[], event: Event): Localisation[] {
+function keyAdded(localisations: Localisation[], languages: Language[], event: Event): Localisation[] {
   const key = event.payload.key
   const existing = localisations.filter(l => l.key === key).map(l => l.language)
   const added = languages
+    .map(l => l.iso_639_2)
     .filter(l => !existing.includes(l))
     .map(language => {
       return {
         key,
-        translation: "",
+        translation: key,
         language
       }
     })
@@ -48,10 +48,10 @@ function translationSet(localisations: Localisation[], event: Event): Localisati
   })
 }
 
-function onEvent(localisations: Localisation[], event: Event): Localisation[] {
+function onEvent(localisations: Localisation[], languages: Language[], event: Event): Localisation[] {
   switch (event.type) {
     case "key-added":
-      return keyAdded(localisations, event)
+      return keyAdded(localisations, languages, event)
     case "key-removed":
       return keyRemoved(localisations, event)
     case "translation-set":
@@ -62,7 +62,7 @@ function onEvent(localisations: Localisation[], event: Event): Localisation[] {
 }
 
 function localisations(events: Event[], language: string = ""): Localisation[] {
-  return events.reduce(onEvent, [])
+  return events.reduce((localisations, event) => onEvent(localisations, languages(events), event), [] as Localisation[])
                .filter(l => language !== "" ? l.language === language : l)
 }
 
@@ -153,10 +153,14 @@ async function translate(db: Database, key: string, translation: string, languag
 
 function view(db: Database): Controller {
   return async (req, res) => {
-    console.log(localisations(await events(db, "localisation"), req.params.language))
+    const es = [
+      ...await events(db, "localisation"),
+      ...await events(db, "language")
+    ]
     res.render('localisation', {
-      localisations: localisations(await events(db, "localisation"), req.params.language),
-      language: req.params.language
+      localisations: localisations(es, req.params.language),
+      language: req.params.language,
+      languages: languages(await events(db, "language"))
     })
   }
 }
@@ -184,7 +188,11 @@ function translateView(db: Database): Controller {
 
 function jsonView(db: Database): Controller {
   return async (_req, res) => {
-    return res.json(localisationsJSON(await events(db, "localisation")))
+    const es = [
+      ...await events(db, "localisation"),
+      ...await events(db, "language")
+    ]
+    return res.json(localisationsJSON(es))
   }
 }
 

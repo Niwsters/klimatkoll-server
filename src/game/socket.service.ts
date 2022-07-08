@@ -9,6 +9,7 @@ import { Socket, SocketEvent, SocketResponse } from './socket'
 import path from 'path'
 import { GetDeck } from './card-fetcher'
 import { localisation } from './localisation'
+import { languages } from './languages'
 
 export class SocketService {
   app: Application = express()
@@ -76,7 +77,7 @@ export class SocketService {
     })
     const wsServer = this.wsServer
 
-    wsServer.on('request', (request) => {
+    wsServer.on('request', async (request) => {
       if (!originIsAllowed(request.origin)) {
         // Make sure we only accept requests from an allowed origin
         request.reject()
@@ -86,7 +87,7 @@ export class SocketService {
 
       const protocol = request.requestedProtocols[0]
 
-      if (!Socket.isProtocolAllowed(protocol)) {
+      if (!Socket.isProtocolAllowed(await languages(), protocol)) {
         request.reject()
         return
       }

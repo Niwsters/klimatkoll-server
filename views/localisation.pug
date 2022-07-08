@@ -47,10 +47,10 @@ mixin localisation-tab(language, currentLanguage)
     div(style="padding-right: 1rem;")
       block
 
-mixin localisation-tabs(language)
+mixin localisation-tabs(currentLanguage, languages)
   div(style="display: flex")
-    +localisation-tab("sv", language) Swedish
-    +localisation-tab("en", language) English
+    each language in languages
+      +localisation-tab(language.iso_639_2, currentLanguage)= language.label
 
 mixin localisation-add-key(language)
   +localisation-form(language, "add-key")
@@ -75,7 +75,7 @@ mixin localisation-table(language, localisations)
 
 +base
   +layoutCard("Translations")
-    +localisation-tabs(language)
+    +localisation-tabs(language, languages)
     +localisation-table(language, localisations)
   +layoutCard("Add key (for all languages)")
     +localisation-add-key(language)

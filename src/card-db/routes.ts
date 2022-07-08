@@ -35,6 +35,7 @@ export function routes(db: Database): Route[] {
     route('/languages', languages.view(db)),
     route('/languages/add', languages.add(db), "post"),
     route('/languages/remove', languages.remove(db), "post"),
+    route('/json/languages', languages.json(db)),
     route('/cards', cardListView(db)),
     route('/card/:name', cardDetailView(db)),
     route('/card/:id/set-name', cardSetName(db), "post"),

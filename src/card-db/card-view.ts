@@ -6,10 +6,12 @@ import {
   setCardEmissions,
   setCardLanguage
 } from "./cards";
+import { events } from "./events";
+import { languages } from "./languages";
 import { Controller } from "./types";
 
 export function cardListView(db: Database): Controller {
-  return async (_req, res) => res.render("cards", { cards: await cards(db) })
+  return async (_req, res) => res.render("cards", { cards: await cards(db), languages: languages(await events(db, "language")) })
 }
 
 export function cardDetailView(db: Database): Controller {

@@ -2,7 +2,7 @@ import { Database } from "sqlite3";
 import { Event, events, insertEvent } from "./events";
 import { Controller } from "./types";
 
-type Language = {
+export type Language = {
   iso_639_2: string,
   label: string
 }
@@ -53,7 +53,6 @@ function languageRemoved(languages: Language[], event: Event): Language[] {
 }
 
 function onEvent(languages: Language[], event: Event): Language[] {
-  console.log(event)
   switch (event.type) {
     case "language-added":
       return languageAdded(languages, event)
@@ -78,7 +77,7 @@ function removeLanguageEvent(iso_639_2: string): Event {
   }
 }
 
-function languages(events: Event[]): Language[] {
+export function languages(events: Event[]): Language[] {
   return events.reduce(onEvent, [])
 }
 
@@ -110,8 +109,15 @@ function removeLanguageView(db: Database): Controller {
   }
 }
 
+function jsonView(db: Database): Controller {
+  return async (_req, res) => {
+    return res.json(languages(await events(db, "language")))
+  }
+}
+
 export default {
   add: addLanguageView,
   remove: removeLanguageView,
+  json: jsonView,
   view
 }

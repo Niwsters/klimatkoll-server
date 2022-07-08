@@ -38,11 +38,8 @@ export class Socket {
 
   events$: Subject<SocketEvent> = new Subject()
 
-  static isProtocolAllowed(protocol: string): boolean {
-    if (protocol === 'sv' || protocol === 'en')
-      return true
-
-    return false
+  static isProtocolAllowed(languages: string[], protocol: string): boolean {
+    return languages.includes(protocol)
   }
 
   static parseMessage(msg: any): SocketEvent {

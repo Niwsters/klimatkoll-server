@@ -41,18 +41,18 @@ mixin card-language(card)
     +card-input("Language", "Change language")
       select(name="language")
         option(value="none" selected=card.language=="none")
-        option(value="sv" selected=card.language=="sv") Swedish
-        option(value="en" selected=card.language=="en") English
+        each language in languages
+          option(value=language.iso_639_2 selected=card.language==language.iso_639_2)= language.label
 
-mixin card-item(card)
+mixin card-item(card, languages)
   div(style="display: flex; align-items: center; padding-bottom: 1rem; padding-top: 1rem; border-bottom: 1px solid black;")
     +card-image(card)
     div(style="padding: 1rem;")
       +card-name(card)
       +card-emissions(card)
-      +card-language(card)
+      +card-language(card, languages)
 
 +base
   +layoutCard("Cards")
     each card in cards
-      +card-item(card)
+      +card-item(card, languages)
