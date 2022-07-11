@@ -10,6 +10,7 @@ import bodyParser from 'body-parser'
 import { startProcessingImagePairs } from './cards'
 import { ensureEventsDBCreated } from './events'
 import { auth } from './auth'
+import { startImageRemover } from './remove-image'
 
 function createDirIfNotExists(dir: string) {
   if (!fs.existsSync(dir))
@@ -21,6 +22,7 @@ function createDirs() {
   createDirIfNotExists('svg')
   createDirIfNotExists('png')
   createDirIfNotExists('pairs')
+  createDirIfNotExists('images-to-remove')
 }
 
 async function isProgramInstalled(program: string): Promise<boolean> {
@@ -47,6 +49,7 @@ async function app() {
   startProcessingPDFFiles()
   startProcessingSVGFiles()
   startProcessingImagePairs(db)
+  startImageRemover()
 
   const e = express()
 

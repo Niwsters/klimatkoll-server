@@ -2,6 +2,7 @@ import { Database } from "sqlite3"
 import card from "./card-view"
 import localisation from "./localisation"
 import languages from "./languages"
+import removeImage from "./remove-image"
 import { pairImages, pairImagesView } from "./pair-images"
 import { Controller } from "./types"
 import { uploadPDF } from "./upload-pdf"
@@ -35,6 +36,8 @@ export function routes(db: Database): Route[] {
     route('/card/:id/remove', card.remove(db), "post"),
     route('/set-emissions', card.setEmissions(db)),
     route('/cards/json', card.listJSON(db)),
+    route('/remove-images', removeImage.view()),
+    route('/remove-images', removeImage.remove(), "post"),
     route('/pair-images', pairImagesView()),
     route('/pair-images', pairImages, "post"),
     route('/upload', uploadPDF, "post"),

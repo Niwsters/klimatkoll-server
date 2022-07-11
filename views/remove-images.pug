@@ -1,0 +1,19 @@
+include base
+include layout-card
+
+mixin card-image(src, inputName, index)
+  label
+    input(type="checkbox" name=inputName value=src style="position: fixed; width: 0; height: 0; opacity: 0;")
+    img(src=src style="max-width: 10rem; margin: 0.5rem;")
+
+mixin image-list(images, inputName)
+  div(style="overflow: scroll; max-height: 33rem;")
+    each image, index in images
+      +card-image(image, inputName, index)
+
++base
+  style= "[type=checkbox]:checked + img { outline: 2px solid red; }"
+  form(method="post" action="/remove-images" enctype="multipart/form-data")
+    +layoutCard("Remove images")
+      +image-list(images, "images")
+      button Remove selected images
