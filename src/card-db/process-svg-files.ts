@@ -3,7 +3,6 @@ import fs from 'fs'
 import svgexport from 'svgexport'
 
 async function svg2png(svgFile: string, pngFile: string, width: number) {
-  //await exec(`inkscape ${svgFile} -o "${pngFile}" -w ${width}`)
   return new Promise(resolve => {
     svgexport.render({
       input: [svgFile],
