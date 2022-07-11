@@ -1,4 +1,5 @@
 import http from 'http'
+import { Credentials, credentials } from '../card-db/auth'
 
 function parseJSON(jsonStr: string): any {
   try {
@@ -10,13 +11,18 @@ function parseJSON(jsonStr: string): any {
   }
 }
 
+function basicAuthString(credentials: Credentials): string {
+  return Buffer.from(credentials.name+ ':' + credentials.password).toString('base64')
+}
+
 export async function httpGetCardDB<T>(path: string): Promise<T> {
   return new Promise(resolve => {
     http.request(
       {
         host: 'localhost',
         port: '3001',
-        path
+        path,
+        headers: { 'Authorization': 'Basic ' + basicAuthString(credentials()) } 
       },
       response => {
         let str = ''

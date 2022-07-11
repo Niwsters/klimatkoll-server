@@ -9,6 +9,7 @@ import { spawn } from 'child_process'
 import bodyParser from 'body-parser'
 import { startProcessingImagePairs } from './cards'
 import { ensureEventsDBCreated } from './events'
+import { auth } from './auth'
 
 function createDirIfNotExists(dir: string) {
   if (!fs.existsSync(dir))
@@ -49,6 +50,7 @@ async function app() {
 
   const e = express()
 
+  e.use(auth)
   e.use(fileUpload())
   e.use(express.static('png'))
   e.use(express.static('pairs'))
