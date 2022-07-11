@@ -35,7 +35,7 @@ export function routes(db: Database): Route[] {
     route('/card/:id/remove', card.remove(db), "post"),
     route('/set-emissions', card.setEmissions(db)),
     route('/cards/json', card.listJSON(db)),
-    route('/pair-images', pairImagesView),
+    route('/pair-images', pairImagesView()),
     route('/pair-images', pairImages, "post"),
     route('/upload', uploadPDF, "post"),
     route('/localisation', localisation.view(db)),

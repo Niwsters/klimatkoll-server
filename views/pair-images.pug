@@ -4,7 +4,7 @@ include layout-card
 mixin card-image(src, inputName)
   label
     input(type="radio" name=inputName value=src style="position: fixed; width: 0; height: 0; opacity: 0;")
-    img(src=src style="max-width: 20rem; margin: 0.5rem;")
+    img(src=src style="max-width: 10rem; margin: 0.5rem;")
 
 mixin image-list(images, inputName)
   div(style="overflow: scroll; max-height: 33rem;")
@@ -21,4 +21,4 @@ mixin image-list(images, inputName)
     +layoutCard("Back")
       +image-list(images, "back")
     div(style="position: fixed; bottom: 0; width: 100%; background: white; text-align: center; left: 0;")
-      button(style="width: 100%;") Create card
+      button(style="width: 100%; padding: 1rem 0;") Create card
