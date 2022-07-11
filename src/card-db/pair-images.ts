@@ -19,3 +19,7 @@ export function pairImages(req: Request, res: Response) {
   createPair(req.body.front, req.body.back)
   res.redirect("/pair-images")
 }
+
+export async function removeImagePair(image: string) {
+  fs.rmSync(`./pairs/${image}`)
+}

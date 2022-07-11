@@ -3,11 +3,6 @@ include layout-card
 
 mixin card-image(card)
   div
-    a(href="/card/"+card.name)
-      img(src=card.image style="max-width: 20rem;")
-
-mixin card-image(card)
-  div
     img(src=card.image style="width: 20rem; height: 15rem; object-fit: cover; object-position: 100% 0;")
 
 mixin card-form(card, action)
@@ -44,6 +39,10 @@ mixin card-language(card)
         each language in languages
           option(value=language.iso_639_2 selected=card.language==language.iso_639_2)= language.label
 
+mixin card-remove(card)
+  +card-form(card, "remove")
+    button Remove card
+
 mixin card-item(card, languages)
   div(style="display: flex; align-items: center; padding-bottom: 1rem; padding-top: 1rem; border-bottom: 1px solid black;")
     +card-image(card)
@@ -51,6 +50,7 @@ mixin card-item(card, languages)
       +card-name(card)
       +card-emissions(card)
       +card-language(card, languages)
+      +card-remove(card)
 
 +base
   +layoutCard("Cards")

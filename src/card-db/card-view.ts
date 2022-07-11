@@ -1,54 +1,61 @@
 import { Database } from "sqlite3";
 import {
-  card,
   cards,
   setCardName,
   setCardEmissions,
-  setCardLanguage
+  setCardLanguage,
+  removeCard,
+  card
 } from "./cards";
 import { events } from "./events";
 import { languages } from "./languages";
 import { Controller } from "./types";
+import { removeImagePair } from "./pair-images";
 
-export function cardListView(db: Database): Controller {
+function listView(db: Database): Controller {
   return async (_req, res) => res.render("cards", { cards: await cards(db), languages: languages(await events(db, "language")) })
 }
 
-export function cardDetailView(db: Database): Controller {
-  return async (req, res) => {
-    res.render("card", { card: await card(db, req.params.name) })
-  }
-}
-
-export function setEmissionsView(db: Database): Controller {
-  return async (_req, res) => {
-    res.render("set-emissions", { cards: await cards(db) })
-  }
-}
-
-export function cardSetName(db: Database): Controller {
+function setNameView(db: Database): Controller {
   return async (req, res) => {
     setCardName(db, req.body.id, req.body.name)
     res.redirect("/cards")
   }
 }
 
-export function cardSetEmissions(db: Database): Controller {
+function setEmissionsView(db: Database): Controller {
   return async (req, res) => {
     setCardEmissions(db, req.body.id, req.body.emissions)
     res.redirect("/cards")
   }
 }
 
-export function cardSetLanguage(db: Database): Controller {
+function setLanguageView(db: Database): Controller {
   return async (req, res) => {
     setCardLanguage(db, req.body.id, req.body.language)
     res.redirect("/cards")
   }
 }
 
-export function cardListJSON(db: Database): Controller {
+function listJSONView(db: Database): Controller {
   return async (_req, res) => {
     res.json(await cards(db))
   }
+}
+
+function removeView(db: Database): Controller {
+  return async (req, res) => {
+    await removeImagePair((await card(db, req.body.id)).image)
+    await removeCard(db, req.body.id)
+    return listView(db)(req, res)
+  }
+}
+
+export default {
+  list: listView,
+  setEmissions: setEmissionsView,
+  setName: setNameView,
+  setLanguage: setLanguageView,
+  listJSON: listJSONView,
+  remove: removeView
 }

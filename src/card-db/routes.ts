@@ -1,13 +1,5 @@
 import { Database } from "sqlite3"
-import {
-  cardDetailView,
-  cardListView,
-  setEmissionsView,
-  cardSetName,
-  cardSetEmissions,
-  cardSetLanguage,
-  cardListJSON
-} from "./card-view"
+import card from "./card-view"
 import localisation from "./localisation"
 import languages from "./languages"
 import { pairImages, pairImagesView } from "./pair-images"
@@ -36,16 +28,16 @@ export function routes(db: Database): Route[] {
     route('/languages/add', languages.add(db), "post"),
     route('/languages/remove', languages.remove(db), "post"),
     route('/json/languages', languages.json(db)),
-    route('/cards', cardListView(db)),
-    route('/card/:name', cardDetailView(db)),
-    route('/card/:id/set-name', cardSetName(db), "post"),
-    route('/card/:id/set-emissions', cardSetEmissions(db), "post"),
-    route('/card/:id/set-language', cardSetLanguage(db), "post"),
-    route('/set-emissions', setEmissionsView(db)),
+    route('/cards', card.list(db)),
+    route('/card/:id/set-name', card.setName(db), "post"),
+    route('/card/:id/set-emissions', card.setEmissions(db), "post"),
+    route('/card/:id/set-language', card.setLanguage(db), "post"),
+    route('/card/:id/remove', card.remove(db), "post"),
+    route('/set-emissions', card.setEmissions(db)),
+    route('/cards/json', card.listJSON(db)),
     route('/pair-images', pairImagesView),
     route('/pair-images', pairImages, "post"),
     route('/upload', uploadPDF, "post"),
-    route('/cards/json', cardListJSON(db)),
     route('/localisation', localisation.view(db)),
     route('/localisation/:language', localisation.view(db)),
     route('/localisation/:language/add-key', localisation.add(db), "post"),

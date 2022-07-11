@@ -5,6 +5,7 @@ import { card_created } from './create-card'
 import { card_emissions_set } from './set-card-emissions'
 import { card_language_set } from './set-card-language'
 import { card_name_set } from './set-card-name'
+import { card_removed } from './remove-card'
 
 type Handler = (cards: Card[], event: Event) => Card[]
 
@@ -12,7 +13,8 @@ const handlers: { [eventType: string]: Handler } = {
   "card_created": card_created,
   "card_name_set": card_name_set,
   "card_emissions_set": card_emissions_set,
-  "card_language_set": card_language_set
+  "card_language_set": card_language_set,
+  "card_removed": card_removed
 }
 
 function handler(eventType: string): Handler {
