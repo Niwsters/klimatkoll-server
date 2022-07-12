@@ -3,7 +3,6 @@ import assert from 'assert'
 import { GameState, GameEvent, Player } from './game'
 import { Card, CardData } from './cards'
 import cards from './cards-sv'
-import seedrandom = require('seedrandom');
 import { Factory } from './test-factory'
 
 function createDeck() {
@@ -16,7 +15,7 @@ function createDeck() {
   })
 }
 
-function createCard(id: number, name: string, emissions: number): Card {
+function createCard(id: number, name: string, emissions: number): any {
   return {
     id: id,
     name: name,
@@ -26,13 +25,9 @@ function createCard(id: number, name: string, emissions: number): Card {
 
 describe('GameState', () => {
   let deck: Card[] = createDeck()
-  let lastEventID = 0
   let state: GameState
-  const playerID = 0
-  const opponentID = 1
 
   beforeEach(() => {
-    lastEventID = 0
     deck = createDeck()
     state = Factory.GameState.get()
   })

@@ -69,9 +69,9 @@ describe('Socket', () => {
 
   describe('isProtocolAllowed', () => {
     it('returns true if protocol is sv or en', () => {
-      assert.equal(Socket.isProtocolAllowed('sv'), true)
-      assert.equal(Socket.isProtocolAllowed('en'), true)
-      assert.equal(Socket.isProtocolAllowed('blargh'), false)
+      assert.equal(Socket.isProtocolAllowed(['sv'], 'sv'), true)
+      assert.equal(Socket.isProtocolAllowed(['sv', 'en'], 'en'), true)
+      assert.equal(Socket.isProtocolAllowed(['honk'], 'blargh'), false)
     })
   })
 
