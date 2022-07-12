@@ -17,7 +17,7 @@ function pngFile(svgFile: string): string {
 }
 
 async function processSVGFiles(location: Location) {
-  for (const svgFile of fs.readdirSync('./svg')) {
+  for (const svgFile of fs.readdirSync(location.svgFolder)) {
     await svg2png(location.svgFile(svgFile), location.pngFile(pngFile(svgFile)), 1024)
     fs.rmSync(location.svgFile(svgFile))
   }

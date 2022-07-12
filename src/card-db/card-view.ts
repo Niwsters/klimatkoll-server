@@ -11,6 +11,7 @@ import { events } from "./events";
 import { languages } from "./languages";
 import { Controller } from "./types";
 import { removeImagePair } from "./pair-images";
+import { Location } from "./location";
 
 function listView(db: Database): Controller {
   return async (_req, res) => res.render("cards", { cards: await cards(db), languages: languages(await events(db, "language")) })
@@ -43,9 +44,9 @@ function listJSONView(db: Database): Controller {
   }
 }
 
-function removeView(db: Database): Controller {
+function removeView(db: Database, location: Location): Controller {
   return async (req, res) => {
-    await removeImagePair((await card(db, req.body.id)).image)
+    await removeImagePair((await card(db, req.body.id)).image, location)
     await removeCard(db, req.body.id)
     return listView(db)(req, res)
   }

@@ -36,8 +36,8 @@ async function app() {
 
   e.use(auth)
   e.use(fileUpload())
-  e.use(express.static('png'))
-  e.use(express.static('pairs'))
+  e.use(express.static(loc.pngFolder))
+  e.use(express.static(loc.pairsFolder))
   e.use(bodyParser.json())
 
   e.set('view engine', 'pug')
