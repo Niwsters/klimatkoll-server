@@ -62,5 +62,5 @@ export function location(root: string): Location {
     pairsFolder: pairsFolder(root),
     imagesToRemoveFolder: imagesToRemoveFolder(root),
     imageToRemoveFile: (filename: string) => imageToRemoveFullPath(root, filename)
-  }
+  } as const
 }
