@@ -1,37 +1,32 @@
 import { sleep } from "./sleep"
 import fs from 'fs'
 import { Controller } from "./types"
-import { pngFullPath, pngs } from "./pngs"
+import { Location } from "./location"
 
-const path = "./images-to-remove"
-
-function imageToRemovePath(filename: string) {
-  return `${path}/${filename}`
-}
-
-function imagesToRemove(): string[] {
+function imagesToRemove(location: Location): string[] {
   try {
-    return fs.readdirSync(path).map(imageToRemovePath)
+    return fs.readdirSync(location.imagesToRemoveFolder)
+             .map(location.imageToRemoveFile, location)
   } catch(e) {
     console.log('WARNING: Image remover could not read folder\n', e)
     return []
   }
 }
 
-function removeImages() {
-  for (const image of imagesToRemove()) {
+function removeImages(location: Location) {
+  for (const image of imagesToRemove(location)) {
     fs.rmSync(image)
   }
 }
 
-export async function removeImage(filename: string) {
-  fs.renameSync(pngFullPath(filename), imageToRemovePath(filename))
+export async function removeImage(filename: string, location: Location) {
+  fs.renameSync(location.pngFile(filename), location.imageToRemoveFile(filename))
 }
 
-export async function startImageRemover() {
+export async function startImageRemover(location: Location) {
   while (true) {
     try {
-      removeImages()
+      removeImages(location)
       await sleep(1000)
     } catch (e) {
       console.log(e)
@@ -39,16 +34,16 @@ export async function startImageRemover() {
   }
 }
 
-function view(): Controller {
+function view(location: Location): Controller {
   return async (_req, res) => {
-    res.render("remove-images", { images: await pngs() })
+    res.render("remove-images", { images: fs.readdirSync(location.pngFolder) })
   }
 }
 
-function removeImagesView(): Controller {
+function removeImagesView(location: Location): Controller {
   return async (req, res) => {
     const images: string[] = req.body.images || []
-    images.forEach(removeImage)
+    images.forEach(image => removeImage(image, location))
     res.redirect('./remove-images')
   }
 }

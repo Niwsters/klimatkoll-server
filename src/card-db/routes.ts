@@ -6,6 +6,7 @@ import removeImage from "./remove-image"
 import { pairImages, pairImagesView } from "./pair-images"
 import { Controller } from "./types"
 import { uploadPDF } from "./upload-pdf"
+import { Location } from "./location"
 
 export type Route = {
   method: string
@@ -21,7 +22,7 @@ function renderView(view: string): Controller {
   return async (_req, res) => res.render(view)
 }
 
-export function routes(db: Database): Route[] {
+export function routes(db: Database, location: Location): Route[] {
   return [
     route('/', renderView('card-db')),
     route('/upload', renderView('upload')),
@@ -36,11 +37,11 @@ export function routes(db: Database): Route[] {
     route('/card/:id/remove', card.remove(db), "post"),
     route('/set-emissions', card.setEmissions(db)),
     route('/cards/json', card.listJSON(db)),
-    route('/remove-images', removeImage.view()),
-    route('/remove-images', removeImage.remove(), "post"),
-    route('/pair-images', pairImagesView()),
-    route('/pair-images', pairImages, "post"),
-    route('/upload', uploadPDF, "post"),
+    route('/remove-images', removeImage.view(location)),
+    route('/remove-images', removeImage.remove(location), "post"),
+    route('/pair-images', pairImagesView(location)),
+    route('/pair-images', pairImages(location), "post"),
+    route('/upload', uploadPDF(location), "post"),
     route('/localisation', localisation.view(db)),
     route('/localisation/:language', localisation.view(db)),
     route('/localisation/:language/add-key', localisation.add(db), "post"),

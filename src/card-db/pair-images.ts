@@ -3,11 +3,11 @@ import { Request, Response } from 'express'
 import images, { Image } from 'images'
 import uniqid from 'uniqid'
 import { Controller } from './types'
-import { pngFullPath, pngs } from './pngs'
+import { Location } from './location'
 
-export function pairImagesView(): Controller {
+export function pairImagesView(location: Location): Controller {
   return async (_req: Request, res: Response) => {
-    const images = await pngs()
+    const images = fs.readdirSync(location.pngFolder)
     res.render('pair-images', { images })
   }
 }
@@ -24,9 +24,11 @@ function createPair(front: string, back: string): Image {
   return image
 }
 
-export function pairImages(req: Request, res: Response) {
-  createPair(pngFullPath(req.body.front), pngFullPath(req.body.back))
-  res.redirect("/pair-images")
+export function pairImages(location: Location): Controller {
+  return async (req, res) => {
+    createPair(location.pngFile(req.body.front), location.pngFile(req.body.back))
+    res.redirect("/pair-images")
+  }
 }
 
 export async function removeImagePair(image: string) {

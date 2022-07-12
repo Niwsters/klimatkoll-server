@@ -1,6 +1,7 @@
 import { sleep } from "./sleep";
 import fs from 'fs'
 import svgexport from 'svgexport'
+import { Location } from './location'
 
 async function svg2png(svgFile: string, pngFile: string, width: number) {
   return new Promise(resolve => {
@@ -11,28 +12,20 @@ async function svg2png(svgFile: string, pngFile: string, width: number) {
   })
 }
 
-function svgPath(svgFile: string): string {
-  return `./svg/${svgFile}`
-}
-
 function pngFile(svgFile: string): string {
   return svgFile.replace(/\.svg$/, '.png')
 }
 
-function pngPath(svgFile: string): string {
-  return `./png/${pngFile(svgFile)}`
-}
-
-async function processSVGFiles() {
-  for (const file of fs.readdirSync('./svg')) {
-    await svg2png(svgPath(file), pngPath(file), 1024)
-    fs.rmSync(svgPath(file))
+async function processSVGFiles(location: Location) {
+  for (const svgFile of fs.readdirSync('./svg')) {
+    await svg2png(location.svgFile(svgFile), location.pngFile(pngFile(svgFile)), 1024)
+    fs.rmSync(location.svgFile(svgFile))
   }
 }
 
-export async function startProcessingSVGFiles() {
+export async function startProcessingSVGFiles(location: Location) {
   while (true) {
-    await processSVGFiles()
+    await processSVGFiles(location)
     await sleep(1000)
   }
 }

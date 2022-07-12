@@ -9,8 +9,8 @@ export type Event = {
   payload: any
 }
 
-function database() {
-  const db = new Database('card-db.db')
+function database(location: string) {
+  const db = new Database(`${location}/card-db.db`)
   db.exec(`CREATE TABLE IF NOT EXISTS Events (
     id INTEGER NOT NULL PRIMARY KEY,
     timestamp TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -49,6 +49,6 @@ export async function events(db: Database, aggregate: string): Promise<Event[]> 
   return rows.map(row => JSON.parse(row.event))
 }
 
-export function ensureEventsDBCreated(): Database {
-  return database()
+export function ensureEventsDBCreated(location: string): Database {
+  return database(location)
 }

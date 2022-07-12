@@ -1,29 +1,13 @@
 import http from 'http'
 import express from 'express'
 import fileUpload from 'express-fileupload'
-import fs from 'fs'
-import { startProcessingPDFFiles } from './process-pdf-files'
-import { startProcessingSVGFiles } from './process-svg-files'
 import { routes } from './routes'
 import { spawn } from 'child_process'
 import bodyParser from 'body-parser'
-import { startProcessingImagePairs } from './cards'
 import { ensureEventsDBCreated } from './events'
 import { auth } from './auth'
-import { startImageRemover } from './remove-image'
-
-function createDirIfNotExists(dir: string) {
-  if (!fs.existsSync(dir))
-    fs.mkdirSync(dir)
-}
-
-function createDirs() {
-  createDirIfNotExists('pdf')
-  createDirIfNotExists('svg')
-  createDirIfNotExists('png')
-  createDirIfNotExists('pairs')
-  createDirIfNotExists('images-to-remove')
-}
+import { startCardImageProcessing } from './start-card-image-processing'
+import { location } from './location'
 
 async function isProgramInstalled(program: string): Promise<boolean> {
   return new Promise(resolve => {
@@ -43,13 +27,10 @@ async function checkRequirements() {
 async function app() {
   await checkRequirements()
 
-  const db = ensureEventsDBCreated()
+  const loc = location("../klimatkoll-server-data")
+  const db = ensureEventsDBCreated(loc.root)
 
-  createDirs()
-  startProcessingPDFFiles()
-  startProcessingSVGFiles()
-  startProcessingImagePairs(db)
-  startImageRemover()
+  startCardImageProcessing(db)
 
   const e = express()
 
@@ -60,7 +41,7 @@ async function app() {
   e.use(bodyParser.json())
 
   e.set('view engine', 'pug')
-  routes(db).forEach(route => {
+  routes(db, loc).forEach(route => {
     switch (route.method) {
       case "post":
         e.post(route.url, route.controller)
