@@ -8,6 +8,7 @@ import { ensureEventsDBCreated } from './events'
 import { auth } from './auth'
 import { startCardImageProcessing } from './start-card-image-processing'
 import { location } from './location'
+import fs from 'fs'
 
 async function isProgramInstalled(program: string): Promise<boolean> {
   return new Promise(resolve => {
@@ -27,7 +28,8 @@ async function checkRequirements() {
 async function app() {
   await checkRequirements()
 
-  const loc = location("../klimatkoll-server-data")
+  const config = JSON.parse(fs.readFileSync("./card-db-config.json").toString())
+  const loc = location(config.dataLocation)
   const db = ensureEventsDBCreated(loc.root)
 
   startCardImageProcessing(db)
