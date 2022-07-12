@@ -20,21 +20,21 @@ function listView(db: Database): Controller {
 function setNameView(db: Database): Controller {
   return async (req, res) => {
     setCardName(db, req.body.id, req.body.name)
-    res.redirect("/cards")
+    res.redirect("/admin/cards")
   }
 }
 
 function setEmissionsView(db: Database): Controller {
   return async (req, res) => {
     setCardEmissions(db, req.body.id, req.body.emissions)
-    res.redirect("/cards")
+    res.redirect("/admin/cards")
   }
 }
 
 function setLanguageView(db: Database): Controller {
   return async (req, res) => {
     setCardLanguage(db, req.body.id, req.body.language)
-    res.redirect("/cards")
+    res.redirect("/admin/cards")
   }
 }
 

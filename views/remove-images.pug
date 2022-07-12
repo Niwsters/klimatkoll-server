@@ -13,7 +13,7 @@ mixin image-list(images, inputName)
 
 +base
   style= "[type=checkbox]:checked + img { outline: 2px solid red; }"
-  form(method="post" action="/remove-images" enctype="multipart/form-data")
+  form(method="post" action="/admin/remove-images" enctype="multipart/form-data")
     +layoutCard("Remove images")
       +image-list(images, "images")
       button Remove selected images

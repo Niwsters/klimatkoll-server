@@ -4,7 +4,7 @@ include layout-card
 mixin localisation-form(language, action)
   form(
     style="margin: 0; padding: 0;"
-    action="/localisation/"+language+"/"+action
+    action="/admin/localisation/"+language+"/"+action
     method="post"
     enctype="multipart/form-data"
   )
@@ -38,7 +38,7 @@ mixin localisation-tab-link(language, active)
   if active
     block
   else
-    a(href="/localisation/"+language)
+    a(href="/admin/localisation/"+language)
       block
 
 

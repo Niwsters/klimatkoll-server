@@ -27,7 +27,7 @@ function createPair(front: string, back: string, location: Location): Image {
 export function pairImages(location: Location): Controller {
   return async (req, res) => {
     createPair(location.pngFile(req.body.front), location.pngFile(req.body.back), location)
-    res.redirect("/pair-images")
+    res.redirect("/admin/pair-images")
   }
 }
 

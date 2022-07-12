@@ -4,9 +4,10 @@ import { sleep } from './sleep'
 import { Location } from './location'
 
 async function pageCount(pdfFile: string, location: Location): Promise<number> {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const process = spawn('sh', ['./pdf-page-count.sh', location.pdfFile(pdfFile)], { shell: true })
     process.stdout.on('data', (data: Buffer) => resolve(parseInt(data.toString())))
+    process.stderr.on('data', (data: Buffer) => reject(data.toString()))
   })
 }
 
@@ -34,7 +35,11 @@ function svgFileName(pdfFile: string, pageNumber: number): string {
 async function processPDFFile(pdfFile: string, location: Location) {
   const count = await pageCount(pdfFile, location)
   for (let page=1; page<count; page++) {
-    await pdf2svg(pdfFile, svgFileName(pdfFile, page), page, location)
+    try {
+      await pdf2svg(pdfFile, svgFileName(pdfFile, page), page, location)
+    } catch (e) {
+      console.log(`WARNING: pdf2svg emitted error:`, e)
+    }
   }
   fs.rmSync(location.pdfFile(pdfFile))
 }

@@ -3,10 +3,10 @@ include layout-card
 
 mixin card-image(card)
   div
-    img(src=card.image style="width: 20rem; height: 15rem; object-fit: cover; object-position: 100% 0;")
+    img(src="/admin/" + card.image style="width: 20rem; height: 15rem; object-fit: cover; object-position: 100% 0;")
 
 mixin card-form(card, action)
-  form(action="/card/"+card.id+"/"+action method="post" enctype="multipart/form-data")
+  form(action="/admin/card/"+card.id+"/"+action method="post" enctype="multipart/form-data")
     input(type="hidden" name="id" value=card.id)
     block
 

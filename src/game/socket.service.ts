@@ -49,7 +49,7 @@ export class SocketService {
     app.get('/:language/image/:image', (req, res) => {
       if (req.params.image === "space.png")
         return res.sendFile(path.resolve('./public/space.png'))
-      return res.sendFile(path.resolve(`./pairs/${req.params.image}`))
+      return res.sendFile(path.resolve(`../klimatkoll-server-data/pairs/${req.params.image}`))
     })
 
     app.get('/localisation', async (_req, res) => {

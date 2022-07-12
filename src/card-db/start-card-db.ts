@@ -25,6 +25,11 @@ async function checkRequirements() {
   }
 }
 
+function rewriteURL(req: any, res: any, next: any) {
+  req.url = req.url.replace(/^\/admin/, "")
+  next()
+}
+
 async function app() {
   await checkRequirements()
 
@@ -38,6 +43,7 @@ async function app() {
 
   e.use(auth)
   e.use(fileUpload())
+  e.use(rewriteURL)
   e.use(express.static(loc.pngFolder))
   e.use(express.static(loc.pairsFolder))
   e.use(bodyParser.json())
@@ -46,9 +52,9 @@ async function app() {
   routes(db, loc).forEach(route => {
     switch (route.method) {
       case "post":
-        e.post(route.url, route.controller)
+	e.post(route.url, route.controller)
       default:
-        e.get(route.url, route.controller)
+	e.get(route.url, route.controller)
     }
   })
 
