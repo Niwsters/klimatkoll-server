@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { Request, Response } from 'express'
-import images, { Image } from 'images'
+import images from 'images'
 import uniqid from 'uniqid'
 import { Controller } from './types'
 import { Location } from './location'
@@ -12,16 +12,18 @@ export function pairImagesView(location: Location): Controller {
   }
 }
 
-function createPair(front: string, back: string, location: Location): Image {
-  const image = images(2048, 2048)
-    .draw(images(front), 0, 0)
-    .draw(images(back), 1024, 0)
-    .save(`${location.pairsFolder}/${uniqid()}.png`, { quality: 100 })
+function createPair(front: string, back: string, location: Location) {
+  try {
+    images(2048, 2048)
+      .draw(images(front), 0, 0)
+      .draw(images(back), 1024, 0)
+      .save(`${location.pairsFolder}/${uniqid()}.png`, { quality: 100 })
 
-  fs.rmSync(front)
-  fs.rmSync(back)
-
-  return image
+    fs.rmSync(front)
+    fs.rmSync(back)
+  } catch (e) {
+    console.log(`WARNING: Failed to create pair:`, e)
+  }
 }
 
 export function pairImages(location: Location): Controller {

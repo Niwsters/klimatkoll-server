@@ -1,8 +1,6 @@
 import seedrandom from 'seedrandom'
-import { BehaviorSubject, Subscription } from 'rxjs'
-import { filter, map } from 'rxjs/operators'
-import { Card, CardData } from './cards'
-import { Socket, SocketEvent, SocketResponse } from './socket'
+import { Card } from './cards'
+import { SocketEvent, SocketResponse } from './socket'
 
 export class GameEvent {
   event_id: number
