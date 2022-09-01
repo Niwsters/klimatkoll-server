@@ -3,5 +3,4 @@ Card database:
 - Upload cards: Instructions
 - Localisation: Hide translations unless language is picked
 - Upload card images: "Cards uploaded" feedback on Upload cards, including info on that it takes a while for the cards to finish processing
-- PRIO: Pair images: Filter matched cards
 - PRIO: Edit cards: Full form per card
