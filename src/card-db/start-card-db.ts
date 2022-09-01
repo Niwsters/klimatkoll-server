@@ -25,7 +25,7 @@ async function checkRequirements() {
   }
 }
 
-function rewriteURL(req: any, res: any, next: any) {
+function rewriteURL(req: any, _: any, next: any) {
   req.url = req.url.replace(/^\/admin/, "")
   next()
 }
@@ -37,7 +37,7 @@ async function app() {
   const loc = location(config.dataLocation)
   const db = ensureEventsDBCreated(loc.root)
 
-  startCardImageProcessing(db)
+  startCardImageProcessing(db, loc)
 
   const e = express()
 

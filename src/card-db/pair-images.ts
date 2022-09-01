@@ -1,15 +1,44 @@
 import fs from 'fs'
 import { Request, Response } from 'express'
 import images from 'images'
-import uniqid from 'uniqid'
 import { Controller } from './types'
 import { Location } from './location'
 
+function existingPairs(location: Location): string[] {
+  return fs.readdirSync(location.pairsFolder)
+}
+
+function pairedImages(location: Location): Set<string> {
+  let images = existingPairs(location)
+    .map(s => s.split(/([^-]+-[^-]+)-/))
+    .map(a => {
+      let [left, right] = a.slice(1)
+      return [left + '.png', right]
+    })
+    .flat()
+    .filter(s => s !== '')
+  return new Set(images)
+}
+
 export function pairImagesView(location: Location): Controller {
   return async (_req: Request, res: Response) => {
+    const alreadyPaired = pairedImages(location)
+
     const images = fs.readdirSync(location.pngFolder)
+      .filter(i => !alreadyPaired.has(i))
+
+
     res.render('pair-images', { images })
   }
+}
+
+function fileName(src: string): string {
+  let match = src.match(/([^\/]+)\.png$/) || ['', '']
+  return match[1]
+}
+
+function pairFileName(front: string, back: string): string {
+  return `${fileName(front)}-${fileName(back)}`
 }
 
 function createPair(front: string, back: string, location: Location) {
@@ -17,10 +46,7 @@ function createPair(front: string, back: string, location: Location) {
     images(2048, 2048)
       .draw(images(front), 0, 0)
       .draw(images(back), 1024, 0)
-      .save(`${location.pairsFolder}/${uniqid()}.png`, { quality: 100 })
-
-    fs.rmSync(front)
-    fs.rmSync(back)
+      .save(`${location.pairsFolder}/${pairFileName(front, back)}.png`, { quality: 100 })
   } catch (e) {
     console.log(`WARNING: Failed to create pair:`, e)
   }

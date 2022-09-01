@@ -4,7 +4,7 @@ import { startProcessingSVGFiles } from './process-svg-files'
 import { startProcessingImagePairs } from './cards'
 import { startImageRemover } from './remove-image'
 import { Database } from 'sqlite3'
-import { location, Location } from './location'
+import { Location } from './location'
 
 function createDirIfNotExists(dir: string) {
   if (!fs.existsSync(dir))
@@ -19,11 +19,10 @@ function createDirs(location: Location) {
   createDirIfNotExists(location.imagesToRemoveFolder)
 }
 
-export function startCardImageProcessing(db: Database) {
-  const loc = location("../klimatkoll-server-data")
-  createDirs(loc)
-  startProcessingPDFFiles(loc)
-  startProcessingSVGFiles(loc)
-  startProcessingImagePairs(db, loc)
-  startImageRemover(loc)
+export function startCardImageProcessing(db: Database, location: Location) {
+  createDirs(location)
+  startProcessingPDFFiles(location)
+  startProcessingSVGFiles(location)
+  startProcessingImagePairs(db, location)
+  startImageRemover(location)
 }
