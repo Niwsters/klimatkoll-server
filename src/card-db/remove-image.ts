@@ -35,8 +35,8 @@ export async function startImageRemover(location: Location) {
 }
 
 function view(location: Location): Controller {
-  return async (_req, res) => {
-    res.render("remove-images", { images: fs.readdirSync(location.pngFolder) })
+  return async (_req, _res, renderView) => {
+    renderView("remove-images", { images: fs.readdirSync(location.pngFolder) })
   }
 }
 

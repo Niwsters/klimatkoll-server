@@ -90,22 +90,22 @@ async function removeLanguage(db: Database, iso_639_2: string) {
 }
 
 function view(db: Database): Controller {
-  return async (_req, res) => {
-    return res.render("languages", { languages: languages(await events(db, "language")) })
+  return async (_req, _res, renderView) => {
+    return renderView("languages", { languages: languages(await events(db, "language")) })
   }
 }
 
 function addLanguageView(db: Database): Controller {
-  return async (req, res) => {
+  return async (req, res, renderView) => {
     await addLanguage(db, req.body.iso_639_2, req.body.label)
-    return view(db)(req, res)
+    return view(db)(req, res, renderView)
   }
 }
 
 function removeLanguageView(db: Database): Controller {
-  return async (req, res) => {
+  return async (req, res, renderView) => {
     await removeLanguage(db, req.body.iso_639_2)
-    return view(db)(req, res)
+    return view(db)(req, res, renderView)
   }
 }
 

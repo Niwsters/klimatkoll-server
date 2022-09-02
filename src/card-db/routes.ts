@@ -15,11 +15,15 @@ export type Route = {
 }
 
 function route(url: string, controller: Controller, method: string = "get"): Route {
-  return { url, controller, method }
+  const newCtrl: Controller = (req, res) => {
+    controller(req, res, (view: string, data: any) => res.render(view, { path: req.path, ...data }))
+  }
+
+  return { url, controller: newCtrl, method }
 }
 
-function renderView(view: string): Controller {
-  return async (_req, res) => res.render(view)
+function renderView(view: string, data: any = {}): Controller {
+  return async (req, res) => res.render(view, { path: req.path, ...data })
 }
 
 export function routes(db: Database, location: Location): Route[] {

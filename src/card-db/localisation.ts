@@ -152,14 +152,14 @@ async function translate(db: Database, key: string, translation: string, languag
 }
 
 function view(db: Database): Controller {
-  return async (req, res) => {
+  return async (req, _res, renderView) => {
     let data = {
         language: req.params.language,
         languages: languages(await events(db, "language"))
     }
 
     if (!req.params.language) {
-      return res.render('localisation', {
+      return renderView('localisation', {
         ...data,
         localisations: []
       })
@@ -169,7 +169,7 @@ function view(db: Database): Controller {
       ...await events(db, "localisation"),
       ...await events(db, "language")
     ]
-    return res.render('localisation', {
+    return renderView('localisation', {
       ...data,
       localisations: localisations(es, req.params.language),
     })
@@ -177,23 +177,23 @@ function view(db: Database): Controller {
 }
 
 function addKeyView(db: Database): Controller {
-  return async (req, res) => {
+  return async (req, res, renderView) => {
     await addKey(db, req.body.key)
-    return view(db)(req, res)
+    return view(db)(req, res, renderView)
   }
 }
 
 function removeKeyView(db: Database): Controller {
-  return async (req, res) => {
+  return async (req, res, renderView) => {
     await removeKey(db, req.body.key)
-    return view(db)(req, res)
+    return view(db)(req, res, renderView)
   }
 }
 
 function translateView(db: Database): Controller {
-  return async (req, res) => {
+  return async (req, res, renderView) => {
     await translate(db, req.body.key, req.body.translation, req.body.language)
-    return view(db)(req, res)
+    return view(db)(req, res, renderView)
   }
 }
 

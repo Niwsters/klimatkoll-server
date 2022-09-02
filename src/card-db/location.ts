@@ -34,6 +34,10 @@ function pngFile(root: string, filename: string): string {
   return `${pngFolder(root)}/${filename}`
 }
 
+function assetsFolder(root: string): string {
+  return `${root}/assets`
+}
+
 export type FolderPath = string
 export type FilePath = (filename: string) => string
 
@@ -47,7 +51,8 @@ export type Location = {
   pngFile: FilePath,
   pairsFolder: FolderPath,
   imagesToRemoveFolder: FolderPath,
-  imageToRemoveFile: FilePath
+  imageToRemoveFile: FilePath,
+  assetsFolder: FolderPath
 }
 
 export function location(root: string): Location {
@@ -61,6 +66,7 @@ export function location(root: string): Location {
     pngFile: (filename: string) => pngFile(root, filename),
     pairsFolder: pairsFolder(root),
     imagesToRemoveFolder: imagesToRemoveFolder(root),
-    imageToRemoveFile: (filename: string) => imageToRemoveFullPath(root, filename)
+    imageToRemoveFile: (filename: string) => imageToRemoveFullPath(root, filename),
+    assetsFolder: assetsFolder(root)
   } as const
 }

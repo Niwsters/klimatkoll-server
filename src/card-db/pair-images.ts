@@ -1,5 +1,4 @@
 import fs from 'fs'
-import { Request, Response } from 'express'
 import images from 'images'
 import { Controller } from './types'
 import { Location } from './location'
@@ -21,14 +20,14 @@ function pairedImages(location: Location): Set<string> {
 }
 
 export function pairImagesView(location: Location): Controller {
-  return async (_req: Request, res: Response) => {
+  return async (_req, _res, renderView) => {
     const alreadyPaired = pairedImages(location)
 
     const images = fs.readdirSync(location.pngFolder)
       .filter(i => !alreadyPaired.has(i))
 
 
-    res.render('pair-images', { images })
+    renderView('pair-images', { images })
   }
 }
 

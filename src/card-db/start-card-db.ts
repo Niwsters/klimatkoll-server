@@ -46,6 +46,7 @@ async function app() {
   e.use(rewriteURL)
   e.use(express.static(loc.pngFolder))
   e.use(express.static(loc.pairsFolder))
+  e.use(express.static(loc.assetsFolder))
   e.use(bodyParser.json())
 
   e.set('view engine', 'pug')
