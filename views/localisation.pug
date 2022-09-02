@@ -76,7 +76,8 @@ mixin localisation-table(language, localisations)
 +base
   +layoutCard("Translations")
     +localisation-tabs(language, languages)
-    +localisation-table(language, localisations)
+    if language
+      +localisation-table(language, localisations)
   +layoutCard("Add key (for all languages)")
     +localisation-add-key(language)
   +layoutCard("Remove key (for all languages)")

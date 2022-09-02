@@ -2,5 +2,4 @@ Card database:
 - Manage languages: Labels
 - Upload cards: Instructions
 - Upload card images: "Cards uploaded" feedback on Upload cards, including info on that it takes a while for the cards to finish processing
-- PRIO: Localisation: Hide translations unless language is picked
 - PRIO: Edit cards: Search and/or language filters

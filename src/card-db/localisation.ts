@@ -153,14 +153,25 @@ async function translate(db: Database, key: string, translation: string, languag
 
 function view(db: Database): Controller {
   return async (req, res) => {
+    let data = {
+        language: req.params.language,
+        languages: languages(await events(db, "language"))
+    }
+
+    if (!req.params.language) {
+      return res.render('localisation', {
+        ...data,
+        localisations: []
+      })
+    }
+
     const es = [
       ...await events(db, "localisation"),
       ...await events(db, "language")
     ]
-    res.render('localisation', {
+    return res.render('localisation', {
+      ...data,
       localisations: localisations(es, req.params.language),
-      language: req.params.language,
-      languages: languages(await events(db, "language"))
     })
   }
 }
