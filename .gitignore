@@ -128,3 +128,4 @@ card-db.db
 credentials.json
 images-to-remove
 card-db-config.json
+ecosystem.config.js
