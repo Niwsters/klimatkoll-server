@@ -52,5 +52,8 @@ mixin card-item(card, languages)
 
 +base
   +layoutCard("Cards")
+    form(action="/admin/cards" method="get")
+      input(type="text" name="search" value=search)
+      button Search
     each card in cards
       +card-item(card, languages)

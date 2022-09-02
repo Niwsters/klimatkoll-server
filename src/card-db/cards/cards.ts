@@ -6,8 +6,11 @@ import { card_emissions_set } from './set-card-emissions'
 import { card_language_set } from './set-card-language'
 import { card_name_set } from './set-card-name'
 import { card_removed } from './remove-card'
+import { Language, languages } from '../languages'
 
 type Handler = (cards: Card[], event: Event) => Card[]
+
+type EnrichedCard = Card & { languageLabel: string }
 
 const handlers: { [eventType: string]: Handler } = {
   "card_created": card_created,
@@ -27,9 +30,30 @@ function onEvent(cards: Card[], event: Event): Card[] {
   return handler(event.type)(cards, event)
 }
 
-export async function cards(db: Database): Promise<Card[]> {
+function addLanguageLabels(cards: Card[], languages: Language[]): EnrichedCard[] {
+  return cards.map(card => {
+    return {
+      ...card,
+      languageLabel: languages.find(c => c.iso_639_2 === card.language)?.label || 'Unknown language'
+    }
+  })
+}
+
+function filterCards(cards: EnrichedCard[], search: string): EnrichedCard[] {
+  if (search !== '') {
+    cards = cards.filter(c => c.languageLabel.toUpperCase() === search.toUpperCase() ||
+                              c.name.toUpperCase().includes(search.toUpperCase()))
+  }
+  return cards
+}
+
+export async function cards(db: Database, search: string = ""): Promise<Card[]> {
+  const langs = languages(await events(db, "language"))
   const cardEvents = await events(db, "card")
-  return cardEvents.reduce(onEvent, [])
+  let cards = cardEvents.reduce(onEvent, [])
+  let enrichedCards = addLanguageLabels(cards, langs)
+  enrichedCards = filterCards(enrichedCards, search)
+  return enrichedCards
 }
 
 export async function cardsByLanguage(

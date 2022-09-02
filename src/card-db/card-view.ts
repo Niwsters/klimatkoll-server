@@ -14,7 +14,14 @@ import { removeImagePair } from "./pair-images";
 import { Location } from "./location";
 
 function listView(db: Database): Controller {
-  return async (_req, res) => res.render("cards", { cards: await cards(db), languages: languages(await events(db, "language")) })
+  return async (req, res) => {
+    const search = req.query.search as string
+    res.render("cards", {
+      cards: await cards(db, search),
+      languages: languages(await events(db, "language")),
+      search: search
+    })
+  }
 }
 
 function listJSONView(db: Database): Controller {
