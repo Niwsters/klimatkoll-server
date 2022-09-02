@@ -11,6 +11,6 @@ export function uploadPDF(location: Location): Controller {
 
     cards.mv(location.pdfFile(uniqid() + '.pdf'))
 
-    res.redirect("/upload")
+    res.redirect("/admin/upload")
   }
 }
