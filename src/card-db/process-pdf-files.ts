@@ -35,6 +35,7 @@ function svgFileName(pdfFile: string, pageNumber: number): string {
 async function processPDFFile(pdfFile: string, location: Location) {
   const count = await pageCount(pdfFile, location)
   for (let page=1; page<count; page++) {
+    console.log(`PDF PROCESSING: Processing page: ${page}`)
     try {
       await pdf2svg(pdfFile, svgFileName(pdfFile, page), page, location)
     } catch (e) {
@@ -47,6 +48,7 @@ async function processPDFFile(pdfFile: string, location: Location) {
 async function processPDFFiles(location: Location) {
   const files = fs.readdirSync(location.pdfFolder)
   for (const file of files) {
+    console.log(`PDF PROCESSING: Processing PDF file: ${file}`)
     await processPDFFile(file, location)
   }
 }
