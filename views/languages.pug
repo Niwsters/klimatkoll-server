@@ -22,16 +22,27 @@ mixin add-language-form
       +language-input("label", "Label")
       button Add language
 
+mixin row(style='')
+  div(style=`display: flex;${style}`)
+    block
+
+mixin cell(isFirst)
+  span(style=isFirst ? "width: 6rem;" : "width: 6rem; padding-left: 1rem;")
+    block
+
 mixin language-item(language)
-  div
-    span=language.iso_639_2
-    span(style="padding-left: 1rem;")=language.label
-    span(style="padding-left: 1rem;")
+  +row
+    +cell(true)=language.iso_639_2
+    +cell=language.label
+    +cell
       +languages-form("remove")
         input(type="hidden" name="iso_639_2" value=language.iso_639_2)
         button Remove
 
 mixin language-list(languages)
+  +row("margin-bottom: 0.5rem; font-weight: bold;")
+    +cell(true) ISO 639-2
+    +cell Label
   each language in languages
     +language-item(language)
 
