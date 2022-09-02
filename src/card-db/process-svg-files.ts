@@ -30,7 +30,11 @@ async function processSVGFiles(location: Location) {
 
 export async function startProcessingSVGFiles(location: Location) {
   while (true) {
-    await processSVGFiles(location)
+    try {
+      await processSVGFiles(location)
+    } catch (e) {
+      console.log('WARNING: SVG Processing returned error:', e)
+    }
     await sleep(1000)
   }
 }
