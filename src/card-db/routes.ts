@@ -5,7 +5,7 @@ import languages from "./languages"
 import removeImage from "./remove-image"
 import { pairImages, pairImagesView } from "./pair-images"
 import { Controller } from "./types"
-import { uploadPDF } from "./upload-pdf"
+import * as upload from './upload'
 import { Location } from "./location"
 
 export type Route = {
@@ -30,6 +30,7 @@ export function routes(db: Database, location: Location): Route[] {
   return [
     route('/', renderView('card-db')),
     route('/upload', renderView('upload')),
+    route('/upload', upload.zip(location), "post"),
     route('/languages', languages.view(db)),
     route('/languages/add', languages.add(db), "post"),
     route('/languages/remove', languages.remove(db), "post"),
@@ -42,7 +43,6 @@ export function routes(db: Database, location: Location): Route[] {
     route('/remove-images', removeImage.remove(location), "post"),
     route('/pair-images', pairImagesView(location)),
     route('/pair-images', pairImages(location), "post"),
-    route('/upload', uploadPDF(location), "post"),
     route('/localisation', localisation.view(db)),
     route('/localisation/:language', localisation.view(db)),
     route('/localisation/:language/add-key', localisation.add(db), "post"),

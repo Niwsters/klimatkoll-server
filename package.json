@@ -29,7 +29,8 @@
     "sqlite3": "^5.0.8",
     "svgexport": "^0.4.2",
     "uniqid": "^5.4.0",
-    "websocket": "^1.0.32"
+    "websocket": "^1.0.32",
+    "yauzl": "^2.10.0"
   },
   "devDependencies": {
     "@types/basic-auth": "^1.1.3",
