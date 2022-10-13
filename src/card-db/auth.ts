@@ -6,7 +6,6 @@ export type Credentials = { name: string, password: string }
 
 export function credentials(): Credentials {
   return JSON.parse(fs.readFileSync('./credentials.json').toString())
-//  return { name: "admin", password: "blargh" }
 }
 
 function validateCredentials(credentials: Credentials): boolean {
