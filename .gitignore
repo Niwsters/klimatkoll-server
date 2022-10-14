@@ -115,16 +115,9 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-run-clients.sh
-edit-client.sh
-
 compiled
 
 images
-svg
-png
-pairs
-card-db.db
 credentials.json
 images-to-remove
 card-db-config.json
