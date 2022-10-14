@@ -14,7 +14,7 @@
     "setup-https": "npm run create-ca && npm run create-cert"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "basic-auth": "^2.0.1",
     "body-parser": "^1.20.0",
