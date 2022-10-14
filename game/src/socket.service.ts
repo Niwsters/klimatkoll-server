@@ -58,6 +58,13 @@ export class SocketService {
       }
     })
 
+    app.get('/', async (_req, res) => {
+      res.render('index', { languages: await languages() })
+    })
+
+    app.set('view engine', 'pug')
+    app.set('views', 'game/views')
+
     app.use(express.static('game/public'))
 
     this.httpServer = http.createServer(app)
@@ -88,7 +95,8 @@ export class SocketService {
 
       const protocol = request.requestedProtocols[0]
 
-      if (!Socket.isProtocolAllowed(await languages(), protocol)) {
+      const languageCodes = (await languages()).map(l => l.iso_639_2)
+      if (!Socket.isProtocolAllowed(languageCodes, protocol)) {
         request.reject()
         return
       }

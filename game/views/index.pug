@@ -1,0 +1,10 @@
+include base
+
+mixin language-link(code, label)
+  a(href="/" + code, style="margin: 2rem; font-size: 2rem;")= label
+
++base
+  div(style="text-align: center; margin-top: 10rem;")
+    h1 Language
+    each language in languages
+      +language-link(language.iso_639_2, language.label)
