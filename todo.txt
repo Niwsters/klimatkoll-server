@@ -1,9 +1,0 @@
-Card database:
-- Manage languages: Labels
-- Upload cards: Instructions
-- Upload card images: "Cards uploaded" feedback on Upload cards, including info on that it takes a while for the cards to finish processing
-- Make game language links more pretty
-- PRIO: PDF redirect acted weird in production
-- PRIO: Can't access spela.kortspeletklimatkoll.se/admin, have to go to suburl, etc /admin/languages
-- PRIO: Remove image crashes server
-- PRIO: Auto-add links to game versions of different languages (now Swedish and English are hard coded)
