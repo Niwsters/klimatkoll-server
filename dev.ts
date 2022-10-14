@@ -1,6 +1,6 @@
-import { startGame } from './src/game/start-game'
-import { deckGetter } from './src/game/card-fetcher'
-import { startCardDB } from './src/card-db'
+import { startGame } from './game/src/start-game'
+import { deckGetter } from './game/src/card-fetcher'
+import { startCardDB } from './card-db/src'
 
 async function start() {
   await startCardDB()

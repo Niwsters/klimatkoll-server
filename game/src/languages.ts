@@ -1,4 +1,4 @@
-import { Language } from "../card-db/languages"
+import { Language } from "../../card-db/src/languages"
 import { httpGetCardDB } from "./http-get-card-db"
 
 export async function languages(): Promise<string[]> {

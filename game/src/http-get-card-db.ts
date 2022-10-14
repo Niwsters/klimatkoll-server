@@ -1,5 +1,5 @@
 import http from 'http'
-import { Credentials, credentials } from '../card-db/auth'
+import { Credentials, credentials } from '../../card-db/src/auth'
 
 function parseJSON(jsonStr: string): any {
   try {

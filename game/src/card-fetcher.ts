@@ -1,5 +1,5 @@
-import { Card } from '../../src/card-db/cards/card'
-import { sleep } from '../../src/card-db/sleep'
+import { Card } from '../../card-db/src/cards/card'
+import { sleep } from '../../card-db/src/sleep'
 import { httpGetCardDB } from './http-get-card-db'
 
 async function getCards(): Promise<Card[]> {
