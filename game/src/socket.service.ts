@@ -58,8 +58,7 @@ export class SocketService {
       }
     })
 
-    app.use(express.static(__dirname + '/../../public'))
-    app.use(express.static(__dirname + '/../../pairs'))
+    app.use(express.static('game/public'))
 
     this.httpServer = http.createServer(app)
     const httpServer = this.httpServer
