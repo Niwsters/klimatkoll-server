@@ -20,8 +20,6 @@ export class SocketService {
   events$: Subject<SocketEvent> = new Subject()
 
   handleResponse(response: SocketResponse) {
-    console.log("Response:", response)
-
     const socket = this.sockets.find((s: Socket) => s.socketID === response.socketID)
     if (!socket)
       throw new Error(`Could not find socket with ID: ${response.socketID}`)
@@ -53,7 +51,11 @@ export class SocketService {
     })
 
     app.get('/localisation', async (_req, res) => {
-      return res.json(await localisation())
+      try {
+        return res.json(await localisation())
+      } catch (e) {
+        return res.json({ type: "Error", message: "Failed to fetch localisation data from card database" })
+      }
     })
 
     app.use(express.static(__dirname + '/../../public'))
