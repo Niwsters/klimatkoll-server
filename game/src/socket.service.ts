@@ -50,6 +50,10 @@ export class SocketService {
       return res.sendFile(path.resolve(`../klimatkoll-server-data/pairs/${req.params.image}`))
     })
 
+    app.get('/', async (_req, res) => {
+      res.render('index', { languages: await languages() })
+    })
+
     app.use(express.static('game/public'))
 
     app.get('/localisation', async (_req, res) => {
@@ -62,10 +66,6 @@ export class SocketService {
 
     app.get('/:language', (req, res) => {
       res.render('game', { language: req.params.language })
-    })
-
-    app.get('/', async (_req, res) => {
-      res.render('index', { languages: await languages() })
     })
 
 
