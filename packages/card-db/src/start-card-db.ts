@@ -33,7 +33,7 @@ async function app() {
   e.use(bodyParser.json())
 
   e.set('view engine', 'pug')
-  e.set('views', path.join('./card-db/views'))
+  e.set('views', path.join('../card-db/views'))
 
   routes(db, loc).forEach(route => {
     switch (route.method) {

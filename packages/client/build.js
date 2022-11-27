@@ -4,7 +4,7 @@ esbuild.build({
   entryPoints: ['./src/index.tsx'],
   bundle: true,
   watch: false,
-  outfile: '../../dist/packages/client/bundle.js',
+  outfile: './dist/bundle.js',
   minify: true
 })
 .catch(reason => {

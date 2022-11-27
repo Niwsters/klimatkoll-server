@@ -54,7 +54,8 @@ export class SocketService {
       res.render('index', { languages: await languages() })
     })
 
-    app.use(express.static('../game/public'))
+    app.use(express.static(path.resolve('../client/public')))
+    app.use(express.static(path.resolve('../client/dist')))
 
     app.get('/localisation', async (_req, res) => {
       try {
