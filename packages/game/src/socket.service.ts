@@ -46,7 +46,7 @@ export class SocketService {
 
     app.get('/:language/image/:image', (req, res) => {
       if (req.params.image === "space.png")
-        return res.sendFile(path.resolve('./game/public/space.png'))
+        return res.sendFile(path.resolve('../game/public/space.png'))
       return res.sendFile(path.resolve(`../klimatkoll-server-data/pairs/${req.params.image}`))
     })
 
@@ -54,7 +54,7 @@ export class SocketService {
       res.render('index', { languages: await languages() })
     })
 
-    app.use(express.static('game/public'))
+    app.use(express.static('../game/public'))
 
     app.get('/localisation', async (_req, res) => {
       try {
@@ -70,7 +70,7 @@ export class SocketService {
 
 
     app.set('view engine', 'pug')
-    app.set('views', 'game/views')
+    app.set('views', path.resolve('../game/views'))
 
     this.httpServer = http.createServer(app)
     const httpServer = this.httpServer

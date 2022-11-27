@@ -14,6 +14,7 @@
     "coverage": "nyc --reporter=html --reporter=text mocha --require ts-node/register ./src/**/*.spec.ts",
     "dev": "tsc --build --watch & nodemon dist/dev.js",
     "build": "tsc --build && npm run build -w packages/client",
+    "watch": "tsc --build --watch",
     "create-ca": "node node_modules/mkcert/src/cli.js create-ca",
     "create-cert": "node node_modules/mkcert/src/cli.js create-cert",
     "setup-https": "npm run create-ca && npm run create-cert",

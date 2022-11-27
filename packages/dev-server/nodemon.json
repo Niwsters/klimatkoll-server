@@ -1,0 +1,4 @@
+{
+  "watch": ["index.js", "../game/src/"],
+  "ext": "js, ts"
+}
