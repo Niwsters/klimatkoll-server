@@ -1,3 +1,4 @@
 {
+  "target": "node",
   "extends": "../../tsconfig.base.json"
 }

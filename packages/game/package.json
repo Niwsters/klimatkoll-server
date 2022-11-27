@@ -40,5 +40,6 @@
   "bugs": {
     "url": "https://github.com/Niwsters/klimatkoll-server/issues"
   },
-  "homepage": "https://github.com/Niwsters/klimatkoll-server#readme"
+  "homepage": "https://github.com/Niwsters/klimatkoll-server#readme",
+  "type": "module"
 }

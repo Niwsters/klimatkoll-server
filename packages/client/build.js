@@ -5,7 +5,7 @@ esbuild.build({
   bundle: true,
   watch: false,
   outfile: '../../dist/packages/client/bundle.js',
-  minify: true,
+  minify: true
 })
 .catch(reason => {
   console.log(reason)

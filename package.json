@@ -15,7 +15,8 @@
     "build": "tsc --build && npm run build -w packages/client",
     "create-ca": "node node_modules/mkcert/src/cli.js create-ca",
     "create-cert": "node node_modules/mkcert/src/cli.js create-cert",
-    "setup-https": "npm run create-ca && npm run create-cert"
+    "setup-https": "npm run create-ca && npm run create-cert",
+    "start": "node ./dist/packages/game/game-server.js"
   },
   "author": "",
   "license": "MIT"
