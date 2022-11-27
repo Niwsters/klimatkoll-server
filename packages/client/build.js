@@ -3,8 +3,8 @@ import esbuild from 'esbuild'
 esbuild.build({
   entryPoints: ['./src/index.tsx'],
   bundle: true,
-  watch: true,
-  outfile: './dist/bundle.js',
+  watch: false,
+  outfile: '../../dist/packages/client/bundle.js',
   minify: true,
 })
 .catch(reason => {
