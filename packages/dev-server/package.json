@@ -1,0 +1,24 @@
+{
+  "name": "dev-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Niwsters/klimatkoll-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Niwsters/klimatkoll-server/issues"
+  },
+  "homepage": "https://github.com/Niwsters/klimatkoll-server#readme",
+  "dependencies": {
+    "@klimatkoll/game": "file:packages/game",
+    "@klimatkoll/game": "file:packages/card-db"
+  }
+}

@@ -41,5 +41,8 @@
     "url": "https://github.com/Niwsters/klimatkoll-server/issues"
   },
   "homepage": "https://github.com/Niwsters/klimatkoll-server#readme",
-  "type": "module"
+  "exports": {
+    "./src/start-game": "./dist/packages/game/src/start-game.js",
+    "./src/card-fetcher": "./dist/packages/game/src/card-fetcher.js"
+  }
 }

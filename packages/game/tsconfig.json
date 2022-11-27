@@ -1,4 +1,8 @@
 {
-  "target": "node",
-  "extends": "../../tsconfig.base.json"
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "outDir": "./dist",
+    "module": "commonjs"
+  }
 }
