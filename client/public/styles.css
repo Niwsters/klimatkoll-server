@@ -1,0 +1,21 @@
+@font-face {
+  src: url(fonts/Poppins-Medium.ttf);
+  font-family: 'Poppins';
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: #e5e5e5;
+  font-family: 'Poppins', sans-serif;
+}
+
+#climate-call {
+  width: 100%;
+  height: 100%;
+}

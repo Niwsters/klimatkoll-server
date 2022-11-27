@@ -5,7 +5,8 @@
   "main": "dist/game-server.js",
   "workspaces": [
     "card-db",
-    "game"
+    "game",
+    "client"
   ],
   "scripts": {
     "test": "mocha --inline-diffs --bail --require ts-node/register --watch-extensions ts --watch --watch-files src './src/**/*.spec.ts'",

@@ -1,0 +1,42 @@
+{
+  "name": "klimatkoll-client",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "i18next": "^21.8.13",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  },
+  "scripts": {
+    "start": "node ./build.js & http-server . --port=4200",
+    "build": "node ./build.js",
+    "test": "node ./testrunner/run-tests.js",
+    "coverage": "npm test -- --coverage --watchAll=false",
+    "deps": "depcruise --include-only \"^src\" --output-type dot src --metrics | dot -T svg > deps.svg",
+    "typecheck": "tsc"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^12.20.4",
+    "@types/react": "^17.0.15",
+    "@types/react-dom": "^17.0.9",
+    "dependency-cruiser": "^11.4.0",
+    "esbuild": "^0.14.26",
+    "fast-deep-equal": "^3.1.3",
+    "http-server": "^13.0.0",
+    "ts-loader": "^8.2.0",
+    "typescript": "^4.6.2"
+  }
+}
