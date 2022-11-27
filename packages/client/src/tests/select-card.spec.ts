@@ -70,7 +70,7 @@ function isOtherCardSelected(state: GameState): boolean {
 }
 
 function areSpaceCardsVisible(state: GameState): boolean {
-  return state.cards.filter(c => c.isSpace).every(c => c.visible)
+  return state.cards.filter((c: Card) => c.isSpace).every((c: Card) => c.visible)
 }
 
 function addEmissionsLineCard(state: GameState): GameState {
@@ -80,12 +80,14 @@ function addEmissionsLineCard(state: GameState): GameState {
 }
 
 function spaceCardNames(state: GameState): string[] {
-  return [...new Set(state.cards.filter(c => c.isSpace).map(c => c.name))]
+  return [
+    ...new Set<string>(state.cards.filter((c: Card) => c.isSpace).map((c: Card) => c.name))
+  ]
 }
 
 const spaceCardID = -1
 function getSpaceCard(state: GameState): Card {
-  const spaceCard = state.cards.find(c => c.id === spaceCardID)
+  const spaceCard = state.cards.find((c: Card) => c.id === spaceCardID)
   if (!spaceCard) throw new Error("Space card not found")
   return spaceCard
 }

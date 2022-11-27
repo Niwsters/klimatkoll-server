@@ -1,5 +1,5 @@
 import http from 'http'
-import { Credentials, credentials } from '../../card-db/src/auth'
+import { Credentials, credentials } from '@klimatkoll/card-db/src/auth'
 
 function parseJSON(jsonStr: string): any {
   try {
