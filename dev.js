@@ -20,7 +20,6 @@ async function build() {
 function watch(folder) {
   let compiling = false
   fs.watch(folder, async (_eventType, _filename) => {
-    console.log(_eventType, _filename)
     if (!compiling) {
       compiling = true
       await build()
@@ -33,18 +32,25 @@ function cleanExit() {
   process.exit()
 }
 
+// Fix child processes not exiting cleanly on CTRL+C
+process.on("exit", cleanExit)
+process.on('SIGINT', cleanExit); // catch ctrl-c
+process.on('SIGTERM', cleanExit); // catch kill
+
 async function run() {
-  console.log("Running server")
-  const child = child_process.spawn("npm", ["start", "-w", "@klimatkoll/dev-server"], { stdio: "inherit" })
-  process.on("exit", cleanExit)
-  process.on('SIGINT', cleanExit); // catch ctrl-c
-  process.on('SIGTERM', cleanExit); // catch kill
+  console.log("Starting server")
+  child_process.spawn("npm", ["start", "-w", "@klimatkoll/dev-server"], { stdio: "inherit" })
 }
 
 async function start() {
   console.log("Started build script")
   await build()
-  watch("./packages/game/src")
+
+  const folders = ["./packages/game/src", "./packages/card-db/src", "./packages/client/src", "./packages/dev-server"]
+  for (const folder of folders) {
+    watch(folder)
+  }
+
   run()
 }
 
