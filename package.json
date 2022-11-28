@@ -18,7 +18,7 @@
     "create-ca": "node node_modules/mkcert/src/cli.js create-ca",
     "create-cert": "node node_modules/mkcert/src/cli.js create-cert",
     "setup-https": "npm run create-ca && npm run create-cert",
-    "start": "npm start -w packages/dev-server"
+    "start": "node ./dev.js"
   },
   "author": "",
   "license": "MIT"
