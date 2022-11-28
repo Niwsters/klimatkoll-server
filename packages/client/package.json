@@ -14,7 +14,9 @@
     "test": "node ./testrunner/run-tests.js",
     "coverage": "npm test -- --coverage --watchAll=false",
     "deps": "depcruise --include-only \"^src\" --output-type dot src --metrics | dot -T svg > deps.svg",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "browserslist": {
     "production": [
@@ -29,9 +31,19 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.20.5",
+    "@storybook/addon-actions": "^6.5.13",
+    "@storybook/addon-essentials": "^6.5.13",
+    "@storybook/addon-interactions": "^6.5.13",
+    "@storybook/addon-links": "^6.5.13",
+    "@storybook/builder-webpack4": "^6.5.13",
+    "@storybook/manager-webpack4": "^6.5.13",
+    "@storybook/react": "^6.5.13",
+    "@storybook/testing-library": "^0.0.13",
     "@types/node": "^12.20.4",
     "@types/react": "^17.0.15",
     "@types/react-dom": "^17.0.9",
+    "babel-loader": "^8.3.0",
     "dependency-cruiser": "^11.4.0",
     "esbuild": "^0.14.26",
     "fast-deep-equal": "^3.1.3",
