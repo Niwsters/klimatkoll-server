@@ -198,6 +198,11 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
     height - padding,
     'right'
   )
+
+  // Reset translation and rotation
+  context.translate(width/2, height/2)
+  context.rotate(-card.rotation)
+  context.translate(-card.x-width/2, -card.y-height/2)
 }
 
 export function Canvas(props: CanvasProps): React.ReactElement {
@@ -224,7 +229,20 @@ export function Canvas(props: CanvasProps): React.ReactElement {
           rotation: Math.PI / 4
         }
 
+        const card2: Card = {
+          title: "Bilresa",
+          subtitle: "Stockholm - Göteborg",
+          emissions: 80,
+          descr_front: "En tur och retur-resa på sammanlagt 900 km med två personer i en medelstor dieselbil",
+          descr_back: "En tur och retur-resa på sammanlagt 900 km med två personer i en medelstor dieselbil",
+          duration: "1 dag",
+          x: 400,
+          y: 100,
+          rotation: -Math.PI/6
+        }
+
         drawCard(context, card)
+        drawCard(context, card2)
       }
     }
   })
