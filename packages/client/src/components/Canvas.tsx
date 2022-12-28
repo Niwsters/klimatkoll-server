@@ -13,7 +13,8 @@ type Card = {
   duration: string,
 
   x: number,
-  y: number
+  y: number,
+  rotation: number
 }
 
 function roundRect(
@@ -87,13 +88,17 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   const footerHeight = 191
   const height = headerHeight + footerHeight
   const borderRadius = 14
+  
+  context.translate(card.x + width/2, card.y + height/2)
+  context.rotate(card.rotation)
+  context.translate(-width/2, -height/2)
 
   // Header background
   context.fillStyle = '#FAD44C'
   roundRect(
     context,
-    card.x,
-    card.y,
+    0,
+    0,
     width,
     headerHeight,
     borderRadius,
@@ -106,8 +111,8 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   context.fillStyle = '#F3EFEC'
   roundRect(
     context,
-    card.x,
-    card.y+headerHeight,
+    0,
+    headerHeight,
     width,
     footerHeight,
     0,
@@ -119,12 +124,12 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   context.fillStyle = '#1C1C45'
 
   // Title
-  const titleY = card.y + 28 + 16
+  const titleY = 28 + 16
   setFont(context, 28)
   drawText(
     context,
     card.title.toUpperCase(),
-    card.x + width / 2,
+    width / 2,
     titleY
   )
 
@@ -135,7 +140,7 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   drawText(
     context,
     card.subtitle,
-    card.x + width / 2,
+    width / 2,
     subtitleY
   )
 
@@ -146,7 +151,7 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   drawText(
     context,
     card.emissions.toString() + " KG",
-    card.x + width / 2,
+    width / 2,
     emissionsY
   )
 
@@ -155,11 +160,11 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   const lineY = emissionsY - 12
   context.beginPath()
 
-  context.moveTo(card.x + 1, lineY)
-  context.lineTo(card.x + 1 + 30, lineY)
+  context.moveTo(1, lineY)
+  context.lineTo(1 + 30, lineY)
 
-  context.moveTo(card.x + width - 1, lineY)
-  context.lineTo(card.x + width - 1 - 30, lineY)
+  context.moveTo(width - 1, lineY)
+  context.lineTo(width - 1 - 30, lineY)
 
   context.stroke()
 
@@ -167,8 +172,8 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   // Description
   const fontSize = 18
   const padding = 22
-  const descrX = card.x + padding
-  const descrY = card.y + fontSize + headerHeight + padding
+  const descrX = padding
+  const descrY = fontSize + headerHeight + padding
   setFont(context, fontSize, 400)
 
   // Manual word wrapping :DDD
@@ -189,8 +194,8 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   drawText(
     context,
     card.duration,
-    card.x + width - padding,
-    card.y + height - padding,
+    width - padding,
+    height - padding,
     'right'
   )
 }
@@ -215,7 +220,8 @@ export function Canvas(props: CanvasProps): React.ReactElement {
           descr_back: "En tur och retur-resa på sammanlagt 900 km med två personer i en medelstor dieselbil",
           duration: "1 dag",
           x: 100,
-          y: 100
+          y: 100,
+          rotation: Math.PI / 4
         }
 
         drawCard(context, card)
