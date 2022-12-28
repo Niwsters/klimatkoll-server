@@ -1,3 +1,14 @@
+@font-face {
+  font-family: 'Poppins';
+  src: url(/fonts/Poppins-Medium.ttf);
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-weight: 600;
+  src: url(../../public/fonts/Poppins-SemiBold.ttf);
+}
+
 .wrapper {
   font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
