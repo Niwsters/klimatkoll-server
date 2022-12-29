@@ -127,7 +127,6 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   )
   context.fill()
 
-
   // Footer background
   context.fillStyle = '#F3EFEC'
   roundRect(
@@ -141,7 +140,6 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   )
   context.fill()
 
-
   // Header font color
   context.fillStyle = card.flipped ? '#1C1C45' : '#F3EFEC'
 
@@ -154,7 +152,6 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
     width / 2,
     titleY
   )
-
 
   // Subtitle
   const subtitleY = titleY + 16 + 8
@@ -187,7 +184,9 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
     context.moveTo(width - 1, lineY)
     context.lineTo(width - 1 - 30, lineY)
 
+    context.lineWidth = 1.5
     context.stroke()
+    context.lineWidth = 1.0
   }
 
   // Footer font color
@@ -212,7 +211,6 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
       'left'
     )
   }
-
 
   // Duration
   setFont(context, 14)
