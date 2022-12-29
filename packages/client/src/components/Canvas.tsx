@@ -12,9 +12,14 @@ export type Card = {
   descr_back: string,
   duration: string,
 
+  bg_color_front: string,
+  bg_color_back: string,
+
   x: number,
   y: number,
-  rotation: number
+  rotation: number,
+
+  flipped: boolean
 }
 
 function roundRect(
@@ -82,6 +87,18 @@ function drawText(
   context.fillText(text, x, y)
 }
 
+function formatEmissions(n: number): string {
+  let n_str = n.toString().split("").reverse().join("")
+  let str = ""
+  const splits = Math.ceil(n_str.length / 3)
+
+  for (let i=0; i<(splits + 1); i++) {
+    str += n_str.slice(i*3, i*3+3) + " "
+  }
+
+  return str.trim().split("").reverse().join("") + " KG"
+}
+
 function drawCard(context: CanvasRenderingContext2D, card: Card) {
   const width = 256
   const headerHeight = 144
@@ -94,7 +111,8 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   context.translate(-width/2, -height/2)
 
   // Header background
-  context.fillStyle = '#FAD44C'
+  const header_bg = card.flipped ? card.bg_color_back : card.bg_color_front
+  context.fillStyle = header_bg
   roundRect(
     context,
     0,
@@ -121,7 +139,8 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   context.fill()
 
 
-  context.fillStyle = '#1C1C45'
+  // Header font color
+  context.fillStyle = card.flipped ? '#1C1C45' : '#F3EFEC'
 
   // Title
   const titleY = 28 + 16
@@ -144,30 +163,32 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
     subtitleY
   )
 
-
   // Emissions
-  const emissionsY = subtitleY + 36 + 12
-  setFont(context, 36)
-  drawText(
-    context,
-    card.emissions.toString() + " KG",
-    width / 2,
-    emissionsY
-  )
+  if (card.flipped) {
+    const emissionsY = subtitleY + 36 + 12
+    setFont(context, 36)
+    drawText(
+      context,
+      formatEmissions(card.emissions),
+      width / 2,
+      emissionsY
+    )
 
+    // Lines next to emissions
+    const lineY = emissionsY - 12
+    context.beginPath()
 
-  // Lines next to emissions
-  const lineY = emissionsY - 12
-  context.beginPath()
+    context.moveTo(1, lineY)
+    context.lineTo(1 + 30, lineY)
 
-  context.moveTo(1, lineY)
-  context.lineTo(1 + 30, lineY)
+    context.moveTo(width - 1, lineY)
+    context.lineTo(width - 1 - 30, lineY)
 
-  context.moveTo(width - 1, lineY)
-  context.lineTo(width - 1 - 30, lineY)
+    context.stroke()
+  }
 
-  context.stroke()
-
+  // Footer font color
+  context.fillStyle = '#1C1C45'
 
   // Description
   const fontSize = 18
@@ -177,7 +198,8 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   setFont(context, fontSize, 400)
 
   // Manual word wrapping :DDD
-  const lines = wordWrap(context, card.descr_front, width - padding * 2)
+  const descr = card.flipped ? card.descr_back : card.descr_front
+  const lines = wordWrap(context, descr, width - padding * 2)
   for (let i=0; i<lines.length; i++) {
     drawText(
       context,

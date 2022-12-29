@@ -13,47 +13,36 @@ export default {
 const Template: ComponentStory<typeof Canvas.Component> =
   (args) => <Canvas.Component {...args} />;
 
-export const Primary = Template.bind({});
-
 const card: Canvas.Card = {
-  title: "Bilresa",
-  subtitle: "Stockholm - Göteborg",
-  emissions: 80,
-  descr_front: "En tur och retur-resa på sammanlagt 900 km med två personer i en medelstor dieselbil",
-  descr_back: "En tur och retur-resa på sammanlagt 900 km med två personer i en medelstor dieselbil",
-  duration: "1 dag",
-  x: 100,
-  y: 100,
-  rotation: Math.PI / 4
+  title: "Pendla",
+  subtitle: "i medelstor biodieselbil",
+  emissions: 4000,
+  descr_front: "Köra 40 km varje arbetsdag i ett år",
+  descr_back: "Biodieselproduktionen leder till avskogning vilket orsakar stora men svåruppskattade utsläpp",
+  duration: "230 dagar",
+
+  bg_color_front: "#1C1C45",
+  bg_color_back: "#FAD44C",
+
+  x: 0,
+  y: 0,
+  rotation: 0,
+
+  flipped: false
 }
 
-const card2: Canvas.Card = {
-  title: "Bilresa",
-  subtitle: "Stockholm - Göteborg",
-  emissions: 80,
-  descr_front: "En tur och retur-resa på sammanlagt 900 km med två personer i en medelstor dieselbil",
-  descr_back: "En tur och retur-resa på sammanlagt 900 km med två personer i en medelstor dieselbil",
-  duration: "1 dag",
-  x: 400,
-  y: 100,
-  rotation: -Math.PI/6
-}
+export const Front = Template.bind({});
+Front.args = {
+  cards: [card]
+};
 
-setInterval(() => {
-  card.rotation += 0.01
-}, 1000/60)
 
-// More on args: https://storybook.js.org/docs/react/writing-stories/args
-Primary.args = {
-  cards: [card, card2]
+export const Back = Template.bind({});
+Back.args = {
+  cards: [{ ...card, flipped: true }]
 };
 
 /*
-export const Secondary = Template.bind({});
-Secondary.args = {
-  label: 'Button',
-};
-
 export const Large = Template.bind({});
 Large.args = {
   size: 'large',
