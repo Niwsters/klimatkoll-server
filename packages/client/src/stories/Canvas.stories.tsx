@@ -27,6 +27,7 @@ const card: Canvas.Card = {
   x: 0,
   y: 0,
   rotation: 0,
+  scale: 1.0,
 
   flipped: false
 }
@@ -36,10 +37,24 @@ Front.args = {
   cards: [card]
 };
 
-
 export const Back = Template.bind({});
 Back.args = {
   cards: [{ ...card, flipped: true }]
+};
+
+export const Rotation = Template.bind({});
+Rotation.args = {
+  cards: [{ ...card, flipped: true, rotation: Math.PI/6 }]
+};
+
+export const Scale = Template.bind({});
+Scale.args = {
+  cards: [{ ...card, flipped: true, scale: 2.0 }]
+};
+
+export const ScaleAndRotation = Template.bind({});
+ScaleAndRotation.args = {
+  cards: [{ ...card, flipped: true, scale: 2.0, rotation: Math.PI/6 }]
 };
 
 /*

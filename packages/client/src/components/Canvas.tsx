@@ -18,6 +18,7 @@ export type Card = {
   x: number,
   y: number,
   rotation: number,
+  scale: number,
 
   flipped: boolean
 }
@@ -109,6 +110,8 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   context.translate(card.x + width/2, card.y + height/2)
   context.rotate(card.rotation)
   context.translate(-width/2, -height/2)
+
+  context.scale(card.scale, card.scale)
 
   // Header background
   const header_bg = card.flipped ? card.bg_color_back : card.bg_color_front
@@ -220,6 +223,8 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
     height - padding,
     'right'
   )
+
+  context.scale(1/card.scale, 1/card.scale)
 
   // Reset translation and rotation
   context.translate(width/2, height/2)
