@@ -56,17 +56,3 @@ export const ScaleAndRotation = Template.bind({});
 ScaleAndRotation.args = {
   cards: [{ ...card, flipped: true, scale: 2.0, rotation: Math.PI/6 }]
 };
-
-/*
-export const Large = Template.bind({});
-Large.args = {
-  size: 'large',
-  label: 'Button',
-};
-
-export const Small = Template.bind({});
-Small.args = {
-  size: 'small',
-  label: 'Button',
-};
- */
