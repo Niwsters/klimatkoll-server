@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react'
 
 export type CanvasProps = {
-
+  cards: Card[]
 }
 
-type Card = {
+export type Card = {
   title: string,
   subtitle: string,
   emissions: number,
@@ -205,7 +205,28 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   context.translate(-card.x-width/2, -card.y-height/2)
 }
 
-export function Canvas(props: CanvasProps): React.ReactElement {
+function render(context: CanvasRenderingContext2D, cards: Card[]) {
+  let previousTimestamp: number = -1
+
+  let animationId: number | undefined
+  function draw(timestamp: number) {
+    if (previousTimestamp === -1)
+      previousTimestamp = timestamp
+
+    context.fillStyle = '#ccc'
+    context.fillRect(0, 0, context.canvas.width, context.canvas.height)
+    cards.forEach(card => drawCard(context, card))
+
+    animationId = requestAnimationFrame(draw)
+  }
+
+  animationId = requestAnimationFrame(draw)
+  return () => {
+    if (animationId !== undefined) cancelAnimationFrame(animationId)
+  }
+}
+
+export function Component(props: CanvasProps): React.ReactElement {
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -214,41 +235,13 @@ export function Canvas(props: CanvasProps): React.ReactElement {
       const context = (canvas as HTMLCanvasElement).getContext('2d')
 
       if (context !== null) {
-        context.fillStyle = '#ccc'
-        context.fillRect(0, 0, context.canvas.width, context.canvas.height)
-
-        const card: Card = {
-          title: "Bilresa",
-          subtitle: "Stockholm - Göteborg",
-          emissions: 80,
-          descr_front: "En tur och retur-resa på sammanlagt 900 km med två personer i en medelstor dieselbil",
-          descr_back: "En tur och retur-resa på sammanlagt 900 km med två personer i en medelstor dieselbil",
-          duration: "1 dag",
-          x: 100,
-          y: 100,
-          rotation: Math.PI / 4
-        }
-
-        const card2: Card = {
-          title: "Bilresa",
-          subtitle: "Stockholm - Göteborg",
-          emissions: 80,
-          descr_front: "En tur och retur-resa på sammanlagt 900 km med två personer i en medelstor dieselbil",
-          descr_back: "En tur och retur-resa på sammanlagt 900 km med två personer i en medelstor dieselbil",
-          duration: "1 dag",
-          x: 400,
-          y: 100,
-          rotation: -Math.PI/6
-        }
-
-        drawCard(context, card)
-        drawCard(context, card2)
+        return render(context, props.cards)
       }
     }
-  })
+  }, [])
 
   const style: any = {
-    "font-family": "Poppins"
+    fontFamily: "Poppins"
   }
 
   return (
