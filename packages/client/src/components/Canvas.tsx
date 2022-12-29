@@ -107,11 +107,11 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   const height = headerHeight + footerHeight
   const borderRadius = 14
   
+  context.scale(card.scale, card.scale)
+
   context.translate(card.x + width/2, card.y + height/2)
   context.rotate(card.rotation)
   context.translate(-width/2, -height/2)
-
-  context.scale(card.scale, card.scale)
 
   // Header background
   const header_bg = card.flipped ? card.bg_color_back : card.bg_color_front
@@ -224,12 +224,12 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
     'right'
   )
 
-  context.scale(1/card.scale, 1/card.scale)
-
   // Reset translation and rotation
   context.translate(width/2, height/2)
   context.rotate(-card.rotation)
   context.translate(-card.x-width/2, -card.y-height/2)
+
+  context.scale(1/card.scale, 1/card.scale)
 }
 
 function render(context: CanvasRenderingContext2D, cards: Card[]) {
