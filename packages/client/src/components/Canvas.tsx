@@ -1,9 +1,5 @@
 import React, { useEffect, useRef } from 'react'
 
-export type CanvasProps = {
-  cards: Card[]
-}
-
 export type Card = {
   title: string,
   subtitle: string,
@@ -230,11 +226,12 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   context.scale(1/card.scale, 1/card.scale)
 }
 
-function render(context: CanvasRenderingContext2D, cards: Card[]) {
+function render(context: CanvasRenderingContext2D, getCards: (timestamp: number) => Card[]) {
   let previousTimestamp: number = -1
 
   let animationId: number | undefined
   function draw(timestamp: number) {
+    const cards = getCards(timestamp)
     if (previousTimestamp === -1)
       previousTimestamp = timestamp
 
@@ -251,6 +248,11 @@ function render(context: CanvasRenderingContext2D, cards: Card[]) {
   }
 }
 
+
+export type CanvasProps = {
+  getCards: (timestamp: number) => Card[]
+}
+
 export function Component(props: CanvasProps): React.ReactElement {
   const canvasRef = useRef(null)
 
@@ -260,7 +262,7 @@ export function Component(props: CanvasProps): React.ReactElement {
       const context = (canvas as HTMLCanvasElement).getContext('2d')
 
       if (context !== null) {
-        return render(context, props.cards)
+        return render(context, props.getCards)
       }
     }
   }, [])
@@ -270,6 +272,6 @@ export function Component(props: CanvasProps): React.ReactElement {
   }
 
   return (
-    <canvas width={800} height={600} style={style} ref={canvasRef} {...props}></canvas>
+    <canvas width={800} height={600} style={style} ref={canvasRef}></canvas>
   )
 }
