@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react'
+import { WIDTH, HEIGHT } from '../core/constants'
 
 export type Card = {
   title: string,
@@ -18,6 +19,9 @@ export type Card = {
 
   flipped: boolean
 }
+
+export const CARD_WIDTH = 256
+export const CARD_HEIGHT = 335
 
 function roundRect(
   context: CanvasRenderingContext2D,
@@ -97,15 +101,15 @@ function formatEmissions(n: number): string {
 }
 
 function drawCard(context: CanvasRenderingContext2D, card: Card) {
-  const width = 256
+  const width = CARD_WIDTH
+  const height = CARD_HEIGHT
   const headerHeight = 144
-  const footerHeight = 191
-  const height = headerHeight + footerHeight
+  const footerHeight = CARD_HEIGHT - headerHeight
   const borderRadius = 14
   
   context.scale(card.scale, card.scale)
 
-  context.translate(card.x + width/2, card.y + height/2)
+  context.translate(card.x, card.y)
   context.rotate(card.rotation)
   context.translate(-width/2, -height/2)
 
@@ -221,7 +225,7 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   // Reset translation and rotation
   context.translate(width/2, height/2)
   context.rotate(-card.rotation)
-  context.translate(-card.x-width/2, -card.y-height/2)
+  context.translate(-card.x, -card.y)
 
   context.scale(1/card.scale, 1/card.scale)
 }
@@ -272,6 +276,6 @@ export function Component(props: CanvasProps): React.ReactElement {
   }
 
   return (
-    <canvas width={800} height={600} style={style} ref={canvasRef}></canvas>
+    <canvas width={WIDTH} height={HEIGHT} style={style} ref={canvasRef}></canvas>
   )
 }

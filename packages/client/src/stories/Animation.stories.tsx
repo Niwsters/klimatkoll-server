@@ -21,8 +21,8 @@ const canvasCard: Canvas.Card = {
   bg_color_front: "#1C1C45",
   bg_color_back: "#FAD44C",
 
-  x: 0,
-  y: 0,
+  x: Canvas.CARD_WIDTH / 2,
+  y: Canvas.CARD_HEIGHT / 2,
   rotation: 0,
   scale: 1.0,
 
@@ -55,12 +55,12 @@ const Template: ComponentStory<typeof Wrapper> =
 
 export const MoveX = Template.bind({});
 MoveX.args = {
-  getCard: () => Animation.move_x(card, 100, Date.now())
+  getCard: () => Animation.move_x(card, Animation.get_x(card, Date.now()) + 100, Date.now())
 };
 
 export const MoveY = Template.bind({});
 MoveY.args = {
-  getCard: () => Animation.move_y(card, 100, Date.now())
+  getCard: () => Animation.move_y(card, Animation.get_y(card, Date.now()) + 100, Date.now())
 };
 
 export const Rotation = Template.bind({});

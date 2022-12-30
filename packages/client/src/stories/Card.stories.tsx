@@ -24,8 +24,8 @@ const card: Canvas.Card = {
   bg_color_front: "#1C1C45",
   bg_color_back: "#FAD44C",
 
-  x: 0,
-  y: 0,
+  x: Canvas.CARD_WIDTH / 2,
+  y: Canvas.CARD_HEIGHT / 2,
   rotation: 0,
   scale: 1.0,
 
