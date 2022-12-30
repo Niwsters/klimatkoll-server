@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import * as Canvas from '../components/Canvas'
@@ -61,4 +61,23 @@ MoveX.args = {
 export const MoveY = Template.bind({});
 MoveY.args = {
   getCard: () => Animation.move_y(card, 100, Date.now())
+};
+
+export const Rotation = Template.bind({});
+Rotation.args = {
+  getCard: () => Animation.rotate(card, Math.PI / 6, Date.now())
+};
+
+export const AddedRotation = Template.bind({});
+AddedRotation.args = {
+  getCard: () => {
+    let animated = Animation.rotate(card, Math.PI / 6, Date.now())
+    animated = Animation.rotateLocal(animated, Math.PI / 2, Date.now())
+    return animated
+  }
+};
+
+export const Scale = Template.bind({});
+Scale.args = {
+  getCard: () => Animation.scale(card, 2.0, Date.now())
 };
