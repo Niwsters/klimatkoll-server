@@ -4,32 +4,18 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import * as Canvas from '../components/Canvas'
 import * as Animation from '../core2/animation'
 
+import { card as sampleCard } from './sample_cards'
+
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: 'Canvas/Animation',
   component: Canvas.Component
 } as ComponentMeta<typeof Canvas.Component>;
 
-const canvasCard: Canvas.Card = {
-  title: "Pendla",
-  subtitle: "i medelstor biodieselbil",
-  emissions: 4000,
-  descr_front: "Köra 40 km varje arbetsdag i ett år",
-  descr_back: "Biodieselproduktionen leder till avskogning vilket orsakar stora men svåruppskattade utsläpp",
-  duration: "230 dagar",
-
-  bg_color_front: "#1C1C45",
-  bg_color_back: "#FAD44C",
-
-  x: Canvas.CARD_WIDTH / 2,
-  y: Canvas.CARD_HEIGHT / 2,
-  rotation: 0,
-  scale: 1.0,
-
-  flipped: false
-}
-
-const card = Animation.from_card(canvasCard)
+const card = Animation.from_card(
+  sampleCard,
+  { x: Canvas.CARD_WIDTH / 2, y: Canvas.CARD_HEIGHT / 2}
+)
 
 type Board = {
   cards: Animation.AnimatedCard[]

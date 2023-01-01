@@ -1,22 +1,12 @@
 import React, { useEffect, useRef } from 'react'
 import { WIDTH, HEIGHT } from '../core/constants'
+import { Card as CoreCard } from '../core2/card'
 
-export type Card = {
-  title: string,
-  subtitle: string,
-  emissions: number,
-  descr_front: string,
-  descr_back: string,
-  duration: string,
-
-  bg_color_front: string,
-  bg_color_back: string,
-
+export type Card = CoreCard & {
   x: number,
   y: number,
   rotation: number,
   scale: number,
-
   flipped: boolean
 }
 
@@ -236,6 +226,7 @@ function render(context: CanvasRenderingContext2D, getCards: (timestamp: number)
   let animationId: number | undefined
   function draw(timestamp: number) {
     const cards = getCards(timestamp)
+
     if (previousTimestamp === -1)
       previousTimestamp = timestamp
 
