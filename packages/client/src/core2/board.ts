@@ -52,9 +52,7 @@ export function create(): Board {
   return { hand: [] }
 }
 
-export function cards(board: Board): Canvas.Card[] {
-  const currentTime = Date.now()
-
+export function cards(board: Board, currentTime: number): Canvas.Card[] {
   return board.hand.map(card => Animation.animate(card, currentTime))
 }
 
@@ -73,9 +71,9 @@ function hand(board: Board, currentTime: number): Animation.AnimatedCard[] {
     .map((card, i) => moveCardDefault(card, i, board.hand.length, currentTime))
 }
 
-export function update(board: Board): Board {
+export function update(board: Board, currentTime: number): Board {
   return {
     ...board,
-    hand: hand(board, Date.now())
+    hand: hand(board, currentTime)
   }
 }

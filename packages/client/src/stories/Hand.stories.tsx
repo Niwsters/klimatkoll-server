@@ -26,8 +26,9 @@ function Wrapper(_props: WrapperProps): React.ReactElement {
   board = Board.add_hand_card(board, card3)
 
   function getCards() {
-    board = Board.update(board)
-    return Board.cards(board)
+    const currentTime = Date.now()
+    board = Board.update(board, currentTime)
+    return Board.cards(board, currentTime)
   }
 
   return (
