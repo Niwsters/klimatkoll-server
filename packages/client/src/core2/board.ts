@@ -38,10 +38,12 @@ function moveCardDefault(
   card = Animation.move_x(card, x, currentTime)
   card = Animation.move_y(card, y, currentTime)
   card = Animation.rotate(card, rotation, currentTime)
-
-  // + 10 to prevent first card going under emissions line card when zooming out
-  // card.zLevel = cardIndex + 10
   return Animation.scale(card, scale, currentTime)
+}
+
+function zLevel(cardIndex: number): number {
+  // + 10 to prevent first card going under emissions line card when zooming out
+  return cardIndex + 10
 }
 
 export type Board = {
@@ -53,7 +55,7 @@ export function create(): Board {
 }
 
 export function cards(board: Board, currentTime: number): Canvas.Card[] {
-  return board.hand.map(card => Animation.animate(card, currentTime))
+  return board.hand.map((card, i) => Animation.animate(card, currentTime, zLevel(i)))
 }
 
 export function add_hand_card(board: Board, card: Animation.AnimatedCard): Board {

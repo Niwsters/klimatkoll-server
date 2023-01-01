@@ -8,7 +8,7 @@ import * as SampleCards from './sample_cards'
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Canvas/Board',
+  title: 'Board/Hand',
   component: Canvas.Component
 } as ComponentMeta<typeof Canvas.Component>;
 

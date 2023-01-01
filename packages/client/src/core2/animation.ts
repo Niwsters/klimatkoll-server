@@ -62,13 +62,18 @@ export function from_card(card: Card, position?: Position): AnimatedCard {
   }
 }
 
-export function animate(card: AnimatedCard, currentTime: number): Canvas.Card {
+export function animate(
+  card: AnimatedCard,
+  currentTime: number,
+  zLevel: number = 1
+): Canvas.Card {
   return {
     ...card,
     x: get_x(card, currentTime),
     y: get_y(card, currentTime),
     rotation: get_rotation(card, currentTime) + get_added_rotation(card, currentTime),
-    scale: get_scale(card, currentTime)
+    scale: get_scale(card, currentTime),
+    zLevel
   }
 }
 

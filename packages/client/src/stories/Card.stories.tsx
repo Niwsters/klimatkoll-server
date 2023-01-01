@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { card as sample_card } from './sample_cards'
+import * as SampleCards from './sample_cards'
 
 import * as Canvas from '../components/Canvas';
 
@@ -15,12 +15,21 @@ const Template: ComponentStory<typeof Canvas.Component> =
   (args) => <Canvas.Component {...args} />;
 
 const card: Canvas.Card = {
-  ...sample_card,
+  ...SampleCards.card,
   x: Canvas.CARD_WIDTH / 2,
   y: Canvas.CARD_HEIGHT / 2,
   rotation: 0,
   scale: 1.0,
-  flipped: false
+  zLevel: 1.0
+}
+
+const card2: Canvas.Card = {
+  ...SampleCards.card2,
+  x: Canvas.CARD_WIDTH / 2,
+  y: Canvas.CARD_HEIGHT / 2,
+  rotation: 0,
+  scale: 1.0,
+  zLevel: 1.0
 }
 
 export const Front = Template.bind({});
@@ -47,3 +56,8 @@ export const ScaleAndRotation = Template.bind({});
 ScaleAndRotation.args = {
   getCards: () => [{ ...card, flipped: true, scale: 2.0, rotation: Math.PI/6 }]
 };
+
+export const ZLevel = Template.bind({})
+ZLevel.args = {
+  getCards: () => [{ ...card, zLevel: 10}, {...card2, zLevel: 0, x: 300, y: 300}]
+}

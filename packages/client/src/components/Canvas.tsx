@@ -7,6 +7,7 @@ export type Card = CoreCard & {
   y: number,
   rotation: number,
   scale: number,
+  zLevel: number,
   flipped: boolean
 }
 
@@ -225,7 +226,7 @@ function render(context: CanvasRenderingContext2D, getCards: (timestamp: number)
 
   let animationId: number | undefined
   function draw(timestamp: number) {
-    const cards = getCards(timestamp)
+    const cards = getCards(timestamp).sort((a, b) => a.zLevel - b.zLevel)
 
     if (previousTimestamp === -1)
       previousTimestamp = timestamp
