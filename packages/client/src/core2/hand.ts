@@ -9,6 +9,11 @@ export const HAND_X_RADIUS = 160
 export const HAND_Y_RADIUS = 80
 export const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not map to the same ellipse as the position
 
+export type Hand = {
+  cards: Animation.AnimatedCard[],
+  selectedCardIndex?: number
+}
+
 function getCardAngle(i: number, cardCount: number) {
   const n = cardCount - 1
   return HAND_CARD_ANGLE * (i - n/2)
@@ -47,9 +52,9 @@ function zLevel(cardIndex: number): number {
   return cardIndex + 10
 }
 
-function handWidth(hand: Animation.AnimatedCard[], currentTime: number): number {
-  const leftCard = hand[0]
-  const rightCard = hand[hand.length - 1]
+function handWidth(hand: Hand, currentTime: number): number {
+  const leftCard = hand.cards[0]
+  const rightCard = hand.cards[hand.cards.length - 1]
   return Animation.get_x(rightCard, currentTime) - Animation.get_x(leftCard, currentTime) + Canvas.CARD_WIDTH
 }
 
@@ -57,12 +62,12 @@ function distance(a: number, b: number) {
   return Math.abs(a - b)
 }
 
-function closestCardToMouse(hand: Animation.AnimatedCard[], mouseX: number, currentTime: number): number | undefined {
+function closestCardToMouse(hand: Hand, mouseX: number, currentTime: number): number | undefined {
   let closestCard: Animation.AnimatedCard | undefined
   let closestCardIndex: number | undefined
   let i: number = 0
 
-  for (const card of hand) {
+  for (const card of hand.cards) {
     if (!closestCard) {
       closestCard = card
       closestCardIndex = i
@@ -81,7 +86,7 @@ function closestCardToMouse(hand: Animation.AnimatedCard[], mouseX: number, curr
 
 const hoverYAxisLimit: number = HAND_POSITION_Y - Canvas.CARD_HEIGHT
 function isCardFocused(
-  hand: Animation.AnimatedCard[],
+  hand: Hand,
   cardIndex: number,
   mouseX: number,
   mouseY: number,
@@ -105,30 +110,53 @@ function zoomInOnCard(card: Animation.AnimatedCard, currentTime: number): Animat
 }
 
 function zoomHoveredCards(
-  hand: Animation.AnimatedCard[],
+  hand: Hand,
   currentTime: number,
   mouseX: number,
   mouseY: number
-): Animation.AnimatedCard[] {
-  return hand.map((card, cardIndex) => {
-    if (isCardFocused(hand, cardIndex, mouseX, mouseY, currentTime))
-      return zoomInOnCard(card, currentTime)
+): Hand {
+  return {
+    ...hand,
+    cards: hand.cards.map((card, cardIndex) => {
+      if (isCardFocused(hand, cardIndex, mouseX, mouseY, currentTime))
+        return zoomInOnCard(card, currentTime)
 
-    return moveCardDefault(card, cardIndex, hand.length, currentTime)
-  })
+      return moveCardDefault(card, cardIndex, hand.cards.length, currentTime)
+    })
+  }
 }
 
-export function animate(hand: Animation.AnimatedCard[], currentTime: number): Canvas.Card[] {
-  return hand.map(card => Animation.animate(card, currentTime))
+export function create(): Hand {
+  return { cards: [] }
 }
 
-export function add_card(hand: Animation.AnimatedCard[], card: Animation.AnimatedCard): Animation.AnimatedCard[] {
+export function animate(hand: Hand, currentTime: number): Canvas.Card[] {
+  return hand.cards.map(card => Animation.animate(card, currentTime))
+}
+
+export function add_card(hand: Hand, card: Animation.AnimatedCard): Hand {
   card = Animation.move_x(card, HAND_POSITION_X, Date.now())
   card = Animation.move_y(card, HAND_POSITION_Y, Date.now())
 
-  return [...hand, card]
+  return {
+    ...hand,
+    cards: [...hand.cards, card]
+  }
 }
 
-export function update(hand: Animation.AnimatedCard[], currentTime: number, mouseX: number, mouseY: number): Animation.AnimatedCard[] {
+
+export function mouse_clicked(hand: Hand, mouseX: number, mouseY: number, currentTime: number): Hand {
+  return {
+    ...hand,
+    cards: hand.cards.map((card, cardIndex) => {
+      if (isCardFocused(hand, cardIndex, mouseX, mouseY, currentTime))
+        return { ...card, selected: true }
+
+      return { ...card, selected: false }
+    })
+  }
+}
+
+export function update(hand: Hand, currentTime: number, mouseX: number, mouseY: number): Hand {
   return zoomHoveredCards(hand, currentTime, mouseX, mouseY)
 }

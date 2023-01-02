@@ -11,7 +11,8 @@ export const card: Card = {
   bg_color_front: "#1C1C45",
   bg_color_back: "#FAD44C",
 
-  flipped: false
+  flipped: false,
+  selected: false
 }
 
 export const card2: Card = {
@@ -25,7 +26,8 @@ export const card2: Card = {
   bg_color_front: "#1C1C45",
   bg_color_back: "#61ABB3",
 
-  flipped: false
+  flipped: false,
+  selected: false
 }
 
 export const card3: Card = {
@@ -39,5 +41,6 @@ export const card3: Card = {
   bg_color_front: "#1C1C45",
   bg_color_back: "#265157",
 
-  flipped: false
+  flipped: false,
+  selected: false
 }

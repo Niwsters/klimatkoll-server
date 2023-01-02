@@ -59,5 +59,10 @@ ScaleAndRotation.args = {
 
 export const ZLevel = Template.bind({})
 ZLevel.args = {
-  getCards: () => [{ ...card, zLevel: 10}, {...card2, zLevel: 0, x: 300, y: 300}]
+  getCards: () => [{ ...card, zLevel: 10}, {...card2, zLevel: 0, x: 300, y: 300 }]
+}
+
+export const Selected = Template.bind({})
+Selected.args = {
+  getCards: () => [{ ...card, selected: true }]
 }

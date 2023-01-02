@@ -9,5 +9,6 @@ export type Card = {
   bg_color_front: string,
   bg_color_back: string,
 
-  flipped: boolean
+  flipped: boolean,
+  selected: boolean
 }

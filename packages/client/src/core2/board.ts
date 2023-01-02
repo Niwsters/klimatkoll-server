@@ -3,11 +3,11 @@ import * as Canvas from '../components/Canvas'
 import * as Hand from './hand'
 
 export type Board = {
-  hand: Animation.AnimatedCard[]
+  hand: Hand.Hand
 }
 
 export function create(): Board {
-  return { hand: [] }
+  return { hand: Hand.create() }
 }
 
 export function animate(board: Board, currentTime: number): Canvas.Card[] {
@@ -25,5 +25,12 @@ export function update(board: Board, currentTime: number, mouseX: number, mouseY
   return {
     ...board,
     hand: Hand.update(board.hand, currentTime, mouseX, mouseY)
+  }
+}
+
+export function mouse_clicked(board: Board, mouseX: number, mouseY: number, currentTime: number): Board {
+  return {
+    ...board,
+    hand: Hand.mouse_clicked(board.hand, mouseX, mouseY, currentTime)
   }
 }

@@ -29,9 +29,9 @@ function roundRect(
   if (h < 2 * rBottom) rBottom = h / 2;
 
   context.beginPath()
-  context.moveTo(x, y)
-  context.arcTo(x+w, y, x+w, y+h, rTop)
-  context.arcTo(x+w, y+h, x, y+h, rBottom)
+  context.moveTo(x+rTop, y)
+  context.arcTo(x+w, y,   x+w, y+h, rTop)
+  context.arcTo(x+w, y+h, x,   y+h, rBottom)
   context.arcTo(x,   y+h, x,   y,   rBottom)
   context.arcTo(x,   y,   x+w, y,   rTop)
   context.closePath()
@@ -214,8 +214,24 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
     'right'
   )
 
-  // Reset translation and rotation
+  // Selected card border
+  if (card.selected === true) {
+    context.strokeStyle = "#17a2b8"
+    context.lineWidth = 8.0
+    roundRect(
+      context,
+      0,
+      0,
+      width,
+      height,
+      borderRadius,
+      borderRadius
+    )
+    context.stroke()
+    context.lineWidth = 1.0
+  }
 
+  // Reset translation and rotation
   context.translate(width/2, height/2)
   context.scale(1/card.scale, 1/card.scale)
   context.rotate(-card.rotation)
@@ -248,7 +264,8 @@ function render(context: CanvasRenderingContext2D, getCards: (timestamp: number)
 
 export type CanvasProps = {
   getCards: (timestamp: number) => Card[],
-  onMouseMove?: (x: number, y: number) => void
+  onMouseMove?: (x: number, y: number) => void,
+  onMouseClicked?: (x: number, y: number) => void
 }
 
 export function Component(props: CanvasProps): React.ReactElement {
@@ -262,6 +279,11 @@ export function Component(props: CanvasProps): React.ReactElement {
       canvas.onmousemove = (event: MouseEvent) => {
         if (props.onMouseMove !== undefined)
           props.onMouseMove(event.clientX, event.clientY)
+      }
+
+      canvas.onmousedown = (event: MouseEvent) => {
+        if (props.onMouseClicked !== undefined)
+          props.onMouseClicked(event.clientX, event.clientY)
       }
 
       const context = canvas.getContext('2d')
