@@ -25,7 +25,8 @@ export type AnimatedCard = Card & {
   readonly yGoal: Transition,
   readonly rotationGoal: Transition,
   readonly addedRotationGoal: Transition,
-  readonly scaleGoal: Transition
+  readonly scaleGoal: Transition,
+  readonly zLevel: number
 }
 
 function transition_init(init: number): Transition {
@@ -58,22 +59,21 @@ export function from_card(card: Card, position?: Position): AnimatedCard {
     yGoal: transition_init(position?.y || 0),
     rotationGoal: transition_init(position?.rotation || 0),
     addedRotationGoal: transition_init(0),
-    scaleGoal: transition_init(position?.scale || 1)
+    scaleGoal: transition_init(position?.scale || 1),
+    zLevel: 1.0
   }
 }
 
 export function animate(
   card: AnimatedCard,
-  currentTime: number,
-  zLevel: number = 1
+  currentTime: number
 ): Canvas.Card {
   return {
     ...card,
     x: get_x(card, currentTime),
     y: get_y(card, currentTime),
     rotation: get_rotation(card, currentTime) + get_added_rotation(card, currentTime),
-    scale: get_scale(card, currentTime),
-    zLevel
+    scale: get_scale(card, currentTime)
   }
 }
 

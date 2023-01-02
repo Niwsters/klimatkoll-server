@@ -65,5 +65,11 @@ AddedRotation.args = {
 
 export const Scale = Template.bind({});
 Scale.args = {
-  getCard: () => Animation.scale(card, 2.0, Date.now())
+  getCard: () => {
+    const currentTime = Date.now()
+    let newCard = card
+    newCard = Animation.move_x(newCard, 100, currentTime)
+    newCard = Animation.scale(newCard, 2.0, currentTime)
+    return newCard
+  }
 };

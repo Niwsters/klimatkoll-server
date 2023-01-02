@@ -97,11 +97,12 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   const headerHeight = 144
   const footerHeight = CARD_HEIGHT - headerHeight
   const borderRadius = 14
-  
-  context.scale(card.scale, card.scale)
 
   context.translate(card.x, card.y)
   context.rotate(card.rotation)
+  
+  context.scale(card.scale, card.scale)
+
   context.translate(-width/2, -height/2)
 
   // Header background
@@ -214,11 +215,11 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   )
 
   // Reset translation and rotation
+
   context.translate(width/2, height/2)
+  context.scale(1/card.scale, 1/card.scale)
   context.rotate(-card.rotation)
   context.translate(-card.x, -card.y)
-
-  context.scale(1/card.scale, 1/card.scale)
 }
 
 function render(context: CanvasRenderingContext2D, getCards: (timestamp: number) => Card[]) {
@@ -246,16 +247,24 @@ function render(context: CanvasRenderingContext2D, getCards: (timestamp: number)
 
 
 export type CanvasProps = {
-  getCards: (timestamp: number) => Card[]
+  getCards: (timestamp: number) => Card[],
+  onMouseMove?: (x: number, y: number) => void
 }
 
 export function Component(props: CanvasProps): React.ReactElement {
   const canvasRef = useRef(null)
 
   useEffect(() => {
-    const canvas: HTMLCanvasElement | null = canvasRef.current
+    let canvas: HTMLCanvasElement | null = canvasRef.current
     if (canvas !== null) {
-      const context = (canvas as HTMLCanvasElement).getContext('2d')
+      canvas = canvas as HTMLCanvasElement
+
+      canvas.onmousemove = (event: MouseEvent) => {
+        if (props.onMouseMove !== undefined)
+          props.onMouseMove(event.clientX, event.clientY)
+      }
+
+      const context = canvas.getContext('2d')
 
       if (context !== null) {
         return render(context, props.getCards)

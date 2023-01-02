@@ -49,7 +49,7 @@ Rotation.args = {
 
 export const Scale = Template.bind({});
 Scale.args = {
-  getCards: () => [{ ...card, flipped: true, scale: 2.0 }]
+  getCards: () => [{ ...card, flipped: true, scale: 2.0, x: 100, y: 100 }]
 };
 
 export const ScaleAndRotation = Template.bind({});

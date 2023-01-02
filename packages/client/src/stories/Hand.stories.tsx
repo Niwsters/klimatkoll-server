@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import * as Canvas from '../components/Canvas'
@@ -25,14 +25,22 @@ function Wrapper(_props: WrapperProps): React.ReactElement {
   board = Board.add_hand_card(board, card2)
   board = Board.add_hand_card(board, card3)
 
+  let mouseX = 0
+  let mouseY = 0
+
+  function onMouseMove(x: number, y: number) {
+    mouseX = x
+    mouseY = y
+  }
+
   function getCards() {
     const currentTime = Date.now()
-    board = Board.update(board, currentTime)
-    return Board.cards(board, currentTime)
+    board = Board.update(board, currentTime, mouseX, mouseY)
+    return Board.animate(board, currentTime)
   }
 
   return (
-    <Canvas.Component getCards={getCards} />
+    <Canvas.Component getCards={getCards} onMouseMove={onMouseMove} />
   )
 }
 
