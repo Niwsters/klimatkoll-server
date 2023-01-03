@@ -1,6 +1,6 @@
 import * as Canvas from '../components/Canvas'
 import { ANIMATION_DURATION_MS } from '../core/constants'
-import { Card, NormalCard, SpaceCard } from './card'
+import { Card } from './card'
 
 export function transpose(transition: Transition, currentTime: number) {
   const timePassed = currentTime - transition.timestamp
@@ -29,8 +29,6 @@ type AnimatedCardProps = {
   readonly zLevel: number
 }
 
-export type AnimatedNormalCard = NormalCard & AnimatedCardProps
-export type AnimatedSpaceCard = SpaceCard & AnimatedCardProps
 export type AnimatedCard = Card & AnimatedCardProps
 
 function transition_init(init: number): Transition {

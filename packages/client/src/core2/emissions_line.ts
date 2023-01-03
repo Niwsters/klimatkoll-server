@@ -10,7 +10,13 @@ const CARD_SCALE = 0.5
 export const NO_CARD_SELECTED = null
 
 function spaceCard(visible: boolean): AnimatedCard {
-  return Animation.from_card({ isSpace: true, visible })
+  return Animation.from_card({
+    title: "",
+    subtitle: "",
+    emissions: 0,
+    isSpace: true,
+    visible
+  })
 }
 
 function reform_space_cards(cards: AnimatedCard[], isCardSelected: boolean): AnimatedCard[] {

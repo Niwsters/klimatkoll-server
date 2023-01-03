@@ -1,4 +1,4 @@
-export type NormalCard = {
+export type Card = {
   title: string,
   subtitle: string,
   emissions: number,
@@ -11,12 +11,6 @@ export type NormalCard = {
 
   flipped: boolean,
   selected: boolean,
-  isSpace?: boolean
+  visible: boolean,
+  isSpace: boolean
 }
-
-export type SpaceCard = {
-  isSpace: true,
-  visible: boolean
-}
-
-export type Card = NormalCard | SpaceCard
