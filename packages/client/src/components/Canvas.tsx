@@ -9,9 +9,7 @@ export type CanvasCardProps = {
   zLevel: number,
 }
 
-export type NormalCard = Core.NormalCard & CanvasCardProps
-export type SpaceCard = Core.SpaceCard & CanvasCardProps
-export type Card = NormalCard | SpaceCard
+export type Card = Core.Card & CanvasCardProps
 
 export const WIDTH = 960
 export const HEIGHT = 540
@@ -97,7 +95,7 @@ function formatEmissions(n: number): string {
 
 function drawNormalCard(
   context: CanvasRenderingContext2D,
-  card: NormalCard,
+  card: Card,
   width: number,
   height: number,
   borderRadius: number
@@ -232,7 +230,7 @@ function drawNormalCard(
   }
 }
 
-function drawSpaceCard(context: CanvasRenderingContext2D, card: SpaceCard, width: number, height: number, borderRadius: number) {
+function drawSpaceCard(context: CanvasRenderingContext2D, card: Card, width: number, height: number, borderRadius: number) {
   if (!card.visible) return
 
   context.fillStyle = 'rgba(0, 0, 0, 0.3)'
@@ -259,10 +257,8 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   context.translate(-width/2, -height/2)
 
   if (card.isSpace) {
-    card = card as SpaceCard
     drawSpaceCard(context, card, width, height, borderRadius)
   } else {
-    card = card as NormalCard
     drawNormalCard(context, card, width, height, borderRadius)
   }
 

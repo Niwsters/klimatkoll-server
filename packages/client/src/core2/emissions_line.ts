@@ -14,6 +14,14 @@ function spaceCard(visible: boolean): AnimatedCard {
     title: "",
     subtitle: "",
     emissions: 0,
+    descr_front: "",
+    descr_back: "",
+    bg_color_back: "",
+    bg_color_front: "",
+    duration: "",
+    flipped: false,
+    selected: false,
+
     isSpace: true,
     visible
   })
