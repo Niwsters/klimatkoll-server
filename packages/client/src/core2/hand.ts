@@ -10,8 +10,8 @@ export const HAND_Y_RADIUS = 80
 export const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not map to the same ellipse as the position
 
 export type Hand = {
-  cards: Animation.AnimatedCard[],
-  selectedCardIndex?: number
+  readonly cards: Animation.AnimatedCard[],
+  readonly selectedCardIndex?: number
 }
 
 function getCardAngle(i: number, cardCount: number) {
@@ -128,10 +128,6 @@ function zoomHoveredCards(
 
 export function create(): Hand {
   return { cards: [] }
-}
-
-export function animate(hand: Hand, currentTime: number): Canvas.Card[] {
-  return hand.cards.map(card => Animation.animate(card, currentTime))
 }
 
 export function add_card(hand: Hand, card: Animation.AnimatedCard): Hand {

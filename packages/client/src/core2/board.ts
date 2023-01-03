@@ -1,23 +1,38 @@
 import * as Animation from './animation'
 import * as Canvas from '../components/Canvas'
 import * as Hand from './hand'
+import * as EmissionsLine from './emissions_line'
 
 export type Board = {
-  hand: Hand.Hand
+  readonly hand: Hand.Hand,
+  readonly emissionsLine: EmissionsLine.EmissionsLine
 }
 
 export function create(): Board {
-  return { hand: Hand.create() }
+  return {
+    hand: Hand.create(),
+    emissionsLine: EmissionsLine.create()
+  }
 }
 
 export function animate(board: Board, currentTime: number): Canvas.Card[] {
-  return Hand.animate(board.hand, currentTime)
+  return [
+    ...board.hand.cards,
+    ...board.emissionsLine.cards
+  ].map(card => Animation.animate(card, currentTime))
 }
 
 export function add_hand_card(board: Board, card: Animation.AnimatedCard): Board {
   return {
     ...board,
     hand: Hand.add_card(board.hand, card)
+  }
+}
+
+export function add_el_card(board: Board, card: Animation.AnimatedCard, currentTime: number): Board {
+  return {
+    ...board,
+    emissionsLine: EmissionsLine.add_card(board.emissionsLine, card, currentTime)
   }
 }
 

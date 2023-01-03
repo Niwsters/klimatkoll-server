@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import { WIDTH, HEIGHT } from '../core/constants'
 import { Card as CoreCard } from '../core2/card'
 
 export type Card = CoreCard & {
@@ -11,6 +10,8 @@ export type Card = CoreCard & {
   flipped: boolean
 }
 
+export const WIDTH = 960
+export const HEIGHT = 540
 export const CARD_WIDTH = 256
 export const CARD_HEIGHT = 335
 

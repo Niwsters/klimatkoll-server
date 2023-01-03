@@ -8,7 +8,7 @@ import * as SampleCards from './sample_cards'
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Board/Hand',
+  title: 'Canvas/Board',
   component: Canvas.Component
 } as ComponentMeta<typeof Canvas.Component>;
 
@@ -17,13 +17,11 @@ const card2 = Animation.from_card(SampleCards.card2)
 const card3 = Animation.from_card(SampleCards.card3)
 
 type WrapperProps = {
+  board: Board.Board
 }
 
-function Wrapper(_props: WrapperProps): React.ReactElement {
-  let board = Board.create()
-  board = Board.add_hand_card(board, card)
-  board = Board.add_hand_card(board, card2)
-  board = Board.add_hand_card(board, card3)
+function Wrapper(props: WrapperProps): React.ReactElement {
+  let board = props.board
 
   let mouseX = 0
   let mouseY = 0
@@ -51,6 +49,30 @@ function Wrapper(_props: WrapperProps): React.ReactElement {
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof Wrapper> = (args) => <Wrapper {...args} />;
 
+function initHandBoard(): Board.Board {
+  let board = Board.create()
+  board = Board.add_hand_card(board, card)
+  board = Board.add_hand_card(board, card2)
+  board = Board.add_hand_card(board, card3)
+  return board
+}
+
 export const Hand = Template.bind({});
 Hand.args = {
+  board: initHandBoard()
+};
+
+function initEmissionsLineBoard(): Board.Board {
+  const currentTime = Date.now()
+
+  let board = Board.create()
+  board = Board.add_el_card(board, card, currentTime)
+  board = Board.add_el_card(board, card2, currentTime)
+  board = Board.add_el_card(board, card3, currentTime)
+  return board
+}
+
+export const EmissionsLine = Template.bind({});
+EmissionsLine.args = {
+  board: initEmissionsLineBoard()
 };
