@@ -5,6 +5,7 @@ import * as Canvas from '../components/Canvas'
 import * as Animation from '../core2/animation'
 import * as Board from '../core2/board'
 import * as SampleCards from './sample_cards'
+import * as EL from '../core2/emissions_line'
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -62,7 +63,7 @@ Hand.args = {
   board: initHandBoard()
 };
 
-function initEmissionsLineBoard(): Board.Board {
+function elBoard(): Board.Board {
   const currentTime = Date.now()
 
   let board = Board.create()
@@ -74,5 +75,19 @@ function initEmissionsLineBoard(): Board.Board {
 
 export const EmissionsLine = Template.bind({});
 EmissionsLine.args = {
-  board: initEmissionsLineBoard()
+  board: elBoard()
+};
+
+function elBoardSpaceCards(): Board.Board {
+  let board = elBoard()
+  board = {
+    ...board,
+    emissionsLine: EL.card_selected(board.emissionsLine, card, Date.now())
+  }
+  return board
+}
+
+export const EmissionsLineSpaceCards = Template.bind({});
+EmissionsLineSpaceCards.args = {
+  board: elBoardSpaceCards()
 };

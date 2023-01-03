@@ -14,8 +14,7 @@ export default {
 const Template: ComponentStory<typeof Canvas.Component> =
   (args) => <Canvas.Component {...args} />;
 
-const card: Canvas.Card = {
-  ...SampleCards.card,
+const canvasProps = {
   x: Canvas.CARD_WIDTH / 2,
   y: Canvas.CARD_HEIGHT / 2,
   rotation: 0,
@@ -23,13 +22,19 @@ const card: Canvas.Card = {
   zLevel: 1.0
 }
 
+const card: Canvas.Card = {
+  ...SampleCards.card,
+  ...canvasProps
+}
+
 const card2: Canvas.Card = {
   ...SampleCards.card2,
-  x: Canvas.CARD_WIDTH / 2,
-  y: Canvas.CARD_HEIGHT / 2,
-  rotation: 0,
-  scale: 1.0,
-  zLevel: 1.0
+  ...canvasProps
+}
+
+const spaceCard: Canvas.Card = {
+  ...canvasProps,
+  isSpace: true
 }
 
 export const Front = Template.bind({});
@@ -65,4 +70,9 @@ ZLevel.args = {
 export const Selected = Template.bind({})
 Selected.args = {
   getCards: () => [{ ...card, selected: true }]
+}
+
+export const SpaceCard = Template.bind({})
+SpaceCard.args = {
+  getCards: () => [{ ...spaceCard }]
 }

@@ -1,14 +1,17 @@
 import React, { useEffect, useRef } from 'react'
 import { Card as CoreCard } from '../core2/card'
 
-export type Card = CoreCard & {
+export type CanvasCardProps = {
   x: number,
   y: number,
   rotation: number,
   scale: number,
   zLevel: number,
-  flipped: boolean
 }
+
+type SpaceCard = CanvasCardProps & { isSpace: true }
+type NormalCard = CoreCard & CanvasCardProps & { flipped: boolean, isSpace?: false }
+export type Card = NormalCard | SpaceCard
 
 export const WIDTH = 960
 export const HEIGHT = 540
@@ -92,19 +95,15 @@ function formatEmissions(n: number): string {
   return str.trim().split("").reverse().join("") + " KG"
 }
 
-function drawCard(context: CanvasRenderingContext2D, card: Card) {
-  const width = CARD_WIDTH
-  const height = CARD_HEIGHT
+function drawNormalCard(
+  context: CanvasRenderingContext2D,
+  card: NormalCard,
+  width: number,
+  height: number,
+  borderRadius: number
+) {
   const headerHeight = 144
   const footerHeight = CARD_HEIGHT - headerHeight
-  const borderRadius = 14
-
-  context.translate(card.x, card.y)
-  context.rotate(card.rotation)
-  
-  context.scale(card.scale, card.scale)
-
-  context.translate(-width/2, -height/2)
 
   // Header background
   const header_bg = card.flipped ? card.bg_color_back : card.bg_color_front
@@ -230,6 +229,39 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
     )
     context.stroke()
     context.lineWidth = 1.0
+  }
+}
+
+function drawSpaceCard(context: CanvasRenderingContext2D, width: number, height: number, borderRadius: number) {
+  context.fillStyle = 'rgba(0, 0, 0, 0.3)'
+  roundRect(
+    context,
+    0,
+    0,
+    width,
+    height,
+    borderRadius,
+    borderRadius
+  )
+  context.fill()
+}
+
+function drawCard(context: CanvasRenderingContext2D, card: Card) {
+  const width = CARD_WIDTH
+  const height = CARD_HEIGHT
+  const borderRadius = 14
+
+  context.translate(card.x, card.y)
+  context.rotate(card.rotation)
+  context.scale(card.scale, card.scale)
+  context.translate(-width/2, -height/2)
+
+  if (card.isSpace) {
+    card = card as SpaceCard
+    drawSpaceCard(context, width, height, borderRadius)
+  } else {
+    card = card as NormalCard
+    drawNormalCard(context, card, width, height, borderRadius)
   }
 
   // Reset translation and rotation

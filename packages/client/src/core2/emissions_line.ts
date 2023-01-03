@@ -1,6 +1,7 @@
 import * as Animation from './animation'
 import { AnimatedCard } from './animation'
 import * as Canvas from '../components/Canvas'
+import { Card } from './card'
 
 const EMISSIONS_LINE_MAX_LENGTH = 450
 const EMISSIONS_LINE_POSITION_X = Canvas.WIDTH / 2
@@ -50,4 +51,8 @@ export function add_card(el: EmissionsLine, card: Animation.AnimatedCard, curren
     ...el,
     cards
   }
+}
+
+export function card_selected(el: EmissionsLine, selectedCard: Card | undefined, currentTime: number): EmissionsLine {
+  return { ...el }
 }
