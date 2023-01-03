@@ -130,8 +130,9 @@ function drawNormalCard(
   )
   context.fill()
 
-  // Header font color
-  context.fillStyle = card.flipped ? '#1C1C45' : '#F3EFEC'
+  const headerFontColor = card.flipped ? '#1C1C45' : '#F3EFEC'
+  context.fillStyle = headerFontColor
+  context.strokeStyle = headerFontColor
 
   // Title
   const titleY = 28 + 16
