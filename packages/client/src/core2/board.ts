@@ -44,8 +44,14 @@ export function update(board: Board, currentTime: number, mouseX: number, mouseY
 }
 
 export function mouse_clicked(board: Board, mouseX: number, mouseY: number, currentTime: number): Board {
-  return {
+  board = {
     ...board,
     hand: Hand.mouse_clicked(board.hand, mouseX, mouseY, currentTime)
   }
+  const selectedCard = Hand.selected_card(board.hand)
+  board = {
+    ...board,
+    emissionsLine: EmissionsLine.card_selected(board.emissionsLine, selectedCard)
+  }
+  return board
 }

@@ -1,4 +1,5 @@
 import * as Animation from './animation'
+import { AnimatedCard, AnimatedNormalCard } from './animation'
 import * as Canvas from '../components/Canvas'
 import { WIDTH, HEIGHT } from '../core/constants'
 
@@ -10,8 +11,7 @@ export const HAND_Y_RADIUS = 80
 export const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not map to the same ellipse as the position
 
 export type Hand = {
-  readonly cards: Animation.AnimatedCard[],
-  readonly selectedCardIndex?: number
+  readonly cards: AnimatedNormalCard[],
 }
 
 function getCardAngle(i: number, cardCount: number) {
@@ -32,19 +32,19 @@ function getCardRotation(i: number, cardCount: number) {
 }
 
 function moveCardDefault(
-  card: Animation.AnimatedCard,
+  card: AnimatedNormalCard,
   cardIndex: number,
   cardCount: number,
   currentTime: number
-): Animation.AnimatedCard {
+): AnimatedNormalCard {
   const [x, y] = getCardPosition(cardIndex, cardCount)
   const scale = 1.0
   const rotation = getCardRotation(cardIndex, cardCount)
-  card = Animation.move_x(card, x, currentTime)
-  card = Animation.move_y(card, y, currentTime)
-  card = Animation.rotate(card, rotation, currentTime)
+  card = Animation.move_x(card, x, currentTime) as AnimatedNormalCard
+  card = Animation.move_y(card, y, currentTime) as AnimatedNormalCard
+  card = Animation.rotate(card, rotation, currentTime) as AnimatedNormalCard
   card = { ...card, zLevel: zLevel(cardIndex) }
-  return Animation.scale(card, scale, currentTime)
+  return Animation.scale(card, scale, currentTime) as AnimatedNormalCard
 }
 
 function zLevel(cardIndex: number): number {
@@ -63,7 +63,7 @@ function distance(a: number, b: number) {
 }
 
 function closestCardToMouse(hand: Hand, mouseX: number, currentTime: number): number | undefined {
-  let closestCard: Animation.AnimatedCard | undefined
+  let closestCard: AnimatedNormalCard | undefined
   let closestCardIndex: number | undefined
   let i: number = 0
 
@@ -101,10 +101,10 @@ function isCardFocused(
          mouseX < HAND_POSITION_X + width / 2
 }
 
-function zoomInOnCard(card: Animation.AnimatedCard, currentTime: number): Animation.AnimatedCard {
-  card = Animation.move_y(card, HAND_POSITION_Y - 230, currentTime)
-  card = Animation.scale(card, 2, currentTime)
-  card = Animation.rotate(card, 0, currentTime)
+function zoomInOnCard(card: AnimatedNormalCard, currentTime: number): AnimatedNormalCard {
+  card = Animation.move_y(card, HAND_POSITION_Y - 230, currentTime) as AnimatedNormalCard
+  card = Animation.scale(card, 2, currentTime) as AnimatedNormalCard
+  card = Animation.rotate(card, 0, currentTime) as AnimatedNormalCard
   card = { ...card, zLevel: 999 }
   return card
 }
@@ -130,9 +130,9 @@ export function create(): Hand {
   return { cards: [] }
 }
 
-export function add_card(hand: Hand, card: Animation.AnimatedCard): Hand {
-  card = Animation.move_x(card, HAND_POSITION_X, Date.now())
-  card = Animation.move_y(card, HAND_POSITION_Y, Date.now())
+export function add_card(hand: Hand, card: AnimatedCard): Hand {
+  card = Animation.move_x(card, HAND_POSITION_X, Date.now()) as AnimatedNormalCard
+  card = Animation.move_y(card, HAND_POSITION_Y, Date.now()) as AnimatedNormalCard
 
   return {
     ...hand,
@@ -155,4 +155,8 @@ export function mouse_clicked(hand: Hand, mouseX: number, mouseY: number, curren
 
 export function update(hand: Hand, currentTime: number, mouseX: number, mouseY: number): Hand {
   return zoomHoveredCards(hand, currentTime, mouseX, mouseY)
+}
+
+export function selected_card(hand: Hand): AnimatedNormalCard | null {
+  return hand.cards.find(card => card.selected) || null
 }

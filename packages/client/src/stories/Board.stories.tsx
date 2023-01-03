@@ -50,7 +50,7 @@ function Wrapper(props: WrapperProps): React.ReactElement {
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof Wrapper> = (args) => <Wrapper {...args} />;
 
-function initHandBoard(): Board.Board {
+function handBoard(): Board.Board {
   let board = Board.create()
   board = Board.add_hand_card(board, card)
   board = Board.add_hand_card(board, card2)
@@ -60,7 +60,7 @@ function initHandBoard(): Board.Board {
 
 export const Hand = Template.bind({});
 Hand.args = {
-  board: initHandBoard()
+  board: handBoard()
 };
 
 function elBoard(): Board.Board {
@@ -90,4 +90,16 @@ function elBoardSpaceCards(): Board.Board {
 export const EmissionsLineSpaceCards = Template.bind({});
 EmissionsLineSpaceCards.args = {
   board: elBoardSpaceCards()
+};
+
+function combinedBoard(): Board.Board {
+  return {
+    hand: handBoard().hand,
+    emissionsLine: elBoard().emissionsLine
+  }
+}
+
+export const HandAndEmissionsLine = Template.bind({});
+HandAndEmissionsLine.args = {
+  board: combinedBoard()
 };
