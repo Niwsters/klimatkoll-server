@@ -34,7 +34,8 @@ const card2: Canvas.Card = {
 
 const spaceCard: Canvas.Card = {
   ...canvasProps,
-  isSpace: true
+  isSpace: true,
+  visible: true
 }
 
 export const Front = Template.bind({});
@@ -75,4 +76,9 @@ Selected.args = {
 export const SpaceCard = Template.bind({})
 SpaceCard.args = {
   getCards: () => [{ ...spaceCard }]
+}
+
+export const SpaceCardHidden = Template.bind({})
+SpaceCardHidden.args = {
+  getCards: () => [{ ...spaceCard, visible: false }]
 }

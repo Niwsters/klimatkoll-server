@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { Card as CoreCard } from '../core2/card'
+import * as Core from '../core2/card'
 
 export type CanvasCardProps = {
   x: number,
@@ -9,8 +9,8 @@ export type CanvasCardProps = {
   zLevel: number,
 }
 
-type SpaceCard = CanvasCardProps & { isSpace: true }
-type NormalCard = CoreCard & CanvasCardProps & { flipped: boolean, isSpace?: false }
+export type NormalCard = Core.NormalCard & CanvasCardProps
+export type SpaceCard = Core.SpaceCard & CanvasCardProps
 export type Card = NormalCard | SpaceCard
 
 export const WIDTH = 960
@@ -232,7 +232,9 @@ function drawNormalCard(
   }
 }
 
-function drawSpaceCard(context: CanvasRenderingContext2D, width: number, height: number, borderRadius: number) {
+function drawSpaceCard(context: CanvasRenderingContext2D, card: SpaceCard, width: number, height: number, borderRadius: number) {
+  if (!card.visible) return
+
   context.fillStyle = 'rgba(0, 0, 0, 0.3)'
   roundRect(
     context,
@@ -258,7 +260,7 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
 
   if (card.isSpace) {
     card = card as SpaceCard
-    drawSpaceCard(context, width, height, borderRadius)
+    drawSpaceCard(context, card, width, height, borderRadius)
   } else {
     card = card as NormalCard
     drawNormalCard(context, card, width, height, borderRadius)

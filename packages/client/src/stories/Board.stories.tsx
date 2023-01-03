@@ -82,7 +82,7 @@ function elBoardSpaceCards(): Board.Board {
   let board = elBoard()
   board = {
     ...board,
-    emissionsLine: EL.card_selected(board.emissionsLine, card, Date.now())
+    emissionsLine: EL.card_selected(board.emissionsLine, card)
   }
   return board
 }
