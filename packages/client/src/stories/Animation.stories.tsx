@@ -2,9 +2,9 @@ import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import * as Canvas from '../components/Canvas'
-import * as Animation from '../core2/animation'
+import * as Card from '../core2/card'
 
-import { card as sampleCard } from './sample_cards'
+import * as SampleCards from './sample_cards'
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -12,17 +12,20 @@ export default {
   component: Canvas.Component
 } as ComponentMeta<typeof Canvas.Component>;
 
-const card = Animation.from_card(
-  sampleCard,
-  { x: Canvas.CARD_WIDTH / 2, y: Canvas.CARD_HEIGHT / 2}
-)
+const card: Card.Card = Card.create(SampleCards.card, {
+  zLevel: 0,
+  x: Canvas.CARD_WIDTH / 2,
+  y: Canvas.CARD_HEIGHT / 2,
+  rotation: 0,
+  scale: 1
+})
 
 type Board = {
-  cards: Animation.AnimatedCard[]
+  cards: Card.Card[]
 }
 
 type WrapperProps = {
-  getCard: () => Animation.AnimatedCard
+  getCard: () => Card.Card
 }
 
 function Wrapper(props: WrapperProps): React.ReactElement {
@@ -31,7 +34,7 @@ function Wrapper(props: WrapperProps): React.ReactElement {
   }
 
   return (
-    <Canvas.Component getCards={() => board.cards.map(card => Animation.animate(card, Date.now()))} />
+    <Canvas.Component getCards={() => board.cards.map(card => Card.update(card, Date.now()))} />
   )
 }
 
@@ -41,19 +44,20 @@ const Template: ComponentStory<typeof Wrapper> =
 
 export const MoveX = Template.bind({});
 MoveX.args = {
-  getCard: () => Animation.move_x(card, Animation.get_x(card, Date.now()) + 100, Date.now())
+  getCard: () => Card.move_x(card, card.x + 100, Date.now())
 };
 
 export const MoveY = Template.bind({});
 MoveY.args = {
-  getCard: () => Animation.move_y(card, Animation.get_y(card, Date.now()) + 100, Date.now())
+  getCard: () => Card.move_y(card, card.y + 100, Date.now())
 };
 
 export const Rotation = Template.bind({});
 Rotation.args = {
-  getCard: () => Animation.rotate(card, Math.PI / 6, Date.now())
+  getCard: () => Card.rotate(card, Math.PI / 6, Date.now())
 };
 
+/*
 export const AddedRotation = Template.bind({});
 AddedRotation.args = {
   getCard: () => {
@@ -62,14 +66,9 @@ AddedRotation.args = {
     return animated
   }
 };
+*/
 
 export const Scale = Template.bind({});
 Scale.args = {
-  getCard: () => {
-    const currentTime = Date.now()
-    let newCard = card
-    newCard = Animation.move_x(newCard, 100, currentTime)
-    newCard = Animation.scale(newCard, 2.0, currentTime)
-    return newCard
-  }
+  getCard: () => Card.scale(card, 2.0, Date.now())
 };

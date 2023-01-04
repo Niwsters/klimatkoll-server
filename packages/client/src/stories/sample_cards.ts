@@ -1,6 +1,6 @@
-import { Card } from '../core2/card'
+import { CardDesign } from '../core2/card'
 
-export const card: Card = {
+export const card: CardDesign = {
   title: "Pendla",
   subtitle: "i medelstor biodieselbil",
   emissions: 4000,
@@ -10,12 +10,9 @@ export const card: Card = {
 
   bg_color_front: "#1C1C45",
   bg_color_back: "#FAD44C",
-
-  flipped: false,
-  selected: false
 }
 
-export const card2: Card = {
+export const card2: CardDesign = {
   title: "Blandkost",
   subtitle: "svensk genomsnitt",
   emissions: 2000,
@@ -25,12 +22,9 @@ export const card2: Card = {
 
   bg_color_front: "#1C1C45",
   bg_color_back: "#61ABB3",
-
-  flipped: false,
-  selected: false
 }
 
-export const card3: Card = {
+export const card3: CardDesign = {
   title: "Dator",
   subtitle: "påslagen dygnet runt",
   emissions: 110,
@@ -40,7 +34,4 @@ export const card3: Card = {
 
   bg_color_front: "#1C1C45",
   bg_color_back: "#265157",
-
-  flipped: false,
-  selected: false
 }

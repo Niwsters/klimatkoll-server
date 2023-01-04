@@ -1,50 +1,18 @@
-import * as Canvas from '../components/Canvas'
-import { ANIMATION_DURATION_MS } from '../core/constants'
-import { Card } from './card'
+import * as Transition from './transition'
 
-export function transpose(transition: Transition, currentTime: number) {
-  const timePassed = currentTime - transition.timestamp
-  const from = transition.start
-  const to = transition.goal
-
-  if (timePassed > ANIMATION_DURATION_MS) return to
-
-  const fraction = timePassed/ANIMATION_DURATION_MS
-  const mult = 1 - (1 - fraction) ** 2 // easeOutQuad easing function
-  return from + (to - from)*mult
+export type Animation = {
+  readonly xGoal: Transition.Transition,
+  readonly yGoal: Transition.Transition,
+  readonly rotationGoal: Transition.Transition,
+  readonly addedRotationGoal: Transition.Transition,
+  readonly scaleGoal: Transition.Transition
 }
 
-export type Transition = {
-  readonly timestamp: number,
-  readonly start: number,
-  readonly goal: number
-}
-
-type AnimatedCardProps = {
-  readonly xGoal: Transition,
-  readonly yGoal: Transition,
-  readonly rotationGoal: Transition,
-  readonly addedRotationGoal: Transition,
-  readonly scaleGoal: Transition,
-  readonly zLevel: number
-}
-
-export type AnimatedCard = Card & AnimatedCardProps
-
-function transition_init(init: number): Transition {
-  return {
-    timestamp: 0,
-    start: init,
-    goal: init 
-  }
-}
-
-function update(transition: Transition, timestamp: number, start: number, goal: number): Transition {
-  if (transition.goal === goal) {
-    return { ...transition }
-  }
-
-  return { timestamp, start, goal }
+export type Animated = {
+  readonly x: number,
+  readonly y: number,
+  readonly rotation: number,
+  readonly scale: number
 }
 
 type Position = {
@@ -54,92 +22,89 @@ type Position = {
   scale?: number
 }
 
-export function from_card(card: Card, position?: Position): AnimatedCard {
+export function create(position?: Position): Animation {
   return {
-    ...card,
-    xGoal: transition_init(position?.x || 0),
-    yGoal: transition_init(position?.y || 0),
-    rotationGoal: transition_init(position?.rotation || 0),
-    addedRotationGoal: transition_init(0),
-    scaleGoal: transition_init(position?.scale || 1),
-    zLevel: 1.0
+    xGoal: Transition.create(position?.x || 0),
+    yGoal: Transition.create(position?.y || 0),
+    rotationGoal: Transition.create(position?.rotation || 0),
+    addedRotationGoal: Transition.create(0),
+    scaleGoal: Transition.create(position?.scale || 1)
   }
 }
 
 export function animate(
-  card: AnimatedCard,
+  animation: Animation,
   currentTime: number
-): Canvas.Card {
+): Animated {
   return {
-    ...card,
-    x: get_x(card, currentTime),
-    y: get_y(card, currentTime),
-    rotation: get_rotation(card, currentTime) + get_added_rotation(card, currentTime),
-    scale: get_scale(card, currentTime)
+    x: get_x(animation, currentTime),
+    y: get_y(animation, currentTime),
+    rotation: get_rotation(animation, currentTime) + get_added_rotation(animation, currentTime),
+    scale: get_scale(animation, currentTime)
   }
 }
 
-export function get_x(card: AnimatedCard, currentTime: number): number {
-  return transpose(card.xGoal, currentTime)
+export function get_x(animation: Animation, currentTime: number): number {
+  return Transition.transpose(animation.xGoal, currentTime)
 }
 
-export function move_x(card: AnimatedCard, x: number, currentTime: number): AnimatedCard {
+export function move_x(animation: Animation, x: number, currentTime: number): Animation {
   return {
-    ...card,
-    xGoal: update(card.xGoal, currentTime, get_x(card, currentTime), x)
+    ...animation,
+    xGoal: Transition.update(animation.xGoal, currentTime, get_x(animation, currentTime), x)
   }
 }
 
-export function get_y(card: AnimatedCard, currentTime: number): number {
-  return transpose(card.yGoal, currentTime)
+export function get_y(animation: Animation, currentTime: number): number {
+  return Transition.transpose(animation.yGoal, currentTime)
 }
 
-export function move_y(card: AnimatedCard, y: number, currentTime: number): AnimatedCard {
+export function move_y(animation: Animation, y: number, currentTime: number): Animation {
   return {
-    ...card,
-    yGoal: update(card.yGoal, currentTime, get_y(card, currentTime), y)
+    ...animation,
+    yGoal: Transition.update(animation.yGoal, currentTime, get_y(animation, currentTime), y)
   }
 }
 
-export function get_rotation(card: AnimatedCard, currentTime: number): number {
-  return transpose(card.rotationGoal, currentTime)
+export function get_rotation(animation: Animation, currentTime: number): number {
+  return Transition.transpose(animation.rotationGoal, currentTime)
 }
 
-export function rotate(card: AnimatedCard, rotation: number, currentTime: number): AnimatedCard {
+export function rotate(animation: Animation, rotation: number, currentTime: number): Animation {
   return {
-    ...card,
-    rotationGoal: update(
-      card.rotationGoal,
+    ...animation,
+    rotationGoal: Transition.update(
+      animation.rotationGoal,
       currentTime,
-      get_rotation(card, currentTime),
+      get_rotation(animation, currentTime),
       rotation
     )
   }
 }
 
-export function get_added_rotation(card: AnimatedCard, currentTime: number): number {
-  return transpose(card.addedRotationGoal, currentTime)
+export function get_added_rotation(animation: Animation, currentTime: number): number {
+  return Transition.transpose(animation.addedRotationGoal, currentTime)
 }
 
-export function rotateLocal(card: AnimatedCard, rotation: number, currentTime: number): AnimatedCard {
+export function rotateLocal(animation: Animation, rotation: number, currentTime: number): Animation {
   return {
-    ...card,
-    addedRotationGoal: update(
-      card.addedRotationGoal,
+    ...animation,
+    addedRotationGoal: Transition.update(
+      animation.addedRotationGoal,
       currentTime,
-      get_added_rotation(card, currentTime),
+      get_added_rotation(animation, currentTime),
       rotation
     )
   }
 }
 
-export function get_scale(card: AnimatedCard, currentTime: number): number {
-  return transpose(card.scaleGoal, currentTime)
+export function get_scale(animation: Animation, currentTime: number): number {
+  return Transition.transpose(animation.scaleGoal, currentTime)
 }
 
-export function scale(card: AnimatedCard, scale: number, currentTime: number): AnimatedCard {
+export function scale(animation: Animation, scale: number, currentTime: number): Animation {
   return {
-    ...card,
-    scaleGoal: update(card.scaleGoal, currentTime, get_scale(card, currentTime), scale)
+    ...animation,
+    scaleGoal: Transition.update(animation.scaleGoal, currentTime, get_scale(animation, currentTime), scale)
   }
 }
