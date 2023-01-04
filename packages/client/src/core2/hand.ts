@@ -3,12 +3,13 @@ import { AnimatedCard } from './animation'
 import * as Canvas from '../components/Canvas'
 import { WIDTH, HEIGHT } from '../core/constants'
 
-export const HAND_POSITION_X = WIDTH / 2
-export const HAND_POSITION_Y = HEIGHT + 50
-export const HAND_CARD_ANGLE = Math.PI/5
-export const HAND_X_RADIUS = 160
-export const HAND_Y_RADIUS = 80
-export const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not map to the same ellipse as the position
+const HAND_POSITION_X = WIDTH / 2
+const HAND_POSITION_Y = HEIGHT + 50
+const HAND_CARD_ANGLE = Math.PI/5
+const HAND_X_RADIUS = 160
+const HAND_Y_RADIUS = 80
+const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not map to the same ellipse as the position
+const CARD_SCALE = 0.5
 
 export type Hand = {
   readonly cards: AnimatedCard[],
@@ -38,13 +39,12 @@ function moveCardDefault(
   currentTime: number
 ): AnimatedCard {
   const [x, y] = getCardPosition(cardIndex, cardCount)
-  const scale = 1.0
   const rotation = getCardRotation(cardIndex, cardCount)
-  card = Animation.move_x(card, x, currentTime) as AnimatedCard
-  card = Animation.move_y(card, y, currentTime) as AnimatedCard
-  card = Animation.rotate(card, rotation, currentTime) as AnimatedCard
+  card = Animation.move_x(card, x, currentTime)
+  card = Animation.move_y(card, y, currentTime)
+  card = Animation.rotate(card, rotation, currentTime)
   card = { ...card, zLevel: zLevel(cardIndex) }
-  return Animation.scale(card, scale, currentTime) as AnimatedCard
+  return Animation.scale(card, CARD_SCALE, currentTime)
 }
 
 function zLevel(cardIndex: number): number {
@@ -84,7 +84,8 @@ function closestCardToMouse(hand: Hand, mouseX: number, currentTime: number): nu
   return closestCardIndex
 }
 
-const hoverYAxisLimit: number = HAND_POSITION_Y - Canvas.CARD_HEIGHT
+const HOVER_Y_AXIS_LIMIT: number =
+  HAND_POSITION_Y - HAND_Y_RADIUS - Canvas.CARD_HEIGHT / 2 * CARD_SCALE
 function isCardFocused(
   hand: Hand,
   cardIndex: number,
@@ -96,15 +97,16 @@ function isCardFocused(
   const closestCardIndex = closestCardToMouse(hand, mouseX, currentTime)
   return closestCardIndex !== undefined &&
          cardIndex === closestCardIndex &&
-         mouseY > hoverYAxisLimit &&
+         mouseY > HOVER_Y_AXIS_LIMIT &&
          mouseX > HAND_POSITION_X - width / 2 &&
          mouseX < HAND_POSITION_X + width / 2
 }
 
 function zoomInOnCard(card: AnimatedCard, currentTime: number): AnimatedCard {
-  card = Animation.move_y(card, HAND_POSITION_Y - 230, currentTime) as AnimatedCard
-  card = Animation.scale(card, 2, currentTime) as AnimatedCard
-  card = Animation.rotate(card, 0, currentTime) as AnimatedCard
+  const scale = 1
+  card = Animation.move_y(card, Canvas.HEIGHT - Canvas.CARD_HEIGHT / 2 * scale, currentTime)
+  card = Animation.scale(card, scale, currentTime)
+  card = Animation.rotate(card, 0, currentTime)
   card = { ...card, zLevel: 999 }
   return card
 }
@@ -130,9 +132,9 @@ export function create(): Hand {
   return { cards: [] }
 }
 
-export function add_card(hand: Hand, card: AnimatedCard): Hand {
-  card = Animation.move_x(card, HAND_POSITION_X, Date.now()) as AnimatedCard
-  card = Animation.move_y(card, HAND_POSITION_Y, Date.now()) as AnimatedCard
+export function add_card(hand: Hand, card: AnimatedCard, currentTime: number): Hand {
+  card = Animation.move_x(card, HAND_POSITION_X, currentTime)
+  card = Animation.move_y(card, HAND_POSITION_Y, currentTime)
 
   return {
     ...hand,

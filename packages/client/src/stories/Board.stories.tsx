@@ -51,10 +51,12 @@ function Wrapper(props: WrapperProps): React.ReactElement {
 const Template: ComponentStory<typeof Wrapper> = (args) => <Wrapper {...args} />;
 
 function handBoard(): Board.Board {
+  const currentTime = Date.now()
+
   let board = Board.create()
-  board = Board.add_hand_card(board, card)
-  board = Board.add_hand_card(board, card2)
-  board = Board.add_hand_card(board, card3)
+  board = Board.add_hand_card(board, card, currentTime)
+  board = Board.add_hand_card(board, card2, currentTime)
+  board = Board.add_hand_card(board, card3, currentTime)
   return board
 }
 

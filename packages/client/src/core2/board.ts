@@ -15,35 +15,56 @@ export function create(): Board {
   }
 }
 
-export function animate(board: Board, currentTime: number): Canvas.Card[] {
+export function animate(
+  board: Board,
+  currentTime: number
+): Canvas.Card[] {
   return [
     ...board.hand.cards,
     ...board.emissionsLine.cards
   ].map(card => Animation.animate(card, currentTime))
 }
 
-export function add_hand_card(board: Board, card: Animation.AnimatedCard): Board {
+export function add_hand_card(
+  board: Board,
+  card: Animation.AnimatedCard,
+  currentTime: number
+): Board {
   return {
     ...board,
-    hand: Hand.add_card(board.hand, card)
+    hand: Hand.add_card(board.hand, card, currentTime)
   }
 }
 
-export function add_el_card(board: Board, card: Animation.AnimatedCard, currentTime: number): Board {
+export function add_el_card(
+  board: Board,
+  card: Animation.AnimatedCard,
+  currentTime: number
+): Board {
   return {
     ...board,
     emissionsLine: EmissionsLine.add_card(board.emissionsLine, card, currentTime)
   }
 }
 
-export function update(board: Board, currentTime: number, mouseX: number, mouseY: number): Board {
+export function update(
+  board: Board,
+  currentTime: number,
+  mouseX: number,
+  mouseY: number
+): Board {
   return {
     ...board,
     hand: Hand.update(board.hand, currentTime, mouseX, mouseY)
   }
 }
 
-export function mouse_clicked(board: Board, mouseX: number, mouseY: number, currentTime: number): Board {
+export function mouse_clicked(
+  board: Board,
+  mouseX: number,
+  mouseY: number,
+  currentTime: number
+): Board {
   board = {
     ...board,
     hand: Hand.mouse_clicked(board.hand, mouseX, mouseY, currentTime)
