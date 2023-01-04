@@ -310,12 +310,12 @@ export function Component(props: CanvasProps): React.ReactElement {
 
       canvas.onmousemove = (event: MouseEvent) => {
         if (props.onMouseMove !== undefined)
-          props.onMouseMove(event.clientX, event.clientY)
+          props.onMouseMove(event.pageX, event.pageY)
       }
 
       canvas.onmousedown = (event: MouseEvent) => {
         if (props.onMouseClicked !== undefined)
-          props.onMouseClicked(event.clientX, event.clientY)
+          props.onMouseClicked(event.pageX, event.pageY)
       }
 
       const context = canvas.getContext('2d')

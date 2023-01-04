@@ -55,7 +55,8 @@ export function update(
 ): Board {
   return {
     ...board,
-    hand: Hand.update(board.hand, currentTime, mouseX, mouseY)
+    hand: Hand.update(board.hand, currentTime, mouseX, mouseY),
+    emissionsLine: EmissionsLine.update(board.emissionsLine, mouseX, mouseY, currentTime)
   }
 }
 
