@@ -44,7 +44,7 @@ export function animate(
   }
 }
 
-export function get_x(animation: Animation, currentTime: number): number {
+function get_x(animation: Animation, currentTime: number): number {
   return Transition.transpose(animation.xGoal, currentTime)
 }
 
@@ -55,7 +55,7 @@ export function move_x(animation: Animation, x: number, currentTime: number): An
   }
 }
 
-export function get_y(animation: Animation, currentTime: number): number {
+function get_y(animation: Animation, currentTime: number): number {
   return Transition.transpose(animation.yGoal, currentTime)
 }
 
@@ -66,7 +66,7 @@ export function move_y(animation: Animation, y: number, currentTime: number): An
   }
 }
 
-export function get_rotation(animation: Animation, currentTime: number): number {
+function get_rotation(animation: Animation, currentTime: number): number {
   return Transition.transpose(animation.rotationGoal, currentTime)
 }
 
@@ -82,7 +82,7 @@ export function rotate(animation: Animation, rotation: number, currentTime: numb
   }
 }
 
-export function get_added_rotation(animation: Animation, currentTime: number): number {
+function get_added_rotation(animation: Animation, currentTime: number): number {
   return Transition.transpose(animation.addedRotationGoal, currentTime)
 }
 
@@ -98,7 +98,7 @@ export function rotateLocal(animation: Animation, rotation: number, currentTime:
   }
 }
 
-export function get_scale(animation: Animation, currentTime: number): number {
+function get_scale(animation: Animation, currentTime: number): number {
   return Transition.transpose(animation.scaleGoal, currentTime)
 }
 
