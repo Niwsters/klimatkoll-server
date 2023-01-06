@@ -114,15 +114,13 @@ function isCardSelected(el: EmissionsLine): boolean {
   return el.selectedCard !== null
 }
 
-function getClosestCardIndex(
+function getClosestCard(
   el: EmissionsLine,
   mouseX: number
-): number {
+): Card.Card {
   const cards = isCardSelected(el) ? spaceCards(el) : nonSpaceCards(el)
 
   let closest: Card.Card = cards[0]
-  let closestIndex: number = 0
-  let i = 0
   for (const card of cards) {
     if (!closest) {
       closest = card
@@ -131,18 +129,15 @@ function getClosestCardIndex(
 
     if (Math.abs(card.x - mouseX) < Math.abs(closest.x - mouseX)) {
       closest = card
-      closestIndex = i
     }
-
-    i++
   }
 
-  return closestIndex
+  return closest
 }
 
 function isCardFocused(
   el: EmissionsLine,
-  cardIndex: number,
+  card: Card.Card,
   mouseX: number,
   mouseY: number
 ): boolean {
@@ -156,7 +151,11 @@ function isCardFocused(
          mouseX < upperBoundsX &&
          mouseY > lowerBoundsY &&
          mouseY < upperBoundsY &&
-         cardIndex === getClosestCardIndex(el, mouseX)
+         card.id === getClosestCard(el, mouseX).id
+}
+
+function zLevel(cardIndex: number): number {
+  return cardIndex
 }
 
 export function add_card(el: EmissionsLine, card: Card.Card, currentTime: number): EmissionsLine {
@@ -183,28 +182,19 @@ export function update(
   currentTime: number
 ): EmissionsLine {
   let cards = el.cards
+  cards = cards.map((card, cardIndex) => { return {...card, zLevel: zLevel(cardIndex)} })
   cards = cards.map(card => Card.update(card, currentTime))
-  cards = cards.map((card, cardIndex) => {
+  cards = cards.map(card => {
     if (card.isSpace) {
-      const position = {
-        x: card.x,
-        y: card.y,
-        scale: CARD_SCALE
-      }
-
       if (
-        isCardFocused(el, cardIndex, mouseX, mouseY)
+        isCardFocused(el, card, mouseX, mouseY)
         && isCardSelected(el)
       ) {
-        const selectedCard = {
-          ...el.selectedCard as Card.Card,
-          selected: false,
-          isSpace: true
-        }
-        return selectedCard
+        const selectedCard = el.selectedCard as Card.Card
+        return { ...card, name: selectedCard.name }
       }
 
-      return spaceCard(isCardSelected(el), position)
+      return {...card, name: "space"}
     }
 
     return { ...card }

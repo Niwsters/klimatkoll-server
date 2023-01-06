@@ -1,16 +1,19 @@
 import * as Hand from './hand'
 import * as EmissionsLine from './emissions_line'
 import * as Card from './card'
+import * as Deck from './deck'
 
 export type Board = {
   readonly hand: Hand.Hand,
-  readonly emissionsLine: EmissionsLine.EmissionsLine
+  readonly emissionsLine: EmissionsLine.EmissionsLine,
+  readonly deck: Deck.Deck
 }
 
-export function create(): Board {
+export function create(deck: Card.Card[]): Board {
   return {
     hand: Hand.create(),
-    emissionsLine: EmissionsLine.create()
+    emissionsLine: EmissionsLine.create(),
+    deck: Deck.create(deck)
   }
 }
 
@@ -41,6 +44,26 @@ export function add_el_card(
 ): Board {
   return {
     ...board,
+    emissionsLine: EmissionsLine.add_card(board.emissionsLine, card, currentTime)
+  }
+}
+
+export function drawHandCard(board: Board, currentTime: number) {
+  const [deck, card] = Deck.draw(board.deck)
+
+  return {
+    ...board,
+    deck,
+    hand: Hand.add_card(board.hand, card, currentTime)
+  }
+}
+
+export function playCardFromDeck(board: Board, currentTime: number) {
+  const [deck, card] = Deck.draw(board.deck)
+
+  return {
+    ...board,
+    deck,
     emissionsLine: EmissionsLine.add_card(board.emissionsLine, card, currentTime)
   }
 }

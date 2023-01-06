@@ -24,6 +24,7 @@ const positioning: Card.CardPositioning = {
 const card = Card.create(SampleCards.card.name, positioning)
 const card2 = Card.create(SampleCards.card2.name, positioning)
 const card3 = Card.create(SampleCards.card3.name, positioning)
+const deck = [card, card2, card3]
 
 type WrapperProps = {
   board: Board.Board
@@ -65,10 +66,10 @@ const Template: ComponentStory<typeof Wrapper> = (args) => <Wrapper {...args} />
 function handBoard(): Board.Board {
   const currentTime = Date.now()
 
-  let board = Board.create()
-  board = Board.add_hand_card(board, card, currentTime)
-  board = Board.add_hand_card(board, card2, currentTime)
-  board = Board.add_hand_card(board, card3, currentTime)
+  let board = Board.create(deck)
+  board = Board.drawHandCard(board, currentTime)
+  board = Board.drawHandCard(board, currentTime)
+  board = Board.drawHandCard(board, currentTime)
   return board
 }
 
@@ -80,10 +81,10 @@ Hand.args = {
 function elBoard(): Board.Board {
   const currentTime = Date.now()
 
-  let board = Board.create()
-  board = Board.add_el_card(board, card, currentTime)
-  board = Board.add_el_card(board, card2, currentTime)
-  board = Board.add_el_card(board, card3, currentTime)
+  let board = Board.create(deck)
+  board = Board.playCardFromDeck(board, currentTime)
+  board = Board.playCardFromDeck(board, currentTime)
+  board = Board.playCardFromDeck(board, currentTime)
   return board
 }
 
@@ -107,10 +108,18 @@ EmissionsLineSpaceCards.args = {
 };
 
 function combinedBoard(): Board.Board {
-  return {
-    hand: handBoard().hand,
-    emissionsLine: elBoard().emissionsLine
-  }
+  const currentTime = Date.now()
+  
+  let board = Board.create([...deck, ...deck])
+  board = Board.drawHandCard(board, currentTime)
+  board = Board.drawHandCard(board, currentTime)
+  board = Board.drawHandCard(board, currentTime)
+
+  board = Board.playCardFromDeck(board, currentTime)
+  board = Board.playCardFromDeck(board, currentTime)
+  board = Board.playCardFromDeck(board, currentTime)
+
+  return board
 }
 
 export const HandAndEmissionsLine = Template.bind({});

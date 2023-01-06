@@ -40,6 +40,12 @@ function render(context: CanvasRenderingContext2D, getCards: GetCards, getCardDe
   }
 }
 
+function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: number } {
+  const rect = canvas.getBoundingClientRect()
+  const x = event.clientX - rect.left
+  const y = event.clientY - rect.top
+  return { x, y }
+}
 
 export type CanvasProps = {
   getCards: GetCards,
@@ -52,18 +58,19 @@ export function Component(props: CanvasProps): React.ReactElement {
   const canvasRef = useRef(null)
 
   useEffect(() => {
-    let canvas: HTMLCanvasElement | null = canvasRef.current
-    if (canvas !== null) {
-      canvas = canvas as HTMLCanvasElement
+    if (canvasRef.current !== null) {
+      const canvas = canvasRef.current as HTMLCanvasElement
 
       canvas.onmousemove = (event: MouseEvent) => {
+        const { x, y } = coords(canvas, event)
         if (props.onMouseMove !== undefined)
-          props.onMouseMove(event.pageX, event.pageY)
+          props.onMouseMove(x, y)
       }
 
       canvas.onmousedown = (event: MouseEvent) => {
+        const { x, y } = coords(canvas, event)
         if (props.onMouseClicked !== undefined)
-          props.onMouseClicked(event.pageX, event.pageY)
+          props.onMouseClicked(x, y)
       }
 
       const context = canvas.getContext('2d')

@@ -9,6 +9,7 @@ export type CardPositioning = {
 }
 
 export type Card = CardPositioning & {
+  readonly id: string,
   readonly name: string,
   readonly flipped: boolean,
   readonly selected: boolean,
@@ -19,6 +20,7 @@ export type Card = CardPositioning & {
 
 export function create(name: string, positioning: CardPositioning): Card {
   return {
+    id: Math.random().toString().split("").slice(2).toString(),
     name,
     ...positioning,
     animation: Animation.create(positioning),
