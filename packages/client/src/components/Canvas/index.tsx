@@ -5,8 +5,7 @@ import { drawCard } from './draw_card'
 
 export const WIDTH = 960
 export const HEIGHT = 540
-export const CARD_WIDTH = 256
-export const CARD_HEIGHT = 335
+export { CARD_WIDTH, CARD_HEIGHT } from './draw_card'
 
 export type GetCards = () => Card[]
 export type GetCardDesign = (name: string) => CardDesign

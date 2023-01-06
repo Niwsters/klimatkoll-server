@@ -1,7 +1,5 @@
-import * as Animation from './animation'
-import { AnimatedCard } from './animation'
 import * as Canvas from '../components/Canvas'
-import { Card } from './card'
+import * as Card from './card'
 
 const EMISSIONS_LINE_MAX_LENGTH = Canvas.WIDTH
 const EMISSIONS_LINE_POSITION_X = Canvas.WIDTH / 2
@@ -9,27 +7,19 @@ const EMISSIONS_LINE_POSITION_Y = Canvas.HEIGHT / 2
 const CARD_SCALE = 0.5
 export const NO_CARD_SELECTED = null
 
-function spaceCard(visible: boolean): AnimatedCard {
-  return Animation.from_card({
-    title: "",
-    subtitle: "",
-    emissions: 0,
-    descr_front: "",
-    descr_back: "",
-    bg_color_back: "",
-    bg_color_front: "",
-    duration: "",
-    flipped: false,
-    selected: false,
+function spaceCard(visible: boolean, position: { x: number, y: number, scale: number } = { x: 0, y: 0, scale: 1 }): Card.Card {
+  const positioning = {
+    ...position,
+    rotation: 0,
+    zLevel: 0
+  }
 
-    isSpace: true,
-    visible
-  })
+  return Card.spaceCard(positioning, visible)
 }
 
-function reform_space_cards(cards: AnimatedCard[], isCardSelected: boolean): AnimatedCard[] {
+function reform_space_cards(cards: Card.Card[], isCardSelected: boolean): Card.Card[] {
   cards = cards.filter(c => !c.isSpace)
-  cards = cards.reduce((cards: AnimatedCard[], card) => {
+  cards = cards.reduce((cards: Card.Card[], card) => {
     return [
       ...cards,
       card,
@@ -40,8 +30,8 @@ function reform_space_cards(cards: AnimatedCard[], isCardSelected: boolean): Ani
 }
 
 export type EmissionsLine = {
-  cards: Animation.AnimatedCard[],
-  selectedCard: Card | null
+  cards: Card.Card[],
+  selectedCard: Card.Card | null
 }
 
 export function create(): EmissionsLine {
@@ -59,15 +49,15 @@ function card_distance(el: EmissionsLine): number {
   return cardDistance
 }
 
-function move_card(el: EmissionsLine, card: AnimatedCard, i: number, currentTime: number): AnimatedCard {
+function move_card(el: EmissionsLine, card: Card.Card, i: number, currentTime: number): Card.Card {
   const cardCount = el.cards.length
   const width = card_distance(el)
   const startOffset = 0 - width*cardCount/2 - width/2
 
   const x = EMISSIONS_LINE_POSITION_X + startOffset + width * i
   const y = EMISSIONS_LINE_POSITION_Y
-  card = Animation.move_x(card, x, currentTime)
-  card = Animation.move_y(card, y, currentTime)
+  card = Card.move_x(card, x, currentTime)
+  card = Card.move_y(card, y, currentTime)
   return card
 }
 
@@ -84,9 +74,9 @@ function show_hide_space_cards(el: EmissionsLine): EmissionsLine {
   return { ...el, cards }
 }
 
-function width(el: EmissionsLine, currentTime: number): number {
-  let leftCard: AnimatedCard | undefined
-  let rightCard: AnimatedCard | undefined
+function width(el: EmissionsLine): number {
+  let leftCard: Card.Card | undefined
+  let rightCard: Card.Card | undefined
   for (const card of el.cards) {
     if (!leftCard)
       leftCard = card
@@ -94,10 +84,10 @@ function width(el: EmissionsLine, currentTime: number): number {
     if (!rightCard)
       rightCard = card
 
-    if (Animation.get_x(card, currentTime) < Animation.get_x(leftCard, currentTime))
+    if (card.x < leftCard.x)
       leftCard = card
 
-    if (Animation.get_x(card, currentTime) > Animation.get_x(rightCard, currentTime))
+    if (card.x > rightCard.x)
       rightCard = card
   }
 
@@ -105,18 +95,18 @@ function width(el: EmissionsLine, currentTime: number): number {
     return 0
 
   const cardWidth = Canvas.CARD_WIDTH * CARD_SCALE
-  const x1 = Animation.get_x(leftCard, currentTime) - cardWidth / 2
-  const x2 = Animation.get_x(rightCard, currentTime) + cardWidth / 2
+  const x1 = leftCard.x - cardWidth / 2
+  const x2 = rightCard.x + cardWidth / 2
 
   return x2 - x1 
 }
 
 
-function nonSpaceCards(el: EmissionsLine): AnimatedCard[] {
+function nonSpaceCards(el: EmissionsLine): Card.Card[] {
   return el.cards.filter(c => !c.isSpace)
 }
 
-function spaceCards(el: EmissionsLine): AnimatedCard[] {
+function spaceCards(el: EmissionsLine): Card.Card[] {
   return el.cards.filter(c => c.isSpace)
 }
 
@@ -126,12 +116,11 @@ function isCardSelected(el: EmissionsLine): boolean {
 
 function getClosestCardIndex(
   el: EmissionsLine,
-  mouseX: number,
-  currentTime: number
+  mouseX: number
 ): number {
   const cards = isCardSelected(el) ? spaceCards(el) : nonSpaceCards(el)
 
-  let closest: AnimatedCard = cards[0]
+  let closest: Card.Card = cards[0]
   let closestIndex: number = 0
   let i = 0
   for (const card of cards) {
@@ -140,7 +129,7 @@ function getClosestCardIndex(
       continue
     }
 
-    if (Math.abs(Animation.get_x(card, currentTime) - mouseX) < Math.abs(Animation.get_x(closest, currentTime) - mouseX)) {
+    if (Math.abs(card.x - mouseX) < Math.abs(closest.x - mouseX)) {
       closest = card
       closestIndex = i
     }
@@ -155,27 +144,26 @@ function isCardFocused(
   el: EmissionsLine,
   cardIndex: number,
   mouseX: number,
-  mouseY: number,
-  currentTime: number
+  mouseY: number
 ): boolean {
   const lowerBoundsY = EMISSIONS_LINE_POSITION_Y - Canvas.CARD_HEIGHT * CARD_SCALE / 2
   const upperBoundsY = EMISSIONS_LINE_POSITION_Y + Canvas.CARD_HEIGHT * CARD_SCALE / 2
 
-  const lowerBoundsX = EMISSIONS_LINE_POSITION_X - width(el, currentTime) / 2
-  const upperBoundsX = EMISSIONS_LINE_POSITION_X + width(el, currentTime) / 2
+  const lowerBoundsX = EMISSIONS_LINE_POSITION_X - width(el) / 2
+  const upperBoundsX = EMISSIONS_LINE_POSITION_X + width(el) / 2
 
   return mouseX > lowerBoundsX &&
          mouseX < upperBoundsX &&
          mouseY > lowerBoundsY &&
          mouseY < upperBoundsY &&
-         cardIndex === getClosestCardIndex(el, mouseX, currentTime)
+         cardIndex === getClosestCardIndex(el, mouseX)
 }
 
-export function add_card(el: EmissionsLine, card: Animation.AnimatedCard, currentTime: number): EmissionsLine {
+export function add_card(el: EmissionsLine, card: Card.Card, currentTime: number): EmissionsLine {
   card = { ...card, flipped: true }
   let cards = [...el.cards, card]
   cards = reform_space_cards(cards, el.selectedCard !== null)
-  cards = cards.map(card => Animation.scale(card, CARD_SCALE, currentTime))
+  cards = cards.map(card => Card.scale(card, CARD_SCALE, currentTime))
   cards = cards.map((card, i) => move_card(el, card, i, currentTime))
 
   return {
@@ -184,7 +172,7 @@ export function add_card(el: EmissionsLine, card: Animation.AnimatedCard, curren
   }
 }
 
-export function card_selected(el: EmissionsLine, selectedCard: Card | null): EmissionsLine {
+export function card_selected(el: EmissionsLine, selectedCard: Card.Card | null): EmissionsLine {
   return show_hide_space_cards({ ...el, selectedCard })
 }
 
@@ -194,28 +182,29 @@ export function update(
   mouseY: number,
   currentTime: number
 ): EmissionsLine {
-  const cards = el.cards.map((card, cardIndex) => {
+  let cards = el.cards
+  cards = cards.map(card => Card.update(card, currentTime))
+  cards = cards.map((card, cardIndex) => {
     if (card.isSpace) {
       const position = {
-        x: Animation.get_x(card, currentTime),
-        y: Animation.get_y(card, currentTime),
+        x: card.x,
+        y: card.y,
         scale: CARD_SCALE
       }
 
       if (
-        isCardFocused(el, cardIndex, mouseX, mouseY, currentTime)
+        isCardFocused(el, cardIndex, mouseX, mouseY)
         && isCardSelected(el)
       ) {
         const selectedCard = {
-          ...el.selectedCard as Card,
+          ...el.selectedCard as Card.Card,
           selected: false,
           isSpace: true
         }
-
-        return Animation.from_card(selectedCard, position)
+        return selectedCard
       }
 
-      return Animation.from_card(spaceCard(isCardSelected(el)), position)
+      return spaceCard(isCardSelected(el), position)
     }
 
     return { ...card }

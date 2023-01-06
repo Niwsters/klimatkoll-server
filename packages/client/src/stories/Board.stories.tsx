@@ -2,10 +2,10 @@ import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import * as Canvas from '../components/Canvas'
-import * as Animation from '../core2/animation'
 import * as Board from '../core2/board'
 import * as SampleCards from './sample_cards'
 import * as EL from '../core2/emissions_line'
+import * as Card from '../core2/card'
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -13,9 +13,17 @@ export default {
   component: Canvas.Component
 } as ComponentMeta<typeof Canvas.Component>;
 
-const card = Animation.from_card(SampleCards.card)
-const card2 = Animation.from_card(SampleCards.card2)
-const card3 = Animation.from_card(SampleCards.card3)
+const positioning: Card.CardPositioning = {
+  x: 0,
+  y: 0,
+  rotation: 0,
+  scale: 1,
+  zLevel: 0
+}
+
+const card = Card.create(SampleCards.card.name, positioning)
+const card2 = Card.create(SampleCards.card2.name, positioning)
+const card3 = Card.create(SampleCards.card3.name, positioning)
 
 type WrapperProps = {
   board: Board.Board
@@ -33,17 +41,21 @@ function Wrapper(props: WrapperProps): React.ReactElement {
   }
 
   function onMouseClicked(x: number, y: number) {
-    board = Board.mouse_clicked(board, x, y, Date.now())
+    board = Board.mouse_clicked(board, x, y)
   }
 
   function getCards() {
     const currentTime = Date.now()
-    board = Board.update(board, currentTime, mouseX, mouseY)
-    return Board.animate(board, currentTime)
+    board = Board.update(board, mouseX, mouseY, currentTime)
+    return Board.cards(board)
   }
 
   return (
-    <Canvas.Component getCards={getCards} onMouseMove={onMouseMove} onMouseClicked={onMouseClicked} />
+    <Canvas.Component
+      getCards={getCards}
+      onMouseMove={onMouseMove}
+      onMouseClicked={onMouseClicked}
+      getCardDesign={SampleCards.getCardDesign} />
   )
 }
 

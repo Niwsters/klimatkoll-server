@@ -65,6 +65,6 @@ export function scale(card: Card, scale: number, currentTime: number): Card {
   }
 }
 
-export function spaceCard(positioning: CardPositioning): Card {
-  return { ...create("space", positioning), isSpace: true }
+export function spaceCard(positioning: CardPositioning, visible: boolean): Card {
+  return { ...create("space", positioning), isSpace: true, visible }
 }

@@ -1,7 +1,6 @@
-import * as Animation from './animation'
-import * as Canvas from '../components/Canvas'
 import * as Hand from './hand'
 import * as EmissionsLine from './emissions_line'
+import * as Card from './card'
 
 export type Board = {
   readonly hand: Hand.Hand,
@@ -15,19 +14,18 @@ export function create(): Board {
   }
 }
 
-export function animate(
-  board: Board,
-  currentTime: number
-): Canvas.Card[] {
+export function cards(
+  board: Board
+): Card.Card[] {
   return [
     ...board.hand.cards,
     ...board.emissionsLine.cards
-  ].map(card => Animation.animate(card, currentTime))
+  ]
 }
 
 export function add_hand_card(
   board: Board,
-  card: Animation.AnimatedCard,
+  card: Card.Card,
   currentTime: number
 ): Board {
   return {
@@ -38,7 +36,7 @@ export function add_hand_card(
 
 export function add_el_card(
   board: Board,
-  card: Animation.AnimatedCard,
+  card: Card.Card,
   currentTime: number
 ): Board {
   return {
@@ -49,13 +47,13 @@ export function add_el_card(
 
 export function update(
   board: Board,
-  currentTime: number,
   mouseX: number,
-  mouseY: number
+  mouseY: number,
+  currentTime: number
 ): Board {
   return {
     ...board,
-    hand: Hand.update(board.hand, currentTime, mouseX, mouseY),
+    hand: Hand.update(board.hand, mouseX, mouseY, currentTime),
     emissionsLine: EmissionsLine.update(board.emissionsLine, mouseX, mouseY, currentTime)
   }
 }
@@ -63,12 +61,11 @@ export function update(
 export function mouse_clicked(
   board: Board,
   mouseX: number,
-  mouseY: number,
-  currentTime: number
+  mouseY: number
 ): Board {
   board = {
     ...board,
-    hand: Hand.mouse_clicked(board.hand, mouseX, mouseY, currentTime)
+    hand: Hand.mouse_clicked(board.hand, mouseX, mouseY)
   }
   const selectedCard = Hand.selected_card(board.hand)
   board = {

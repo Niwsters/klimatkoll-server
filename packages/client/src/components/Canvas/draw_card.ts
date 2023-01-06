@@ -3,8 +3,6 @@ import { Card as CoreCard } from '../../core2/card'
 import roundRect from './round_rect'
 import { setFont, drawText, wordWrap } from './text'
 
-export const WIDTH = 960
-export const HEIGHT = 540
 export const CARD_WIDTH = 256
 export const CARD_HEIGHT = 335
 
