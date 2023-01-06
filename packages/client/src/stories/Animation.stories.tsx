@@ -12,7 +12,7 @@ export default {
   component: Canvas.Component
 } as ComponentMeta<typeof Canvas.Component>;
 
-const card: Card.Card = Card.create(SampleCards.card, {
+const card: Card.Card = Card.create(SampleCards.card.name, {
   zLevel: 0,
   x: Canvas.CARD_WIDTH / 2,
   y: Canvas.CARD_HEIGHT / 2,
@@ -34,7 +34,7 @@ function Wrapper(props: WrapperProps): React.ReactElement {
   }
 
   return (
-    <Canvas.Component getCards={() => board.cards.map(card => Card.update(card, Date.now()))} />
+    <Canvas.Component getCards={() => board.cards.map(card => Card.update(card, Date.now()))} getCardDesign={SampleCards.getCardDesign} />
   )
 }
 

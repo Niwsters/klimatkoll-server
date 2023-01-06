@@ -1,85 +1,14 @@
-import React, { useEffect, useRef } from 'react'
-import * as Core from '../core2/card'
-
-export type CanvasCardProps = {
-  x: number,
-  y: number,
-  rotation: number,
-  scale: number,
-  zLevel: number,
-}
-
-export type Card = Core.Card & CanvasCardProps
+import { CardDesign } from '../../core2/card_design'
+import { Card as CoreCard } from '../../core2/card'
+import roundRect from './round_rect'
+import { setFont, drawText, wordWrap } from './text'
 
 export const WIDTH = 960
 export const HEIGHT = 540
 export const CARD_WIDTH = 256
 export const CARD_HEIGHT = 335
 
-function roundRect(
-  context: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  rTop: number,
-  rBottom: number
-) {
-  if (w < 2 * rTop) rTop = w / 2;
-  if (h < 2 * rTop) rTop = h / 2;
-  if (w < 2 * rBottom) rBottom = w / 2;
-  if (h < 2 * rBottom) rBottom = h / 2;
-
-  context.beginPath()
-  context.moveTo(x+rTop, y)
-  context.arcTo(x+w, y,   x+w, y+h, rTop)
-  context.arcTo(x+w, y+h, x,   y+h, rBottom)
-  context.arcTo(x,   y+h, x,   y,   rBottom)
-  context.arcTo(x,   y,   x+w, y,   rTop)
-  context.closePath()
-}
-
-// Cheers @ https://stackoverflow.com/questions/2936112/text-wrap-in-a-canvas-element
-function wordWrap(context: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
-  var words = text.split(" ");
-  var lines: string[] = [];
-
-  if (words.length == 0)
-    return []
-
-  var currentLine = words[0];
-  for (const word of words.slice(1)) {
-    var width = context.measureText(currentLine + " " + word).width
-    if (width < maxWidth) {
-      currentLine += " " + word
-    } else {
-      lines.push(currentLine)
-      currentLine = word
-    }
-  }
-  lines.push(currentLine)
-
-  return lines;
-}
-
-function setFont(
-  context: CanvasRenderingContext2D,
-  size: number,
-  weight: number = 600
-) {
-  context.font = `${weight} ${size}px Poppins`
-}
-
-function drawText(
-  context: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  textAlign: CanvasTextAlign = 'center'
-) {
-  context.textAlign = textAlign
-  context.fillText(text, x, y)
-}
+export type Card = CoreCard & CardDesign
 
 function formatEmissions(n: number): string {
   let n_str = n.toString().split("").reverse().join("")
@@ -247,7 +176,7 @@ function drawSpaceCard(context: CanvasRenderingContext2D, card: Card, width: num
   context.fill()
 }
 
-function drawCard(context: CanvasRenderingContext2D, card: Card) {
+export function drawCard(context: CanvasRenderingContext2D, card: Card) {
   const width = CARD_WIDTH
   const height = CARD_HEIGHT
   const borderRadius = 14
@@ -268,69 +197,4 @@ function drawCard(context: CanvasRenderingContext2D, card: Card) {
   context.scale(1/card.scale, 1/card.scale)
   context.rotate(-card.rotation)
   context.translate(-card.x, -card.y)
-}
-
-function render(context: CanvasRenderingContext2D, getCards: (timestamp: number) => Card[]) {
-  let previousTimestamp: number = -1
-
-  let animationId: number | undefined
-  function draw(timestamp: number) {
-    const cards = getCards(timestamp).sort((a, b) => a.zLevel - b.zLevel)
-
-    if (previousTimestamp === -1)
-      previousTimestamp = timestamp
-
-    context.fillStyle = '#ccc'
-    context.fillRect(0, 0, context.canvas.width, context.canvas.height)
-    cards.forEach(card => drawCard(context, card))
-
-    animationId = requestAnimationFrame(draw)
-  }
-
-  animationId = requestAnimationFrame(draw)
-  return () => {
-    if (animationId !== undefined) cancelAnimationFrame(animationId)
-  }
-}
-
-
-export type CanvasProps = {
-  getCards: (timestamp: number) => Card[],
-  onMouseMove?: (x: number, y: number) => void,
-  onMouseClicked?: (x: number, y: number) => void
-}
-
-export function Component(props: CanvasProps): React.ReactElement {
-  const canvasRef = useRef(null)
-
-  useEffect(() => {
-    let canvas: HTMLCanvasElement | null = canvasRef.current
-    if (canvas !== null) {
-      canvas = canvas as HTMLCanvasElement
-
-      canvas.onmousemove = (event: MouseEvent) => {
-        if (props.onMouseMove !== undefined)
-          props.onMouseMove(event.pageX, event.pageY)
-      }
-
-      canvas.onmousedown = (event: MouseEvent) => {
-        if (props.onMouseClicked !== undefined)
-          props.onMouseClicked(event.pageX, event.pageY)
-      }
-
-      const context = canvas.getContext('2d')
-
-      if (context !== null) {
-        return render(context, props.getCards)
-      }
-    }
-  }, [])
-
-  const style: any = {
-    fontFamily: "Poppins"
-  }
-
-  return (
-    <canvas width={WIDTH} height={HEIGHT} style={style} ref={canvasRef}></canvas>
-  )
 }

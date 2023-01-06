@@ -1,6 +1,7 @@
-import { CardDesign } from '../core2/card'
+import { CardDesign } from '../core2/card_design'
 
 export const card: CardDesign = {
+  name: "pendla",
   title: "Pendla",
   subtitle: "i medelstor biodieselbil",
   emissions: 4000,
@@ -13,6 +14,7 @@ export const card: CardDesign = {
 }
 
 export const card2: CardDesign = {
+  name: "blandkost",
   title: "Blandkost",
   subtitle: "svensk genomsnitt",
   emissions: 2000,
@@ -25,6 +27,7 @@ export const card2: CardDesign = {
 }
 
 export const card3: CardDesign = {
+  name: "dator",
   title: "Dator",
   subtitle: "påslagen dygnet runt",
   emissions: 110,
@@ -34,4 +37,29 @@ export const card3: CardDesign = {
 
   bg_color_front: "#1C1C45",
   bg_color_back: "#265157",
+}
+
+const space: CardDesign = {
+  name: "space",
+  title: "",
+  subtitle: "",
+  emissions: 0,
+  descr_front: "",
+  descr_back: "",
+  duration: "",
+  bg_color_back: "",
+  bg_color_front: ""
+}
+
+const cards = [
+  card,
+  card2,
+  card3,
+  space
+]
+
+export function getCardDesign(name: string): CardDesign {
+  const card = cards.find(c => c.name === name)
+  if (card === undefined) throw new Error("Card not found")
+  return card
 }

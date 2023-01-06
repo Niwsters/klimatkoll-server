@@ -1,7 +1,7 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import * as SampleCards from './sample_cards'
-
+import * as Card from '../core2/card'
 import * as Canvas from '../components/Canvas';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -12,9 +12,9 @@ export default {
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof Canvas.Component> =
-  (args) => <Canvas.Component {...args} />;
+  (args) => <Canvas.Component {...args} getCardDesign={SampleCards.getCardDesign} />;
 
-const canvasProps = {
+const positioning = {
   x: Canvas.CARD_WIDTH / 2,
   y: Canvas.CARD_HEIGHT / 2,
   rotation: 0,
@@ -22,21 +22,9 @@ const canvasProps = {
   zLevel: 1.0
 }
 
-const card: Canvas.Card = {
-  ...SampleCards.card,
-  ...canvasProps
-}
-
-const card2: Canvas.Card = {
-  ...SampleCards.card2,
-  ...canvasProps
-}
-
-const spaceCard: Canvas.Card = {
-  ...canvasProps,
-  isSpace: true,
-  visible: true
-}
+const card = Card.create(SampleCards.card.name, positioning)
+const card2 = Card.create(SampleCards.card2.name, positioning)
+const spaceCard = Card.spaceCard(positioning)
 
 export const Front = Template.bind({});
 Front.args = {

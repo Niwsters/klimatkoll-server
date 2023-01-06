@@ -1,17 +1,5 @@
 import * as Animation from './animation'
 
-export type CardDesign = {
-  readonly title: string,
-  readonly subtitle: string,
-  readonly emissions: number,
-  readonly descr_front: string,
-  readonly descr_back: string,
-  readonly duration: string,
-
-  readonly bg_color_front: string,
-  readonly bg_color_back: string
-}
-
 export type CardPositioning = {
   readonly zLevel: number,
   readonly x: number,
@@ -20,18 +8,18 @@ export type CardPositioning = {
   readonly scale: number
 }
 
-export type Card = CardDesign & CardPositioning & {
+export type Card = CardPositioning & {
+  readonly name: string,
   readonly flipped: boolean,
   readonly selected: boolean,
   readonly visible: boolean,
   readonly isSpace: boolean,
-
   readonly animation: Animation.Animation
 }
 
-export function create(design: CardDesign, positioning: CardPositioning): Card {
+export function create(name: string, positioning: CardPositioning): Card {
   return {
-    ...design,
+    name,
     ...positioning,
     animation: Animation.create(positioning),
     flipped: false,
@@ -75,4 +63,8 @@ export function scale(card: Card, scale: number, currentTime: number): Card {
     ...card,
     animation: Animation.scale(card.animation, scale, currentTime)
   }
+}
+
+export function spaceCard(positioning: CardPositioning): Card {
+  return { ...create("space", positioning), isSpace: true }
 }
