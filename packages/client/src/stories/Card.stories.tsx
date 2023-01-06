@@ -24,7 +24,7 @@ const positioning = {
 
 const card = Card.create(SampleCards.card.name, positioning)
 const card2 = Card.create(SampleCards.card2.name, positioning)
-const spaceCard = Card.spaceCard(positioning)
+const spaceCard = Card.spaceCard(positioning, true)
 
 export const Front = Template.bind({});
 Front.args = {
@@ -69,4 +69,10 @@ SpaceCard.args = {
 export const SpaceCardHidden = Template.bind({})
 SpaceCardHidden.args = {
   getCards: () => [{ ...spaceCard, visible: false }]
+}
+
+const spaceCard2 = Card.spaceCard({...positioning, x: Canvas.CARD_WIDTH, y: Canvas.CARD_HEIGHT / 2}, true)
+export const SpaceCardReflectOtherCard = Template.bind({})
+SpaceCardReflectOtherCard.args = {
+  getCards: () => [{ ...spaceCard, name: SampleCards.card.name }, { ...spaceCard2, name: SampleCards.card.name, flipped: true }]
 }

@@ -20,18 +20,32 @@ function formatEmissions(n: number): string {
   return str.trim().split("").reverse().join("") + " KG"
 }
 
+function opacityHex(opacity: number): string {
+  const hex = Math.round(opacity*255).toString(16)
+  if (hex.length === 1)
+    return '0' + hex
+  return hex
+}
+
+function colorHex(color: string, opacity: number): string {
+  return color + opacityHex(opacity)
+}
+
 function drawNormalCard(
   context: CanvasRenderingContext2D,
   card: Card,
   width: number,
   height: number,
-  borderRadius: number
+  borderRadius: number,
+  opacity: number = 1.0
 ) {
   const headerHeight = 144
   const footerHeight = CARD_HEIGHT - headerHeight
+  const darkBlue = colorHex('#1C1C45', opacity)
+  const lightGrey = colorHex('#F3EFEC', opacity)
 
   // Header background
-  const header_bg = card.flipped ? card.bg_color_back : card.bg_color_front
+  const header_bg = card.flipped ? colorHex(card.bg_color_back, opacity) : colorHex(card.bg_color_front, opacity)
   context.fillStyle = header_bg
   roundRect(
     context,
@@ -45,7 +59,7 @@ function drawNormalCard(
   context.fill()
 
   // Footer background
-  context.fillStyle = '#F3EFEC'
+  context.fillStyle = lightGrey
   roundRect(
     context,
     0,
@@ -57,7 +71,7 @@ function drawNormalCard(
   )
   context.fill()
 
-  const headerFontColor = card.flipped ? '#1C1C45' : '#F3EFEC'
+  const headerFontColor = card.flipped ? darkBlue : lightGrey
   context.fillStyle = headerFontColor
   context.strokeStyle = headerFontColor
 
@@ -108,7 +122,7 @@ function drawNormalCard(
   }
 
   // Footer font color
-  context.fillStyle = '#1C1C45'
+  context.fillStyle = darkBlue
 
   // Description
   const fontSize = 18
@@ -142,7 +156,7 @@ function drawNormalCard(
 
   // Selected card border
   if (card.selected === true) {
-    context.strokeStyle = "#17a2b8"
+    context.strokeStyle = colorHex('#17a2b8', opacity)
     context.lineWidth = 8.0
     roundRect(
       context,
@@ -160,6 +174,9 @@ function drawNormalCard(
 
 function drawSpaceCard(context: CanvasRenderingContext2D, card: Card, width: number, height: number, borderRadius: number) {
   if (!card.visible) return
+
+  if (card.name !== "space")
+    return drawNormalCard(context, card, width, height, borderRadius, 0.5)
 
   context.fillStyle = 'rgba(0, 0, 0, 0.3)'
   roundRect(
