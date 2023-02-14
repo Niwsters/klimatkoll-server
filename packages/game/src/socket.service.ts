@@ -29,7 +29,7 @@ export class SocketService {
     )
   }
 
-  constructor(deck: GetDeck, port: number = 3000) {
+  constructor(deck: GetDeck, port: number = 4200) {
     const app = this.app
 
     const corsSettings = {
@@ -72,7 +72,6 @@ export class SocketService {
     app.get('/:language', (req, res) => {
       res.render('game', { language: req.params.language })
     })
-
 
     app.set('view engine', 'pug')
     app.set('views', path.resolve('../game/views'))
