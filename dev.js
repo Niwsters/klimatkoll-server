@@ -1,5 +1,6 @@
 const child_process = require('child_process')
 const fs = require('fs')
+const path = require('path')
 
 async function exec(command) {
   return new Promise((resolve, _reject) => {
@@ -16,16 +17,35 @@ async function build() {
   console.log("Finished compiling")
 }
 
+function flatten(lists) {
+  return lists.reduce((a, b) => a.concat(b), []);
+}
 
-function watch(folder) {
+function allSubdirs(folder) {
+  const all = fs.readdirSync(folder, { withFileTypes: true }).filter(file => file.name !== "node_modules")
+  const files = all.filter(file => !file.isDirectory()).map(file => path.join(folder, file.name))
+  const folders = all.filter(file => file.isDirectory()).map(file => path.join(folder, file.name))
+  return flatten([...files, ...folders.map(allSubdirs)])
+}
+
+function watch(root) {
   let compiling = false
-  fs.watch(folder, async (_eventType, _filename) => {
-    if (!compiling) {
-      compiling = true
-      await build()
-      compiling = false
-    }
-  })
+
+  const watchFile = folder => {
+    fs.watch(folder, async (_eventType, _filename) => {
+      if (!compiling) {
+        compiling = true
+        await build()
+        compiling = false
+      }
+    })
+  }
+
+  console.log(flatten(allSubdirs(root)))
+
+  for (const folder of allSubdirs(root)) {
+    watchFile('./' + folder)
+  }
 }
 
 function cleanExit() {
@@ -46,7 +66,7 @@ async function start() {
   console.log("Started build script")
   await build()
 
-  const folders = ["./packages/game/src", "./packages/card-db/src", "./packages/client/src", "./packages/dev-server"]
+  const folders = ["packages/game/src", "packages/card-db/src", "packages/client/src", "packages/dev-server"]
   for (const folder of folders) {
     watch(folder)
   }
@@ -54,4 +74,4 @@ async function start() {
   run()
 }
 
-start()
+start().catch(console.log)
