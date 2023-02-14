@@ -80,6 +80,10 @@ export class App {
   }
 }
 
+export function App2() {
+  return <div>oh hi</div>
+}
+
 export async function createApp(root: Root) {
   const socket = await createSocket(root.environment.wsServerURL, root.environment.language)
   return new App(root, socket, await localisation(root.environment.httpServerURL))

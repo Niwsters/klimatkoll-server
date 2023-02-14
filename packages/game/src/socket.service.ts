@@ -54,6 +54,10 @@ export class SocketService {
       res.render('index', { languages: await languages() })
     })
 
+    app.get('/bundle.js', (_req, res) => {
+      return res.sendFile(path.resolve('../client/dist/bundle.js'))
+    })
+
     app.use(express.static(path.resolve('../client/public')))
     app.use(express.static(path.resolve('../client/dist')))
 
