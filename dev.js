@@ -2,17 +2,17 @@ const child_process = require('child_process')
 const fs = require('fs')
 
 async function exec(command) {
-  return new Promise((resolve, reject) => {
-    child_process.exec(command, (err, _stdout) => {
-      if (err) reject()
-      resolve()
-    })
+  return new Promise((resolve, _reject) => {
+    child_process.exec(command, (err, stdout) => {
+      if (err) resolve(err)
+      resolve(stdout)
+    }, { stdio: "inherit" })
   })
 }
 
 async function build() {
   console.log("Compiling...")
-  await exec("npm run build")
+  console.log(await exec("npm run build"))
   console.log("Finished compiling")
 }
 
