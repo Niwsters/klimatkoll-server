@@ -1,11 +1,8 @@
-import { Socket, createSocket } from '../socket/socket'
+import { createSocket } from '../socket/socket'
 import { EventToAdd, Event } from '../event/event'
 import { EventStream } from '../event/event-stream'
 import { Canvas } from '../canvas/canvas'
-import { UI } from './UI'
-import { createRoot, Root } from '../root'
-import { Router } from '../router'
-import { PageFactory, Services } from '../pages'
+import { createRoot } from '../root'
 import { MultiPlayerServer } from 'socket/multiplayer-server'
 import i18next from 'i18next'
 import { Menu } from '../pages/menu/UI/Menu'
@@ -96,23 +93,18 @@ export type State = {
 
 async function initMPServer(env: Environment): Promise<MultiPlayerServer> {
   const socket = await createSocket(env.wsServerURL, env.language)
-  console.log("Got socket")
   return new MultiPlayerServer(socket)
 }
 
 async function init(env: Environment): Promise<State> {
-  console.log("Initialising...")
   const loc = await localisation(env.httpServerURL)
-  console.log("Got loc")
 
   i18next.init({
     lng: env.language,
     resources: loc
   })
-  console.log("Initialised i18next")
 
   const mpServer = await initMPServer(env)
-  console.log("Got MP server")
 
   return {
     mpServer,
