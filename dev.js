@@ -41,8 +41,6 @@ function watch(root) {
     })
   }
 
-  console.log(flatten(allSubdirs(root)))
-
   for (const folder of allSubdirs(root)) {
     watchFile('./' + folder)
   }
