@@ -1,4 +1,4 @@
-import { App2 } from './app';
+import { App } from './app';
 import * as ReactDOM from 'react-dom/client';
 
 function getRootElem(): HTMLElement {
@@ -10,7 +10,7 @@ function getRootElem(): HTMLElement {
 async function start() {
   const elem = getRootElem()
   const root = ReactDOM.createRoot(elem)
-  root.render(<App2/>)
+  root.render(<App rootElem={elem}/>)
 }
 
 start()

@@ -3,13 +3,16 @@ import { EventToAdd, Event } from '../event/event'
 import { EventStream } from '../event/event-stream'
 import { Canvas } from '../canvas/canvas'
 import { UI } from './UI'
-import { Root } from '../root'
+import { createRoot, Root } from '../root'
 import { Router } from '../router'
 import { PageFactory, Services } from '../pages'
 import { MultiPlayerServer } from 'socket/multiplayer-server'
 import i18next from 'i18next'
+import { Menu } from '../pages/menu/UI/Menu'
+import { Environment } from '../root/environment'
+import { useEffect, useState } from 'react'
 
-async function localisation(httpServerURL: string): Promise<object> {
+async function localisation(httpServerURL: string): Promise<any> {
   try {
     return (await fetch(`${httpServerURL}/localisation`)).json()
   } catch (e) {
@@ -18,6 +21,7 @@ async function localisation(httpServerURL: string): Promise<object> {
   }
 }
 
+  /*
 export class App {
   private readonly socket: Socket
   private readonly events$: EventStream
@@ -79,12 +83,63 @@ export class App {
     }, 1000/60)
   }
 }
+*/
 
-export function App2() {
-  return <div>oh hi</div>
+export type Props = {
+  rootElem: HTMLElement
 }
 
+export type State = {
+  mpServer: MultiPlayerServer,
+  localisation: any
+}
+
+async function initMPServer(env: Environment): Promise<MultiPlayerServer> {
+  const socket = await createSocket(env.wsServerURL, env.language)
+  return new MultiPlayerServer(socket)
+}
+
+async function init(env: Environment): Promise<State> {
+  const loc = await localisation(env.httpServerURL)
+
+  i18next.init({
+    lng: env.language,
+    resources: loc
+  })
+
+  return {
+    mpServer: await initMPServer(env),
+    localisation: loc
+  }
+}
+
+function Loading() {
+  return <div>Loading...</div>
+}
+
+export function App({ rootElem }: Props) {
+  const root = createRoot(rootElem)
+  const env = root.environment
+
+  let [state, setState] = useState<State>()
+  useEffect(() => {
+    init(env).then(setState)
+  })
+
+  if (!state) return <Loading />
+
+  return <Menu
+    httpServerURL={env.httpServerURL}
+    resolution$={root.resolution$}
+    mpServer={state.mpServer.inbox}
+    addEvent={(event: EventToAdd) => {console.log("Event:", event)}}
+    t={i18next.t}
+    />
+}
+
+  /*
 export async function createApp(root: Root) {
   const socket = await createSocket(root.environment.wsServerURL, root.environment.language)
   return new App(root, socket, await localisation(root.environment.httpServerURL))
 }
+   */

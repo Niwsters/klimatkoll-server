@@ -14,7 +14,7 @@ function getServerUrl(rootElement: HTMLElement): string {
 
 function getHost(devMode: boolean) {
   if (devMode === true)
-    return "localhost:3000"
+    return "localhost:4200"
 
   return "spela.kortspeletklimatkoll.se"
 }
