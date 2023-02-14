@@ -2,6 +2,7 @@ import { Frame, FrameElement } from "./frame"
 import { Environment, getEnvironment } from './environment'
 import { Stream, StreamSource } from '../stream'
 import { Resolution, getResolution } from './resolution'
+import { BaseFontSize } from "./base-font-size"
 
 function getRootElem(): HTMLElement {
   const rootElem = document.getElementById('climate-call')
@@ -22,6 +23,9 @@ export function createRoot(element: HTMLElement): Root {
 
   const resolution$ = new StreamSource<Resolution>(getResolution(element))
   new ResizeObserver(() => resolution$.next(getResolution(element))).observe(element)
+
+  const baseFontSize = new BaseFontSize(resolution$)
+  element.appendChild(baseFontSize.element)
 
   return {
     environment,

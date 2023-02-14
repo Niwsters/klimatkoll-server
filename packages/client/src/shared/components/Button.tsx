@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { CSSProperties, ReactElement } from 'react'
 
 type OnClick = () => void;
 type ButtonColor = "pink" | "yellow" | "hover"
@@ -16,7 +16,8 @@ function getColorHex(color: ButtonColor): string {
 type Props = {
   label?: string,
   onClick: OnClick,
-  color: ButtonColor 
+  color: ButtonColor,
+  children?: ReactElement[]
 }
 
 type State = {
@@ -37,17 +38,17 @@ export class Button extends React.Component<Props, State> {
     return this.state.hover ? getColorHex("hover") : getColorHex(this.props.color)
   }
 
-  private get style(): any {
+  private get style(): CSSProperties {
     return {
-      "backgroundColor": this.colorHex,
-      'width': '100%',
-      'display': 'block',
-      'border': 'none',
-      'borderRadius': 0,
-      'padding': '0.52% 1.04%',
-      'boxSizing': 'border-box',
-      'fontFamily': "'Poppins', sans-serif",
-      'fontSize': '1em',
+      backgroundColor: this.colorHex,
+      width: '100%',
+      display: 'block',
+      border: 'none',
+      borderRadius: 0,
+      padding: '0.52% 1.04%',
+      boxSizing: 'border-box',
+      fontFamily: "'Poppins', sans-serif",
+      fontSize: '1em',
     }
   }
 

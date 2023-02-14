@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { AddEventFunc } from '@shared/models'
 import { Stream } from '../../../stream'
 import { Resolution } from '../../../root'
@@ -45,12 +45,12 @@ export class Menu extends React.Component<Props, State> {
       t
     }
 
-    const style = {
-      'background': '#181543',
-      'width': width + 'px',
-      'height': height + 'px',
-      'padding-top': 0.104 * width + 'px',
-      'box-sizing': 'border-box',
+    const style: CSSProperties = {
+      background: '#181543',
+      width: width + 'px',
+      height: height + 'px',
+      paddingTop: 0.104 * width + 'px',
+      boxSizing: 'border-box',
     }
 
     return (
