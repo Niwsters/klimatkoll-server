@@ -20,7 +20,7 @@ export type Card = CardPositioning & {
 
 export function create(name: string, positioning: CardPositioning): Card {
   return {
-    id: Math.random().toString().split("").slice(2).toString(),
+    id: Math.random().toString().split("").slice(2).join(""),
     name,
     ...positioning,
     animation: Animation.create(positioning),

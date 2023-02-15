@@ -175,6 +175,10 @@ export function cardSelected(el: EmissionsLine, selectedCard: Card.Card | null):
   return showHideSpaceCards({ ...el, selectedCard })
 }
 
+export function focusedCard(el: EmissionsLine, mouseX: number, mouseY: number): Card.Card | undefined {
+  return el.cards.find(card => isCardFocused(el, card, mouseX, mouseY))
+}
+
 export function update(
   el: EmissionsLine,
   mouseX: number,

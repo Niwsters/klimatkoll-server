@@ -2,6 +2,7 @@ import * as Hand from './hand'
 import * as EmissionsLine from './emissions_line'
 import * as Card from './card'
 import * as Deck from './deck'
+import { EventToAdd } from '@shared/events'
 
 export type Board = {
   readonly hand: Hand.Hand,
@@ -81,11 +82,20 @@ export function update(
   }
 }
 
-export function mouseClicked(
-  board: Board,
-  mouseX: number,
-  mouseY: number
-): Board {
+export type CardPlayRequestedEvent = EventToAdd & {
+  event_type: "card_play_requested",
+  payload: { cardID: string }
+}
+
+function cardPlayRequestEvent(timestamp: number, card: Card.Card): CardPlayRequestedEvent {
+  return {
+    event_type: "card_play_requested",
+    payload: { cardID: card.id },
+    timestamp
+  }
+}
+
+function selectDeselectHandCard(board: Board, mouseX: number, mouseY: number): Board {
   board = {
     ...board,
     hand: Hand.mouseClicked(board.hand, mouseX, mouseY)
@@ -96,4 +106,21 @@ export function mouseClicked(
     emissionsLine: EmissionsLine.cardSelected(board.emissionsLine, selectedCard)
   }
   return board
+}
+
+export function mouseClicked(
+  board: Board,
+  mouseX: number,
+  mouseY: number
+): [Board, EventToAdd[]] {
+  const { hand, emissionsLine } = board
+
+  const focusedELCard = EmissionsLine.focusedCard(emissionsLine, mouseX, mouseY)
+  const selectedHandCard = Hand.selectedCard(hand)
+
+  let events: EventToAdd[] = []
+  if (selectedHandCard !== null && focusedELCard !== undefined)
+    events = [...events, cardPlayRequestEvent(Date.now(), selectedHandCard)]
+
+  return [selectDeselectHandCard(board, mouseX, mouseY), events]
 }

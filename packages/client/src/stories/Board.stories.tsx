@@ -1,4 +1,4 @@
-import React from 'react'
+import _React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import * as Canvas from '../components/Canvas'
@@ -6,6 +6,8 @@ import * as Board from '../core2/board'
 import * as SampleCards from './sample_cards'
 import * as EL from '../core2/emissions_line'
 import * as Card from '../core2/card'
+import { BasicGame } from '../components/BasicGame'
+import { EventToAdd } from '@shared/events'
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -26,42 +28,8 @@ const card2 = Card.create(SampleCards.card2.name, positioning)
 const card3 = Card.create(SampleCards.card3.name, positioning)
 const deck = [card, card2, card3]
 
-type WrapperProps = {
-  board: Board.Board
-}
-
-function Wrapper(props: WrapperProps): React.ReactElement {
-  let board = props.board
-
-  let mouseX = 0
-  let mouseY = 0
-
-  function onMouseMove(x: number, y: number) {
-    mouseX = x
-    mouseY = y
-  }
-
-  function onMouseClicked(x: number, y: number) {
-    board = Board.mouseClicked(board, x, y)
-  }
-
-  function getCards() {
-    const currentTime = Date.now()
-    board = Board.update(board, mouseX, mouseY, currentTime)
-    return Board.cards(board)
-  }
-
-  return (
-    <Canvas.Component
-      getCards={getCards}
-      onMouseMove={onMouseMove}
-      onMouseClicked={onMouseClicked}
-      getCardDesign={SampleCards.getCardDesign} />
-  )
-}
-
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof Wrapper> = (args) => <Wrapper {...args} />;
+const Template: ComponentStory<typeof BasicGame> = (args) => <BasicGame {...args} />;
 
 function handBoard(): Board.Board {
   const currentTime = Date.now()
@@ -122,7 +90,12 @@ function combinedBoard(): Board.Board {
   return board
 }
 
+function onEvent(event: EventToAdd) {
+  console.log(event)
+}
+
 export const HandAndEmissionsLine = Template.bind({});
 HandAndEmissionsLine.args = {
-  board: combinedBoard()
+  board: combinedBoard(),
+  onEvent: onEvent
 };
