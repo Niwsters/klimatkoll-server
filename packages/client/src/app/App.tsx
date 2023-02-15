@@ -96,7 +96,7 @@ async function initMPServer(env: Environment): Promise<MultiPlayerServer> {
   return new MultiPlayerServer(socket)
 }
 
-async function init(env: Environment): Promise<State> {
+async function initLocalisation(env: Environment): Promise<any> {
   const loc = await localisation(env.httpServerURL)
 
   i18next.init({
@@ -104,12 +104,14 @@ async function init(env: Environment): Promise<State> {
     resources: loc
   })
 
+  return loc
+}
+
+async function init(env: Environment): Promise<State> {
+  const localisation = initLocalisation(env)
   const mpServer = await initMPServer(env)
 
-  return {
-    mpServer,
-    localisation: loc
-  }
+  return { mpServer, localisation }
 }
 
 function Loading() {
@@ -142,16 +144,14 @@ export function App({ rootElem }: Props) {
   if (!state) return <Loading />
 
   return (
-    <div>
-      <div id="klimatkoll-inner">
-        <Menu
-          httpServerURL={env.httpServerURL}
-          resolution$={root.resolution$}
-          mpServer={state.mpServer.inbox}
-          addEvent={(event: EventToAdd) => {console.log("Event:", event)}}
-          t={i18next.t}
-          />
-      </div>
+    <div id="klimatkoll-inner">
+      <Menu
+        httpServerURL={env.httpServerURL}
+        resolution$={root.resolution$}
+        mpServer={state.mpServer.inbox}
+        addEvent={(event: EventToAdd) => {console.log("Event:", event)}}
+        t={i18next.t}
+        />
     </div>
   )
 }
