@@ -31,13 +31,6 @@ async function initLocalisation(env: Environment): Promise<any> {
   return loc
 }
 
-async function init(env: Environment): Promise<State> {
-  const localisation = initLocalisation(env)
-  const mpServer = await initMPServer(env)
-
-  return { mpServer, localisation }
-}
-
 function Loading() {
   return <div>Loading...</div>
 }
@@ -69,17 +62,20 @@ export function App({ rootElem }: Props) {
 
   initBaseFont(rootElem, root)
 
-  let [state, setState] = useState<State>()
+  let [mpServer, setMPServer] = useState<MultiPlayerServer>()
+  let [localisation, setLocalisation] = useState<any>()
+
   useEffect(() => {
-    init(env).then(setState)
+    initMPServer(env).then(setMPServer)
+    initLocalisation(env).then(setLocalisation)
   }, [])
 
-  if (!state) return <Loading />
+  if (!mpServer || !localisation) return <Loading />
 
   return (
     <div id="klimatkoll-inner">
       <Router
-        mpServer={state.mpServer}
+        mpServer={mpServer}
         root={root}/>
     </div>
   )
