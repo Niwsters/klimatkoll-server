@@ -12,7 +12,7 @@ export class BaseFontSize {
     resolution$.subscribe(resolution => this.resize(resolution.width))
   }
 
-  resize(appWidth: number) {
+  private resize(appWidth: number) {
     this.element.innerText = `#app { font-size: ${0.021 * appWidth}px }`
   }
 }

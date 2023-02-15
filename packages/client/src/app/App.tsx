@@ -2,7 +2,7 @@ import { createSocket } from '../socket/socket'
 import { EventToAdd, Event } from '../event/event'
 import { EventStream } from '../event/event-stream'
 import { Canvas } from '../canvas/canvas'
-import { createRoot } from '../root'
+import { createRoot, Resolution, Root } from '../root'
 import { MultiPlayerServer } from 'socket/multiplayer-server'
 import i18next from 'i18next'
 import { Menu } from '../pages/menu/UI/Menu'
@@ -116,9 +116,23 @@ function Loading() {
   return <div>Loading...</div>
 }
 
+function initBaseFont(rootElem: HTMLElement, root: Root) {
+  const css = (appWidth: number) => `#klimatkoll-inner { font-size: ${0.021 * appWidth}px }`
+
+  const elem = document.createElement('style')
+  elem.innerText = css(2.1)
+  rootElem.append(elem)
+
+  const resize = (resolution: Resolution) => elem.innerText = css(resolution.width)
+
+  root.resolution$.subscribe(resolution => resize(resolution))
+}
+
 export function App({ rootElem }: Props) {
   const root = createRoot(rootElem)
   const env = root.environment
+
+  initBaseFont(rootElem, root)
 
   let [state, setState] = useState<State>()
   useEffect(() => {
@@ -127,18 +141,17 @@ export function App({ rootElem }: Props) {
 
   if (!state) return <Loading />
 
-  return <Menu
-    httpServerURL={env.httpServerURL}
-    resolution$={root.resolution$}
-    mpServer={state.mpServer.inbox}
-    addEvent={(event: EventToAdd) => {console.log("Event:", event)}}
-    t={i18next.t}
-    />
+  return (
+    <div>
+      <div id="klimatkoll-inner">
+        <Menu
+          httpServerURL={env.httpServerURL}
+          resolution$={root.resolution$}
+          mpServer={state.mpServer.inbox}
+          addEvent={(event: EventToAdd) => {console.log("Event:", event)}}
+          t={i18next.t}
+          />
+      </div>
+    </div>
+  )
 }
-
-  /*
-export async function createApp(root: Root) {
-  const socket = await createSocket(root.environment.wsServerURL, root.environment.language)
-  return new App(root, socket, await localisation(root.environment.httpServerURL))
-}
-   */
