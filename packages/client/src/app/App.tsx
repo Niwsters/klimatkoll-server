@@ -1,13 +1,13 @@
 import { createSocket } from '../socket/socket'
 import { EventToAdd, Event } from '../event/event'
-import { EventStream } from '../event/event-stream'
-import { Canvas } from '../canvas/canvas'
 import { createRoot, Resolution, Root } from '../root'
 import { MultiPlayerServer } from 'socket/multiplayer-server'
 import i18next from 'i18next'
 import { Menu } from '../pages/menu/UI/Menu'
 import { Environment } from '../root/environment'
-import { useEffect, useState } from 'react'
+import { ReactElement, useEffect, useState } from 'react'
+import * as Canvas from '../components/Canvas'
+import * as SampleCards from '../stories/sample_cards'
 
 async function localisation(httpServerURL: string): Promise<any> {
   try {
@@ -82,15 +82,6 @@ export class App {
 }
 */
 
-export type Props = {
-  rootElem: HTMLElement
-}
-
-export type State = {
-  mpServer: MultiPlayerServer,
-  localisation: any
-}
-
 async function initMPServer(env: Environment): Promise<MultiPlayerServer> {
   const socket = await createSocket(env.wsServerURL, env.language)
   return new MultiPlayerServer(socket)
@@ -130,6 +121,65 @@ function initBaseFont(rootElem: HTMLElement, root: Root) {
   root.resolution$.subscribe(resolution => resize(resolution))
 }
 
+export type Props = {
+  rootElem: HTMLElement
+}
+
+export type State = {
+  mpServer: MultiPlayerServer,
+  localisation: any
+}
+
+export type Page = "menu" | "canvas"
+
+export function Router(props: { state: State, root: Root }) {
+  const { state, root } = props
+
+  const route = (event: EventToAdd) => {
+    switch (event.event_type) {
+      case "singleplayer_started":
+        return "canvas"
+      default:
+        return "menu"
+    }
+  }
+
+  const [page, setPage] = useState<Page>("menu")
+  const onEvent = (event: EventToAdd) => {
+    setPage(route(event))
+  }
+
+  const menu = <Menu
+    httpServerURL={root.environment.httpServerURL}
+    resolution$={root.resolution$}
+    mpServer={state.mpServer.inbox}
+    addEvent={onEvent}
+    t={i18next.t}
+    />
+
+  const getCards: Canvas.GetCards = () => []
+  const getCardDesign: Canvas.GetCardDesign = (_name: string) => SampleCards.card
+  const canvas = <Canvas.Component
+    getCards={getCards}
+    getCardDesign={getCardDesign}
+    />
+
+  const component = (route: Page) => {
+    switch (route) {
+      case "menu":
+        return menu
+      case "canvas":
+        return canvas
+    }
+  }
+
+  return (
+    <div id="klimatkoll-inner">
+      { component(page) }
+    </div>
+  )
+}
+
 export function App({ rootElem }: Props) {
   const root = createRoot(rootElem)
   const env = root.environment
@@ -145,13 +195,9 @@ export function App({ rootElem }: Props) {
 
   return (
     <div id="klimatkoll-inner">
-      <Menu
-        httpServerURL={env.httpServerURL}
-        resolution$={root.resolution$}
-        mpServer={state.mpServer.inbox}
-        addEvent={(event: EventToAdd) => {console.log("Event:", event)}}
-        t={i18next.t}
-        />
+      <Router
+        state={state}
+        root={root}/>
     </div>
   )
 }
