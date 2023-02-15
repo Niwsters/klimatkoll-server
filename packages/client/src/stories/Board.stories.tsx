@@ -42,7 +42,7 @@ function Wrapper(props: WrapperProps): React.ReactElement {
   }
 
   function onMouseClicked(x: number, y: number) {
-    board = Board.mouse_clicked(board, x, y)
+    board = Board.mouseClicked(board, x, y)
   }
 
   function getCards() {
@@ -97,7 +97,7 @@ function elBoardSpaceCards(): Board.Board {
   let board = elBoard()
   board = {
     ...board,
-    emissionsLine: EL.card_selected(board.emissionsLine, card)
+    emissionsLine: EL.cardSelected(board.emissionsLine, card)
   }
   return board
 }

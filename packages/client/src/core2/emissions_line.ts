@@ -17,7 +17,7 @@ function spaceCard(visible: boolean, position: { x: number, y: number, scale: nu
   return Card.spaceCard(positioning, visible)
 }
 
-function reform_space_cards(cards: Card.Card[], isCardSelected: boolean): Card.Card[] {
+function reformSpaceCards(cards: Card.Card[], isCardSelected: boolean): Card.Card[] {
   cards = cards.filter(c => !c.isSpace)
   cards = cards.reduce((cards: Card.Card[], card) => {
     return [
@@ -38,7 +38,7 @@ export function create(): EmissionsLine {
   return { cards: [], selectedCard: null }
 }
 
-function card_distance(el: EmissionsLine): number {
+function cardDistance(el: EmissionsLine): number {
   const cardCount = el.cards.length
   const cardWidth = Canvas.CARD_WIDTH * CARD_SCALE
   const totalELWidth = cardWidth * cardCount
@@ -51,7 +51,7 @@ function card_distance(el: EmissionsLine): number {
 
 function move_card(el: EmissionsLine, card: Card.Card, i: number, currentTime: number): Card.Card {
   const cardCount = el.cards.length
-  const width = card_distance(el)
+  const width = cardDistance(el)
   const startOffset = 0 - width*cardCount/2 - width/2
 
   const x = EMISSIONS_LINE_POSITION_X + startOffset + width * i
@@ -61,7 +61,7 @@ function move_card(el: EmissionsLine, card: Card.Card, i: number, currentTime: n
   return card
 }
 
-function show_hide_space_cards(el: EmissionsLine): EmissionsLine {
+function showHideSpaceCards(el: EmissionsLine): EmissionsLine {
   let cards = el.cards.map(card => {
     if (!card.isSpace) return card
 
@@ -158,10 +158,10 @@ function zLevel(cardIndex: number): number {
   return cardIndex
 }
 
-export function add_card(el: EmissionsLine, card: Card.Card, currentTime: number): EmissionsLine {
+export function addCard(el: EmissionsLine, card: Card.Card, currentTime: number): EmissionsLine {
   card = { ...card, flipped: true }
   let cards = [...el.cards, card]
-  cards = reform_space_cards(cards, el.selectedCard !== null)
+  cards = reformSpaceCards(cards, el.selectedCard !== null)
   cards = cards.map(card => Card.scale(card, CARD_SCALE, currentTime))
   cards = cards.map((card, i) => move_card(el, card, i, currentTime))
 
@@ -171,8 +171,8 @@ export function add_card(el: EmissionsLine, card: Card.Card, currentTime: number
   }
 }
 
-export function card_selected(el: EmissionsLine, selectedCard: Card.Card | null): EmissionsLine {
-  return show_hide_space_cards({ ...el, selectedCard })
+export function cardSelected(el: EmissionsLine, selectedCard: Card.Card | null): EmissionsLine {
+  return showHideSpaceCards({ ...el, selectedCard })
 }
 
 export function update(

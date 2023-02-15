@@ -130,7 +130,7 @@ export function create(): Hand {
   return { cards: [] }
 }
 
-export function add_card(hand: Hand, card: Card.Card, currentTime: number): Hand {
+export function addCard(hand: Hand, card: Card.Card, currentTime: number): Hand {
   card = Card.move_x(card, HAND_POSITION_X, currentTime)
   card = Card.move_y(card, HAND_POSITION_Y, currentTime)
 
@@ -141,7 +141,7 @@ export function add_card(hand: Hand, card: Card.Card, currentTime: number): Hand
 }
 
 
-export function mouse_clicked(hand: Hand, mouseX: number, mouseY: number): Hand {
+export function mouseClicked(hand: Hand, mouseX: number, mouseY: number): Hand {
   return {
     ...hand,
     cards: hand.cards.map((card, cardIndex) => {
@@ -159,6 +159,6 @@ export function update(hand: Hand, mouseX: number, mouseY: number, currentTime: 
   return zoomHoveredCards(hand, mouseX, mouseY, currentTime)
 }
 
-export function selected_card(hand: Hand): Card.Card | null {
+export function selectedCard(hand: Hand): Card.Card | null {
   return hand.cards.find(card => card.selected) || null
 }

@@ -26,25 +26,25 @@ export function cards(
   ]
 }
 
-export function add_hand_card(
+export function addHandCard(
   board: Board,
   card: Card.Card,
   currentTime: number
 ): Board {
   return {
     ...board,
-    hand: Hand.add_card(board.hand, card, currentTime)
+    hand: Hand.addCard(board.hand, card, currentTime)
   }
 }
 
-export function add_el_card(
+export function addELCard(
   board: Board,
   card: Card.Card,
   currentTime: number
 ): Board {
   return {
     ...board,
-    emissionsLine: EmissionsLine.add_card(board.emissionsLine, card, currentTime)
+    emissionsLine: EmissionsLine.addCard(board.emissionsLine, card, currentTime)
   }
 }
 
@@ -54,7 +54,7 @@ export function drawHandCard(board: Board, currentTime: number) {
   return {
     ...board,
     deck,
-    hand: Hand.add_card(board.hand, card, currentTime)
+    hand: Hand.addCard(board.hand, card, currentTime)
   }
 }
 
@@ -64,7 +64,7 @@ export function playCardFromDeck(board: Board, currentTime: number) {
   return {
     ...board,
     deck,
-    emissionsLine: EmissionsLine.add_card(board.emissionsLine, card, currentTime)
+    emissionsLine: EmissionsLine.addCard(board.emissionsLine, card, currentTime)
   }
 }
 
@@ -81,19 +81,19 @@ export function update(
   }
 }
 
-export function mouse_clicked(
+export function mouseClicked(
   board: Board,
   mouseX: number,
   mouseY: number
 ): Board {
   board = {
     ...board,
-    hand: Hand.mouse_clicked(board.hand, mouseX, mouseY)
+    hand: Hand.mouseClicked(board.hand, mouseX, mouseY)
   }
-  const selectedCard = Hand.selected_card(board.hand)
+  const selectedCard = Hand.selectedCard(board.hand)
   board = {
     ...board,
-    emissionsLine: EmissionsLine.card_selected(board.emissionsLine, selectedCard)
+    emissionsLine: EmissionsLine.cardSelected(board.emissionsLine, selectedCard)
   }
   return board
 }
