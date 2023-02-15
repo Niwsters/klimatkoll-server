@@ -51,11 +51,6 @@ export type Props = {
   rootElem: HTMLElement
 }
 
-export type State = {
-  mpServer: MultiPlayerServer,
-  localisation: any
-}
-
 export function App({ rootElem }: Props) {
   const root = createRoot(rootElem)
   const env = root.environment
