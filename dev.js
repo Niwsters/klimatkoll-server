@@ -1,6 +1,5 @@
 const child_process = require('child_process')
-const fs = require('fs')
-const path = require('path')
+const chokidar = require('chokidar')
 
 async function exec(command) {
   return new Promise((resolve, _reject) => {
@@ -17,33 +16,19 @@ async function build() {
   console.log("Finished compiling")
 }
 
-function flatten(lists) {
-  return lists.reduce((a, b) => a.concat(b), []);
+let compiling = false
+const compile = async () => {
+  if (!compiling) {
+    compiling = true
+    await build()
+    compiling = false
+  }
 }
 
-function allSubdirs(folder) {
-  const all = fs.readdirSync(folder, { withFileTypes: true }).filter(file => file.name !== "node_modules")
-  const files = all.filter(file => !file.isDirectory()).map(file => path.join(folder, file.name))
-  const folders = all.filter(file => file.isDirectory()).map(file => path.join(folder, file.name))
-  return flatten([...files, ...folders.map(allSubdirs)])
-}
-
-function watch(root) {
-  let compiling = false
-
-  const watchFile = folder => {
-    fs.watch(folder, async (_eventType, _filename) => {
-      if (!compiling) {
-        compiling = true
-        await build()
-        compiling = false
-      }
-    })
-  }
-
-  for (const folder of allSubdirs(root)) {
-    watchFile('./' + folder)
-  }
+const watchConfig = { ignored: /node_modules/, persistent: true }
+const watch = folder => {
+  const watcher = chokidar.watch(folder, watchConfig)
+  watcher.on('change', async _ => await compile())
 }
 
 function cleanExit() {

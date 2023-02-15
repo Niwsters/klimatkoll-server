@@ -21,5 +21,8 @@
     "start": "node ./dev.js"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "chokidar": "^3.5.3"
+  }
 }
