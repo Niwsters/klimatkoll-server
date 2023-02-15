@@ -1,13 +1,10 @@
 import { createSocket } from '../socket/socket'
-import { EventToAdd, Event } from '../event/event'
 import { createRoot, Resolution, Root } from '../root'
 import { MultiPlayerServer } from 'socket/multiplayer-server'
 import i18next from 'i18next'
-import { Menu } from '../pages/menu/UI/Menu'
 import { Environment } from '../root/environment'
-import { ReactElement, useEffect, useState } from 'react'
-import * as Canvas from '../components/Canvas'
-import * as SampleCards from '../stories/sample_cards'
+import { useEffect, useState } from 'react'
+import { Router } from './Router'
 
 async function localisation(httpServerURL: string): Promise<any> {
   try {
@@ -17,70 +14,6 @@ async function localisation(httpServerURL: string): Promise<any> {
     return {}
   }
 }
-
-  /*
-export class App {
-  private readonly socket: Socket
-  private readonly events$: EventStream
-  private readonly canvas: Canvas
-  private readonly router: Router
-
-  private addEvent(e: EventToAdd) {
-    this.events$.next(e)
-  }
-
-  private handleEvent(e: Event) {
-    this.router.handleEvent(e)
-  }
-
-  constructor(root: Root, socket: Socket, localisationResource: any) {
-    this.socket = socket
-    this.events$ = new EventStream()
-    const events$ = this.events$
-
-    this.canvas = new Canvas(root.frame.canvasElem)
-    this.canvas.prepare(`${root.environment.httpServerURL}/${root.environment.language}`)
-    this.canvas.events$.subscribe((event: EventToAdd) => events$.next(event))
-
-    const addEvent = this.addEvent.bind(this)
-
-    this.socket.events$.subscribe((event: EventToAdd) => events$.next(event))
-    events$.subscribe(e => this.socket.handleEvent(e))
-
-    const mpServer = new MultiPlayerServer(socket)
-
-    i18next.init({
-      lng: root.environment.language,
-      resources: localisationResource
-    })
-
-    const services: Services = {
-      addEvent,
-      environment: root.environment,
-      resolution$: root.resolution$,
-      events$,
-      canvas: this.canvas,
-      socketID: this.socket.socketID,
-      mpServer: mpServer.inbox,
-      t: i18next.t
-    }
-    this.router = new Router(new PageFactory(services))
-
-    events$.subscribe(e => this.handleEvent(e))
-
-    new UI(
-      root.frame.uiElem,
-      this.router.page$
-    )
-
-    root.resolution$.subscribe(resolution => this.canvas.resize(resolution.width, resolution.height))
-
-    setInterval(() => {
-      this.canvas.render(this.router.page.cards)
-    }, 1000/60)
-  }
-}
-*/
 
 async function initMPServer(env: Environment): Promise<MultiPlayerServer> {
   const socket = await createSocket(env.wsServerURL, env.language)
@@ -130,56 +63,6 @@ export type State = {
   localisation: any
 }
 
-export type Page = "menu" | "canvas"
-
-export function Router(props: { state: State, root: Root }) {
-  const { state, root } = props
-
-  const route = (event: EventToAdd) => {
-    switch (event.event_type) {
-      case "singleplayer_started":
-        return "canvas"
-      default:
-        return "menu"
-    }
-  }
-
-  const [page, setPage] = useState<Page>("menu")
-  const onEvent = (event: EventToAdd) => {
-    setPage(route(event))
-  }
-
-  const menu = <Menu
-    httpServerURL={root.environment.httpServerURL}
-    resolution$={root.resolution$}
-    mpServer={state.mpServer.inbox}
-    addEvent={onEvent}
-    t={i18next.t}
-    />
-
-  const getCards: Canvas.GetCards = () => []
-  const getCardDesign: Canvas.GetCardDesign = (_name: string) => SampleCards.card
-  const canvas = <Canvas.Component
-    getCards={getCards}
-    getCardDesign={getCardDesign}
-    />
-
-  const component = (route: Page) => {
-    switch (route) {
-      case "menu":
-        return menu
-      case "canvas":
-        return canvas
-    }
-  }
-
-  return (
-    <div id="klimatkoll-inner">
-      { component(page) }
-    </div>
-  )
-}
-
 export function App({ rootElem }: Props) {
   const root = createRoot(rootElem)
   const env = root.environment
@@ -196,7 +79,7 @@ export function App({ rootElem }: Props) {
   return (
     <div id="klimatkoll-inner">
       <Router
-        state={state}
+        mpServer={state.mpServer}
         root={root}/>
     </div>
   )
