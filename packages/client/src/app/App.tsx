@@ -1,7 +1,7 @@
 import { createSocket } from '../socket/socket'
 import { createRoot, Resolution, Root } from '../root'
 import { MultiPlayerServer } from 'socket/multiplayer-server'
-import i18next from 'i18next'
+import i18next, { TFunction } from 'i18next'
 import { Environment } from '../root/environment'
 import { useEffect, useState } from 'react'
 import { Router } from './Router'
@@ -20,7 +20,7 @@ async function initMPServer(env: Environment): Promise<MultiPlayerServer> {
   return new MultiPlayerServer(socket)
 }
 
-async function initLocalisation(env: Environment): Promise<any> {
+async function initLocalisation(env: Environment): Promise<TFunction> {
   const loc = await localisation(env.httpServerURL)
 
   i18next.init({
@@ -28,7 +28,7 @@ async function initLocalisation(env: Environment): Promise<any> {
     resources: loc
   })
 
-  return loc
+  return i18next.t
 }
 
 function Loading() {
@@ -58,20 +58,21 @@ export function App({ rootElem }: Props) {
   initBaseFont(rootElem, root)
 
   let [mpServer, setMPServer] = useState<MultiPlayerServer>()
-  let [localisation, setLocalisation] = useState<any>()
+  let [t, setLocalisation] = useState<TFunction>()
 
   useEffect(() => {
     initMPServer(env).then(setMPServer)
-    initLocalisation(env).then(setLocalisation)
+    initLocalisation(env).then(t => setLocalisation(() => (query: string) => t(query)))
   }, [])
 
-  if (!mpServer || !localisation) return <Loading />
+  if (!mpServer || !t) return <Loading />
 
   return (
     <div id="klimatkoll-inner">
       <Router
         mpServer={mpServer}
-        root={root}/>
+        root={root}
+        t={t}/>
     </div>
   )
 }

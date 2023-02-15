@@ -4,13 +4,13 @@ import { EventToAdd } from '../event/event'
 import { useState } from 'react'
 import { Menu } from '../pages/menu/UI/Menu'
 import * as Canvas from '../components/Canvas'
-import i18next from 'i18next'
+import { TFunction } from 'i18next'
 import * as SampleCards from '../stories/sample_cards'
 
 export type Page = "menu" | "canvas"
 
-export function Router(props: { mpServer: MultiPlayerServer, root: Root }) {
-  const { mpServer, root } = props
+export function Router(props: { mpServer: MultiPlayerServer, root: Root, t: TFunction }) {
+  const { mpServer, root, t } = props
 
   const route = (event: EventToAdd) => {
     switch (event.event_type) {
@@ -31,7 +31,7 @@ export function Router(props: { mpServer: MultiPlayerServer, root: Root }) {
     resolution$={root.resolution$}
     mpServer={mpServer.inbox}
     addEvent={onEvent}
-    t={i18next.t}
+    t={t}
     />
 
   const getCards: Canvas.GetCards = () => []
