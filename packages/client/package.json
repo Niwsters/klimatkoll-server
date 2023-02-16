@@ -14,7 +14,6 @@
     "test": "node ./testrunner/run-tests.js",
     "coverage": "npm test -- --coverage --watchAll=false",
     "deps": "depcruise --include-only \"^src\" --output-type dot src --metrics | dot -T svg > deps.svg",
-    "typecheck": "tsc",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
@@ -47,7 +46,6 @@
     "dependency-cruiser": "^11.4.0",
     "esbuild": "^0.14.26",
     "fast-deep-equal": "^3.1.3",
-    "http-server": "^13.0.0",
     "ts-loader": "^8.2.0",
     "typescript": "^4.6.2"
   }
