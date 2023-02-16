@@ -3,7 +3,6 @@ import express from 'express'
 import fileUpload from 'express-fileupload'
 import path from 'path'
 import { routes } from './routes'
-import bodyParser from 'body-parser'
 import { ensureEventsDBCreated } from './events'
 import { auth } from './auth'
 import { startCardImageProcessing } from './start-card-image-processing'
@@ -30,7 +29,7 @@ async function app() {
   e.use(express.static(loc.pngFolder))
   e.use(express.static(loc.pairsFolder))
   e.use(express.static(loc.assetsFolder))
-  e.use(bodyParser.json())
+  e.use(express.json())
 
   e.set('view engine', 'pug')
   e.set('views', path.join('../card-db/views'))
@@ -49,10 +48,10 @@ async function app() {
 
 export async function startCardDB() {
   return new Promise(async (resolve) => {
-    const port = 3001
+    const port = 4201
     http
       .createServer(await app())
-      .listen(3001, () => {
+      .listen(port, () => {
         console.log(`Card database listening on ${port}`)
         resolve(null)
       })
