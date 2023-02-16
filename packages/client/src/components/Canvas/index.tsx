@@ -20,6 +20,8 @@ export type CanvasProps = {
 }
 
 export function Component(props: CanvasProps): React.ReactElement {
+  const { getCards, getCardDesign } = props
+
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -41,7 +43,7 @@ export function Component(props: CanvasProps): React.ReactElement {
       const context = canvas.getContext('2d')
 
       if (context !== null) {
-        return render(context, props.getCards, props.getCardDesign)
+        return render(context, getCards, getCardDesign)
       }
     }
   }, [])

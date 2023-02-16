@@ -8,6 +8,7 @@ import * as EL from '../core2/emissions_line'
 import * as Card from '../core2/card'
 import { BasicGame } from '../components/BasicGame'
 import { EventToAdd } from '@shared/events'
+import { getCardDesign } from './sample_cards'
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -29,7 +30,7 @@ const card3 = Card.create(SampleCards.card3.name, positioning)
 const deck = [card, card2, card3]
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof BasicGame> = (args) => <BasicGame {...args} />;
+const Template: ComponentStory<typeof BasicGame> = (args) => <BasicGame {...args} getCardDesign={getCardDesign} />;
 
 function handBoard(): Board.Board {
   const currentTime = Date.now()
