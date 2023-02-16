@@ -39,7 +39,10 @@ async function app() {
 
   e.set('view engine', 'pug')
   e.set('views', path.join('../card-db/views'))
-  
+
+  e.get('/client.js', (_req, res) => {
+    res.sendFile(path.join(__dirname, '../../../client.js'))
+  })
 
   routes(db, loc).forEach(route => {
     switch (route.method) {

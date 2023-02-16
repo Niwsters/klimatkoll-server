@@ -15,12 +15,16 @@ mixin sidebar
 mixin fonts
   style="@font-face { src: url(/fonts/Poppins-Medium.ttf); font-family: 'Poppins'; }"
 
+mixin client
+  script(src="/client.js")
+
 mixin base
   doctype html
   html(lang="en")
     head
       title Klimatkoll Digital Card Database
       +fonts
+      +client
     body(style="margin: 0; padding: 0; font-family: Poppins, sans-serif;")
       +container
         +sidebar
