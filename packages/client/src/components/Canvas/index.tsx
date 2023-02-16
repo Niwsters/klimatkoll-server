@@ -1,44 +1,9 @@
-import { CardDesign } from 'core2/card_design'
 import React, { useEffect, useRef } from 'react'
-import { Card } from 'core2/card'
-import { drawCard } from './draw_card'
+import { GetCards, GetCardDesign, render } from './render'
 
 export const WIDTH = 960
 export const HEIGHT = 540
 export { CARD_WIDTH, CARD_HEIGHT } from './draw_card'
-
-export type GetCards = () => Card[]
-export type GetCardDesign = (name: string) => CardDesign
-
-function render(context: CanvasRenderingContext2D, getCards: GetCards, getCardDesign: GetCardDesign) {
-  let previousTimestamp: number = -1
-
-  let animationId: number | undefined
-  function draw(timestamp: number) {
-    const cards = getCards()
-      .sort((a, b) => a.zLevel - b.zLevel)
-      .map(card => {
-        return {
-          ...card,
-          ...getCardDesign(card.name)
-        }
-      })
-
-    if (previousTimestamp === -1)
-      previousTimestamp = timestamp
-
-    context.fillStyle = '#ccc'
-    context.fillRect(0, 0, context.canvas.width, context.canvas.height)
-    cards.forEach(card => drawCard(context, card))
-
-    animationId = requestAnimationFrame(draw)
-  }
-
-  animationId = requestAnimationFrame(draw)
-  return () => {
-    if (animationId !== undefined) cancelAnimationFrame(animationId)
-  }
-}
 
 function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: number } {
   const rect = canvas.getBoundingClientRect()
