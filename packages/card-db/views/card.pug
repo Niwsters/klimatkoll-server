@@ -1,10 +1,6 @@
 include base
 include layout-card
 
-mixin card-image(card)
-  div
-    img(src=card.image style="max-width: 20rem;")
-
 mixin details-input(labelText, param)
   div(style="padding-bottom: 1rem;")
     div= labelText
@@ -19,5 +15,3 @@ mixin card-details(card)
 +base
   +layoutCard("Details")
     +card-details(card)
-  +layoutCard("Image")
-    +card-image(card)

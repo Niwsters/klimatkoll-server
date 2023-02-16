@@ -9,8 +9,14 @@ import { startCardImageProcessing } from './start-card-image-processing'
 import { location } from './location'
 import fs from 'fs'
 
+function url(url: string): string {
+  url = url.replace(/^\/admin/, "")
+  if (url === "") url = "/"
+  return url
+}
+
 function rewriteURL(req: any, _: any, next: any) {
-  req.url = req.url.replace(/^\/admin/, "")
+  req.url = url(req.url)
   next()
 }
 
@@ -33,6 +39,7 @@ async function app() {
 
   e.set('view engine', 'pug')
   e.set('views', path.join('../card-db/views'))
+  
 
   routes(db, loc).forEach(route => {
     switch (route.method) {
