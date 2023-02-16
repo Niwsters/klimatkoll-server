@@ -8,28 +8,20 @@ async function getCards(): Promise<Card[]> {
 
 export type GetDeck = (language: string) => Card[]
 
-class CardFetcher {
-  private _cards: Card[] = []
+function cardFetcher() {
+  let cards: Card[] = []
 
-  async start() {
+  const loop = async () => {
     while (true) {
-      this._cards = await getCards()
+      cards = await getCards()
       await sleep(1000)
     }
   }
+  loop()
 
-  get cards(): Card[] {
-    return this._cards
-  }
+  return () => cards
 }
 
-export function fetcher(): CardFetcher {
-  const fetcher = new CardFetcher()
-  fetcher.start();
-  return fetcher;
-}
+const allCards = cardFetcher()
 
-export function deckGetter(): GetDeck {
-  const f = fetcher()
-  return language => f.cards.filter(card => card.language === language)
-}
+export const getDeck: GetDeck = language => allCards().filter(card => card.language === language)

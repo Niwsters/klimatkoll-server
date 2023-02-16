@@ -1,14 +1,23 @@
-import { Root } from '../root'
-import { MultiPlayerServer } from '../socket/multiplayer-server'
-import { EventToAdd } from '../event/event'
+import { Root } from '../../root'
+import { MultiPlayerServer } from '../../socket/multiplayer-server'
+import { EventToAdd } from '../../event/event'
 import { useState } from 'react'
-import { Menu } from '../pages/menu/UI/Menu'
+import { Menu } from '../../pages/menu/UI/Menu'
 import { TFunction } from 'i18next'
-import { SinglePlayer } from '../components/SinglePlayer'
+import { SinglePlayer } from '../../components/SinglePlayer'
+import { ServerCard } from 'components/App/fetch-cards'
 
 export type Page = "menu" | "canvas"
-export function Router(props: { mpServer: MultiPlayerServer, root: Root, t: TFunction }) {
-  const { mpServer, root, t } = props
+
+export type Props = {
+  mpServer: MultiPlayerServer,
+  root: Root,
+  t: TFunction,
+  cards: ServerCard[]
+}
+
+export function Router(props: Props) {
+  const { mpServer, root, t, cards } = props
 
   const route = (event: EventToAdd) => {
     switch (event.event_type) {
@@ -32,7 +41,7 @@ export function Router(props: { mpServer: MultiPlayerServer, root: Root, t: TFun
     t={t}
     />
 
-  const singleplayer = <SinglePlayer />
+  const singleplayer = <SinglePlayer cards={cards} />
   const component = (route: Page) => {
     switch (route) {
       case "menu":

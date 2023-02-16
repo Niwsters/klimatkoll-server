@@ -1,10 +1,11 @@
-import { createSocket } from '../socket/socket'
-import { createRoot, Resolution, Root } from '../root'
+import { createSocket } from '../../socket/socket'
+import { createRoot, Resolution, Root } from '../../root'
 import { MultiPlayerServer } from 'socket/multiplayer-server'
 import i18next, { TFunction } from 'i18next'
-import { Environment } from '../root/environment'
+import { Environment } from '../../root/environment'
 import { useEffect, useState } from 'react'
-import { Router } from './Router'
+import { Router } from '../Router'
+import { fetchCards } from './fetch-cards'
 
 async function localisation(httpServerURL: string): Promise<any> {
   try {
@@ -30,6 +31,7 @@ async function initLocalisation(env: Environment): Promise<TFunction> {
 
   return i18next.t
 }
+
 
 function Loading() {
   return <div>Loading...</div>
@@ -59,20 +61,24 @@ export function App({ rootElem }: Props) {
 
   let [mpServer, setMPServer] = useState<MultiPlayerServer>()
   let [t, setLocalisation] = useState<TFunction>()
+  let [cards, setCards] = useState<any[]>() // TODO: Replace any with proper model
 
   useEffect(() => {
     initMPServer(env).then(setMPServer)
     initLocalisation(env).then(t => setLocalisation(() => (query: string) => t(query)))
+    fetchCards(env).then(setCards)
   }, [])
 
-  if (!mpServer || !t) return <Loading />
+  if (!mpServer || !t || !cards) return <Loading />
 
   return (
     <div id="klimatkoll-inner">
       <Router
         mpServer={mpServer}
         root={root}
-        t={t}/>
+        t={t}
+        cards={cards}
+        />
     </div>
   )
 }

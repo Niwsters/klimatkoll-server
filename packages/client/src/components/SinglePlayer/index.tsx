@@ -1,8 +1,9 @@
 import { EventToAdd } from '../../event/event'
 import * as Board from '../../core2/board'
 import * as Card from '../../core2/card'
-import * as SampleCards from '../../stories/sample_cards'
+import { CardDesign } from '../../core2/card_design'
 import { BasicGame } from '../BasicGame'
+import { ServerCard } from 'components/App/fetch-cards'
 
 const positioning: Card.CardPositioning = {
   x: 0,
@@ -12,27 +13,62 @@ const positioning: Card.CardPositioning = {
   zLevel: 0
 }
 
-const card = Card.create(SampleCards.card.name, positioning)
-const card2 = Card.create(SampleCards.card2.name, positioning)
-const card3 = Card.create(SampleCards.card3.name, positioning)
-const deck = [card, card2, card3]
+export type Props = {
+  cards: ServerCard[]
+}
 
-export function SinglePlayer() {
+export function SinglePlayer(props: Props) {
+  const { cards } = props
+
   const onGameEvent = (event: EventToAdd) => console.log(event)
-
   const currentTime = Date.now()
-  
-  let board = Board.create([...deck, ...deck])
-  board = Board.drawHandCard(board, currentTime)
-  board = Board.drawHandCard(board, currentTime)
-  board = Board.drawHandCard(board, currentTime)
 
-  board = Board.playCardFromDeck(board, currentTime)
-  board = Board.playCardFromDeck(board, currentTime)
+  let cardDesigns: CardDesign[] = cards.map(card => {
+    return {
+      name: card.name,
+      title: "",
+      subtitle: "",
+      emissions: 0,
+      descr_front: "",
+      descr_back: "",
+      duration: "",
+
+      bg_color_front: "#1C1C45",
+      bg_color_back: "#FAD44C",
+    }
+  })
+
+  const space: CardDesign = {
+    name: "space",
+    title: "",
+    subtitle: "",
+    emissions: 0,
+    descr_front: "",
+    descr_back: "",
+    duration: "",
+    bg_color_back: "",
+    bg_color_front: ""
+  }
+
+  cardDesigns = [...cardDesigns, space]
+
+  const getCardDesign = (name: string) => {
+    const card = cardDesigns.find(card => card.name === name)
+    if (card === undefined) throw new Error(`Can't find card design with name: ${name}`)
+    return card
+  }
+
+  const deck: Card.Card[] = cards.map(card => {
+    return Card.create(card.name, positioning)
+  })
+
+  let board = Board.create(deck)
+  board = Board.drawHandCard(board, currentTime)
   board = Board.playCardFromDeck(board, currentTime)
 
   return <BasicGame
     board={board}
     onEvent={onGameEvent}
+    getCardDesign={getCardDesign}
     />
 }

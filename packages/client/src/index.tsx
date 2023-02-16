@@ -1,4 +1,4 @@
-import { App } from './app';
+import { App } from './components/App';
 import * as ReactDOM from 'react-dom/client';
 
 function getRootElem(): HTMLElement {
