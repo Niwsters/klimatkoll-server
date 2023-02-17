@@ -35,6 +35,12 @@ mixin card-remove(card)
   +card-form(card, "remove")
     button Remove card
 
+mixin card-preview(card)
+  div(
+    class="klimatkoll-card-preview"
+    card=card
+  )
+
 mixin card-item(card, languages)
   div(style="display: flex; align-items: center; padding-bottom: 1rem; padding-top: 1rem; border-bottom: 1px solid black;")
     div(style="padding: 1rem;")
@@ -44,6 +50,7 @@ mixin card-item(card, languages)
         +card-language(card, languages)
         button Update card
       +card-remove(card)
+      +card-preview(card)
 
 +base
   +layoutCard("Cards")

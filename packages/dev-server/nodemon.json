@@ -1,4 +1,4 @@
 {
-  "watch": ["index.js", "../**/dist/**/*"],
+  "watch": ["index.js", "../card-db/dist/packages/**/*", "../game/dist/packages/**/*"],
   "ext": "js, ts"
 }
