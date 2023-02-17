@@ -70,7 +70,10 @@ function updateView(db: Database): Controller {
     setCardDuration(db, id, duration)
     setCardBGColorFront(db, id, bg_color_front)
     setCardBGColorBack(db, id, bg_color_back)
-    return res.redirect('/admin/cards')
+    console.log(req.query)
+    const { search } = req.query
+    const query = search !== undefined ? `?search=${search}` : ''
+    return res.redirect(`/admin/cards${query}`)
   }
 }
 

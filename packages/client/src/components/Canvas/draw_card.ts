@@ -43,6 +43,7 @@ function drawNormalCard(
   const footerHeight = CARD_HEIGHT - headerHeight
   const darkBlue = colorHex('#1C1C45', opacity)
   const lightGrey = colorHex('#F3EFEC', opacity)
+  const backFontColor = (bg_color_back: string): string => bg_color_back === "#265157" ? lightGrey : darkBlue
 
   // Header background
   const header_bg = card.flipped ? colorHex(card.bg_color_back, opacity) : colorHex(card.bg_color_front, opacity)
@@ -71,7 +72,7 @@ function drawNormalCard(
   )
   context.fill()
 
-  const headerFontColor = card.flipped ? darkBlue : lightGrey
+  const headerFontColor = card.flipped ? backFontColor(card.bg_color_back) : lightGrey
   context.fillStyle = headerFontColor
   context.strokeStyle = headerFontColor
 

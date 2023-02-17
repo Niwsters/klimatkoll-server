@@ -4,7 +4,7 @@ const start = () => {
   const elements = document.getElementsByClassName("klimatkoll-card-preview")
   for (const elem of elements) {
     const canvas = document.createElement("canvas")
-    canvas.width = CARD_WIDTH
+    canvas.width = CARD_WIDTH*2
     canvas.height = CARD_HEIGHT
     elem.append(canvas)
 
@@ -26,6 +26,7 @@ const start = () => {
     }
     const context = canvas.getContext("2d")
     drawCard(context, card)
+    drawCard(context, {...card, x: card.x + CARD_WIDTH, flipped: true })
   }
 }
 

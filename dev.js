@@ -37,7 +37,7 @@ const compile = async () => {
   }
 }
 
-const watchConfig = { ignored: /node_modules/, persistent: true }
+const watchConfig = { ignored: [/node_modules/, "./packages/dev-server/restart.txt"], persistent: true }
 const watch = folder => {
   const watcher = chokidar.watch(folder, watchConfig)
   watcher.on('change', async _ => await compile())

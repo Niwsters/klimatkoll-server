@@ -1,8 +1,8 @@
 include base
 include layout-card
 
-mixin card-form(card, action)
-  form(action="/admin/card/"+card.id+"/"+action method="post" enctype="multipart/form-data")
+mixin card-form(card, action, search)
+  form(action="/admin/card/"+card.id+"/"+action+"?search="+search method="post" enctype="multipart/form-data")
     input(type="hidden" name="id" value=card.id)
     block
 
@@ -47,13 +47,22 @@ mixin card-duration(card)
   +card-text-input("duration", "Duration", card.duration)
 
 mixin card-bg-color-front(card)
-  +card-text-input("bg_color_front", "Front background color", card.bg_color_front)
+  input(type="hidden" name="bg_color_front" value="#1c1c45")
+
 
 mixin card-bg-color-back(card)
-  +card-text-input("bg_color_back", "Back background color", card.bg_color_back)
+  +card-input("Background color")
+    label(style="background: #61abb3")
+      input(type="radio" name="bg_color_back" value="#61abb3")
+    label(style="background: #fad44c")
+      input(type="radio" name="bg_color_back" value="#fad44c")
+    label(style="background: #265157")
+      input(type="radio" name="bg_color_back" value="#265157")
+    label(style="background: #f3c5c2")
+      input(type="radio" name="bg_color_back" value="#f3c5c2")
 
-mixin card-remove(card)
-  +card-form(card, "remove")
+mixin card-remove(card, search)
+  +card-form(card, "remove", search)
     button Remove card
 
 mixin card-preview(card)
@@ -62,10 +71,10 @@ mixin card-preview(card)
     card=card
   )
 
-mixin card-item(card, languages)
+mixin card-item(card, languages, search)
   div(style="display: flex; padding-bottom: 1rem; padding-top: 1rem; border-bottom: 1px solid black;")
     div(style="padding: 1rem;")
-      +card-form(card, "update")
+      +card-form(card, "update", search)
         +card-name(card)
         +card-emissions(card)
         +card-language(card, languages)
@@ -77,7 +86,7 @@ mixin card-item(card, languages)
         +card-bg-color-front(card)
         +card-bg-color-back(card)
         button Update card
-      +card-remove(card)
+      +card-remove(card, search)
     +card-preview(card)
 
 +base
@@ -86,4 +95,4 @@ mixin card-item(card, languages)
       input(type="text" name="search" value=search)
       button Search
     each card in cards
-      +card-item(card, languages)
+      +card-item(card, languages, search)
