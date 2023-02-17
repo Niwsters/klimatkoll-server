@@ -1,5 +1,6 @@
 const child_process = require('child_process')
 const chokidar = require('chokidar')
+const fs = require('fs')
 
 async function exec(command) {
   return new Promise((resolve, _reject) => {
@@ -16,11 +17,22 @@ async function build() {
   console.log("Finished compiling")
 }
 
+const restart = () => {
+  const write = text => fs.writeFileSync("./packages/dev-server/restart.txt", text)
+
+  const text = fs.readFileSync("./packages/dev-server/restart.txt").toString()
+  if (text === "a")
+    write("b")
+  else
+    write("a")
+}
+
 let compiling = false
 const compile = async () => {
   if (!compiling) {
     compiling = true
     await build()
+    restart()
     compiling = false
   }
 }
