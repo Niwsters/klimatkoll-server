@@ -12,6 +12,13 @@ import { languages } from "./languages";
 import { Controller } from "./types";
 import { removeImagePair } from "./pair-images";
 import { Location } from "./location";
+import { setCardTitle } from "./cards/set-card-title";
+import { setCardSubtitle } from "./cards/set-card-subtitle";
+import { setCardDescrFront } from "./cards/set-card-descr-front";
+import { setCardDescrBack } from "./cards/set-card-descr-back";
+import { setCardDuration } from "./cards/set-card-duration";
+import { setCardBGColorFront } from "./cards/set-card-bg-color-front";
+import { setCardBGColorBack } from "./cards/set-card-bg-color-back";
 
 function listView(db: Database): Controller {
   return async (req, _res, renderView) => {
@@ -40,9 +47,29 @@ function removeView(db: Database, location: Location): Controller {
 
 function updateView(db: Database): Controller {
   return async (req, res) => {
-    setCardName(db, req.body.id, req.body.name)
-    setCardEmissions(db, req.body.id, req.body.emissions)
-    setCardLanguage(db, req.body.id, req.body.language)
+    const {
+      id,
+      name,
+      emissions,
+      language,
+      title,
+      subtitle,
+      descr_front,
+      descr_back,
+      duration,
+      bg_color_front,
+      bg_color_back
+    } = req.body
+    setCardName(db, id, name)
+    setCardEmissions(db, id, emissions)
+    setCardLanguage(db, id, language)
+    setCardTitle(db, id, title)
+    setCardSubtitle(db, id, subtitle)
+    setCardDescrFront(db, id, descr_front)
+    setCardDescrBack(db, id, descr_back)
+    setCardDuration(db, id, duration)
+    setCardBGColorFront(db, id, bg_color_front)
+    setCardBGColorBack(db, id, bg_color_back)
     return res.redirect('/admin/cards')
   }
 }

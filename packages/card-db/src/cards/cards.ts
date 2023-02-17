@@ -6,6 +6,13 @@ import { card_emissions_set } from './set-card-emissions'
 import { card_language_set } from './set-card-language'
 import { card_name_set } from './set-card-name'
 import { card_removed } from './remove-card'
+import { card_title_set } from './set-card-title'
+import { card_subtitle_set } from './set-card-subtitle'
+import { card_descr_front_set } from './set-card-descr-front'
+import { card_descr_back_set } from './set-card-descr-back'
+import { card_duration_set } from './set-card-duration'
+import { card_bg_color_front_set } from './set-card-bg-color-front'
+import { card_bg_color_back_set } from './set-card-bg-color-back'
 import { Language, languages } from '../languages'
 
 type Handler = (cards: Card[], event: Event) => Card[]
@@ -14,10 +21,19 @@ type EnrichedCard = Card & { languageLabel: string }
 
 const handlers: { [eventType: string]: Handler } = {
   "card_created": card_created,
+  "card_removed": card_removed,
   "card_name_set": card_name_set,
   "card_emissions_set": card_emissions_set,
   "card_language_set": card_language_set,
-  "card_removed": card_removed
+
+  "card_title_set": card_title_set,
+  "card_subtitle_set": card_subtitle_set,
+  "card_descr_front_set": card_descr_front_set,
+  "card_descr_back_set": card_descr_back_set,
+  "card_duration_set": card_duration_set,
+  
+  "card_bg_color_front_set": card_bg_color_front_set,
+  "card_bg_color_back_set": card_bg_color_back_set
 }
 
 function handler(eventType: string): Handler {

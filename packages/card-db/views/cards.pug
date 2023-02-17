@@ -11,25 +11,46 @@ mixin card-input(inputLabel)
     div= inputLabel
     block
 
-mixin card-text-input(name, inputLabel, value, buttonLabel)
+mixin card-text-input(name, inputLabel, value)
   +card-input(inputLabel)
     input(value=value name=name type="text")
 
 mixin card-name(card)
-  +card-text-input("name", "Name", card.name, "Change name")
+  +card-text-input("name", "Name", card.name)
 
 mixin card-emissions(card)
   if card.emissions > -1
-    +card-text-input("emissions", "Emissions", card.emissions, "Change emissions")
+    +card-text-input("emissions", "Emissions", card.emissions)
   else
-    +card-text-input("emissions", "Emissions", "", "Change emissions")
+    +card-text-input("emissions", "Emissions", "")
 
 mixin card-language(card)
-  +card-input("Language", "Change language")
+  +card-input("Language")
     select(name="language")
       option(value="none" selected=card.language=="none")
       each language in languages
         option(value=language.iso_639_2 selected=card.language==language.iso_639_2)= language.label
+
+mixin card-title(card)
+  +card-text-input("title", "Title", card.title)
+
+mixin card-subtitle(card)
+  +card-text-input("subtitle", "Subtitle", card.subtitle)
+
+mixin card-descr-front(card)
+  +card-text-input("descr_front", "Front description", card.descr_front)
+
+mixin card-descr-back(card)
+  +card-text-input("descr_back", "Back description", card.descr_back)
+
+mixin card-duration(card)
+  +card-text-input("duration", "Duration", card.duration)
+
+mixin card-bg-color-front(card)
+  +card-text-input("bg_color_front", "Front background color", card.bg_color_front)
+
+mixin card-bg-color-back(card)
+  +card-text-input("bg_color_back", "Back background color", card.bg_color_back)
 
 mixin card-remove(card)
   +card-form(card, "remove")
@@ -42,15 +63,22 @@ mixin card-preview(card)
   )
 
 mixin card-item(card, languages)
-  div(style="display: flex; align-items: center; padding-bottom: 1rem; padding-top: 1rem; border-bottom: 1px solid black;")
+  div(style="display: flex; padding-bottom: 1rem; padding-top: 1rem; border-bottom: 1px solid black;")
     div(style="padding: 1rem;")
       +card-form(card, "update")
         +card-name(card)
         +card-emissions(card)
         +card-language(card, languages)
+        +card-title(card)
+        +card-subtitle(card)
+        +card-descr-front(card)
+        +card-descr-back(card)
+        +card-duration(card)
+        +card-bg-color-front(card)
+        +card-bg-color-back(card)
         button Update card
       +card-remove(card)
-      +card-preview(card)
+    +card-preview(card)
 
 +base
   +layoutCard("Cards")
