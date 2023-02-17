@@ -15,6 +15,11 @@ mixin card-text-input(name, inputLabel, value)
   +card-input(inputLabel)
     input(value=value name=name type="text")
 
+mixin card-textarea(name, inputLabel, value)
+  +card-input(inputLabel)
+    textarea(name=name type="text" rows=5 cols=21)
+      =value
+
 mixin card-name(card)
   +card-text-input("name", "Name", card.name)
 
@@ -38,10 +43,10 @@ mixin card-subtitle(card)
   +card-text-input("subtitle", "Subtitle", card.subtitle)
 
 mixin card-descr-front(card)
-  +card-text-input("descr_front", "Front description", card.descr_front)
+  +card-textarea("descr_front", "Front description", card.descr_front)
 
 mixin card-descr-back(card)
-  +card-text-input("descr_back", "Back description", card.descr_back)
+  +card-textarea("descr_back", "Back description", card.descr_back)
 
 mixin card-duration(card)
   +card-text-input("duration", "Duration", card.duration)
