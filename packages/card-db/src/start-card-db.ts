@@ -5,7 +5,6 @@ import path from 'path'
 import { routes } from './routes'
 import { ensureEventsDBCreated } from './events'
 import { auth } from './auth'
-import { startCardImageProcessing } from './start-card-image-processing'
 import { location } from './location'
 import fs from 'fs'
 
@@ -25,15 +24,11 @@ async function app() {
   const loc = location(config.dataLocation)
   const db = ensureEventsDBCreated(loc.root)
 
-  startCardImageProcessing(db, loc)
-
   const e = express()
 
   e.use(auth)
   e.use(fileUpload())
   e.use(rewriteURL)
-  e.use(express.static(loc.pngFolder))
-  e.use(express.static(loc.pairsFolder))
   e.use(express.static(loc.assetsFolder))
   e.use(express.json())
 
@@ -44,7 +39,7 @@ async function app() {
     res.sendFile(path.join(__dirname, '../../../client.js'))
   })
 
-  routes(db, loc).forEach(route => {
+  routes(db).forEach(route => {
     switch (route.method) {
       case "post":
 	      return e.post(route.url, route.controller)

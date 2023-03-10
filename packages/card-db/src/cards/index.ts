@@ -1,5 +1,4 @@
 export * from './cards'
-export * from './process-image-pairs'
 export { createCard } from './create-card'
 export { setCardName } from './set-card-name'
 export { setCardEmissions } from './set-card-emissions'

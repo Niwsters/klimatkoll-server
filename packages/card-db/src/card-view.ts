@@ -4,14 +4,11 @@ import {
   setCardName,
   setCardEmissions,
   setCardLanguage,
-  removeCard,
-  card
+  removeCard
 } from "./cards";
 import { events } from "./events";
 import { languages } from "./languages";
 import { Controller } from "./types";
-import { removeImagePair } from "./pair-images";
-import { Location } from "./location";
 import { setCardTitle } from "./cards/set-card-title";
 import { setCardSubtitle } from "./cards/set-card-subtitle";
 import { setCardDescrFront } from "./cards/set-card-descr-front";
@@ -37,9 +34,8 @@ function listJSONView(db: Database): Controller {
   }
 }
 
-function removeView(db: Database, location: Location): Controller {
+function removeView(db: Database): Controller {
   return async (req, res, renderView) => {
-    await removeImagePair((await card(db, req.body.id)).image, location)
     await removeCard(db, req.body.id)
     return listView(db)(req, res, renderView)
   }
@@ -70,7 +66,6 @@ function updateView(db: Database): Controller {
     setCardDuration(db, id, duration)
     setCardBGColorFront(db, id, bg_color_front)
     setCardBGColorBack(db, id, bg_color_back)
-    console.log(req.query)
     const { search } = req.query
     const query = search !== undefined ? `?search=${search}` : ''
     return res.redirect(`/admin/cards${query}`)
