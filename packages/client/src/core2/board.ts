@@ -31,28 +31,6 @@ export function cards(
   ]
 }
 
-export function addHandCard(
-  board: Board,
-  card: Card.Card,
-  currentTime: number
-): Board {
-  return {
-    ...board,
-    hand: Hand.addCard(board.hand, card, currentTime)
-  }
-}
-
-export function addELCard(
-  board: Board,
-  card: Card.Card,
-  currentTime: number
-): Board {
-  return {
-    ...board,
-    emissionsLine: EmissionsLine.addCard(board.emissionsLine, card, currentTime)
-  }
-}
-
 export function drawHandCard(board: Board, currentTime: number) {
   const [deck, card] = Deck.draw(board.deck)
 
