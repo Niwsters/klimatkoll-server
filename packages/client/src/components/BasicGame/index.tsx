@@ -4,14 +4,14 @@ import { EventToAdd } from "@shared/events"
 import { CardDesign } from "core2/card_design"
 
 export type Props = {
-  board: Board.Board,
-  onEvent: (event: EventToAdd) => void,
+  board: () => Board.Board,
+  onCardPlayRequested: (event: Board.CardPlayRequestedEvent) => void,
+  onBoardUpdate: (board: Board.Board) => void,
   cardDesigns: CardDesign[]
 }
 
 export function BasicGame(props: Props): React.ReactElement {
-  let { board } = props
-  const { cardDesigns } = props
+  const { board, cardDesigns, onCardPlayRequested, onBoardUpdate } = props
 
   let mouseX = 0
   let mouseY = 0
@@ -21,16 +21,20 @@ export function BasicGame(props: Props): React.ReactElement {
     mouseY = y
   }
 
+  const matches = { "card_play_requested": onCardPlayRequested }
+  const getMatch = (match: string) => Object.hasOwn(matches, match) ? matches[match] : () => {}
+  const onGameEvent = (event: EventToAdd) => getMatch(event.event_type)(event)
+
   function onMouseClicked(x: number, y: number) {
-    let events: EventToAdd[]
-    [board, events] = Board.mouseClicked(board, x, y)
-    events.forEach(props.onEvent)
+    const [newBoard, events] = Board.mouseClicked(board(), x, y)
+    onBoardUpdate(newBoard)
+    events.forEach(onGameEvent)
   }
 
-  function getCards() {
-    const currentTime = Date.now()
-    board = Board.update(board, mouseX, mouseY, currentTime)
-    return Board.cards(board)
+  const getCards = () => {
+    const newBoard = Board.update(board(), mouseX, mouseY, Date.now())
+    onBoardUpdate(newBoard)
+    return Board.cards(newBoard)
   }
 
   return (

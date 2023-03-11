@@ -158,9 +158,9 @@ function zLevel(cardIndex: number): number {
   return cardIndex
 }
 
-export function addCard(el: EmissionsLine, card: Card.Card, currentTime: number): EmissionsLine {
+export function addCard(el: EmissionsLine, card: Card.Card, position: number, currentTime: number): EmissionsLine {
   card = { ...card, flipped: true }
-  let cards = [...el.cards, card]
+  let cards = [...el.cards.slice(0, position), card, ...el.cards.slice(position+1)]
   cards = reformSpaceCards(cards, el.selectedCard !== null)
   cards = cards.map(card => Card.scale(card, CARD_SCALE, currentTime))
   cards = cards.map((card, i) => move_card(el, card, i, currentTime))
@@ -175,8 +175,10 @@ export function cardSelected(el: EmissionsLine, selectedCard: Card.Card | null):
   return showHideSpaceCards({ ...el, selectedCard })
 }
 
-export function focusedCard(el: EmissionsLine, mouseX: number, mouseY: number): Card.Card | undefined {
-  return el.cards.find(card => isCardFocused(el, card, mouseX, mouseY))
+export function focusedCard(el: EmissionsLine, mouseX: number, mouseY: number): [Card.Card, number] | [] {
+  const index = el.cards.findIndex(card => isCardFocused(el, card, mouseX, mouseY))
+  const card = el.cards[index]
+  return [card, index]
 }
 
 export function update(

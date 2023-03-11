@@ -65,11 +65,22 @@ export function drawHandCard(board: Board, currentTime: number) {
 
 export function playCardFromDeck(board: Board, currentTime: number) {
   const [deck, card] = Deck.draw(board.deck)
+  const position = board.emissionsLine.cards.length
 
   return {
     ...board,
     deck,
-    emissionsLine: EmissionsLine.addCard(board.emissionsLine, card, currentTime)
+    emissionsLine: EmissionsLine.addCard(board.emissionsLine, card, position, currentTime)
+  }
+}
+
+export function playCardFromHand(board: Board, cardID: string, position: number, currentTime: number) {
+  const [hand, card] = Hand.draw(board.hand, cardID)
+
+  return {
+    ...board,
+    hand,
+    emissionsLine: EmissionsLine.addCard(board.emissionsLine, card, currentTime, position)
   }
 }
 
@@ -89,13 +100,13 @@ export function update(
 
 export type CardPlayRequestedEvent = EventToAdd & {
   event_type: "card_play_requested",
-  payload: { cardID: string }
+  payload: { cardID: string, position: number }
 }
 
-function cardPlayRequestEvent(timestamp: number, card: Card.Card): CardPlayRequestedEvent {
+function cardPlayRequestEvent(timestamp: number, card: Card.Card, position: number): CardPlayRequestedEvent {
   return {
     event_type: "card_play_requested",
-    payload: { cardID: card.id },
+    payload: { cardID: card.id, position },
     timestamp
   }
 }
@@ -120,12 +131,12 @@ export function mouseClicked(
 ): [Board, EventToAdd[]] {
   const { hand, emissionsLine } = board
 
-  const focusedELCard = EmissionsLine.focusedCard(emissionsLine, mouseX, mouseY)
+  const [focusedELCard, position] = EmissionsLine.focusedCard(emissionsLine, mouseX, mouseY)
   const selectedHandCard = Hand.selectedCard(hand)
 
   let events: EventToAdd[] = []
-  if (selectedHandCard !== null && focusedELCard !== undefined)
-    events = [...events, cardPlayRequestEvent(Date.now(), selectedHandCard)]
+  if (selectedHandCard !== null && focusedELCard !== undefined && position !== undefined)
+    events = [...events, cardPlayRequestEvent(Date.now(), selectedHandCard, position)]
 
   return [selectDeselectHandCard(board, mouseX, mouseY), events]
 }

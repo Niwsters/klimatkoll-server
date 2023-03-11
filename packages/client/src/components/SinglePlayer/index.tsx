@@ -1,4 +1,3 @@
-import { EventToAdd } from '../../event/event'
 import * as Board from '../../core2/board'
 import * as Card from '../../core2/card'
 import { CardDesign } from '../../core2/card_design'
@@ -20,8 +19,12 @@ export type Props = {
 export function SinglePlayer(props: Props) {
   const { cards } = props
 
-  const onGameEvent = (event: EventToAdd) => console.log(event)
   const currentTime = Date.now()
+
+  const onCardPlayRequested = (event: Board.CardPlayRequestedEvent) => {
+    const { cardID, position } = event.payload
+    board = Board.playCardFromHand(board, cardID, Date.now(), position)
+  }
 
   let cardDesigns: CardDesign[] = cards
 
@@ -47,9 +50,12 @@ export function SinglePlayer(props: Props) {
   board = Board.drawHandCard(board, currentTime)
   board = Board.playCardFromDeck(board, currentTime)
 
+  const onBoardUpdate = (b: Board.Board) => board = b
+
   return <BasicGame
-    board={board}
-    onEvent={onGameEvent}
+    board={() => board}
+    onCardPlayRequested={onCardPlayRequested}
+    onBoardUpdate={onBoardUpdate}
     cardDesigns={cardDesigns}
     />
 }

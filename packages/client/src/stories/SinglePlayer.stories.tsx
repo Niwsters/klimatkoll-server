@@ -7,7 +7,7 @@ import { ServerCard } from '../components/App/fetch-cards'
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'SinglePlayer/SinglePlayer',
+  title: 'Game/SinglePlayer',
   component: Canvas.Component
 } as ComponentMeta<typeof SinglePlayer>;
 

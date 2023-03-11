@@ -168,3 +168,10 @@ export function update(hand: Hand, mouseX: number, mouseY: number, currentTime: 
 export function selectedCard(hand: Hand): Card.Card | null {
   return hand.cards.find(card => card.selected) || null
 }
+
+export function draw(hand: Hand, cardID: string): [Hand, Card.Card] {
+  const card = hand.cards.find(c => c.id === cardID)
+  if (!card) throw new Error(`Card not found with ID: ${cardID}`)
+  hand = { ...hand, cards: hand.cards.filter(c => c.id !== cardID) }
+  return [hand, card]
+}
