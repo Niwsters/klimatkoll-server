@@ -6,20 +6,24 @@ import { drawCard } from './draw_card'
 export type GetCards = () => Card[]
 export type GetCardDesign = (name: string) => CardDesign
 
-export function render(context: CanvasRenderingContext2D, getCards: GetCards, getCardDesign: GetCardDesign) {
+const dict = (list: any[], param: string) => list.reduce((dict, item) => ({ ...dict, [item[param]]: item }), {})
+
+const equijoin = <T1,T2>(a: T1[], b: T2[], param: string): (T1 & T2)[] => {
+  const dictB = dict(b, param)
+  return a.map(a => ({
+      ...a,
+      ...dictB[a[param]]
+  }))
+}
+
+export function render(context: CanvasRenderingContext2D, getCards: GetCards, cardDesigns: CardDesign[]) {
   let previousTimestamp: number = -1
 
   let animationId: number | undefined
   function draw(timestamp: number) {
-    const cards = getCards()
+    const cards = equijoin(getCards(), cardDesigns, "name")
       .filter(c => c.visible === true)
       .sort((a, b) => a.zLevel - b.zLevel)
-      .map(card => {
-        return {
-          ...card,
-          ...getCardDesign(card.name)
-        }
-      })
 
     if (previousTimestamp === -1)
       previousTimestamp = timestamp

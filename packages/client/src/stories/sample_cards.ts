@@ -71,8 +71,4 @@ const cards = [
   noCard
 ]
 
-export function getCardDesign(name: string): CardDesign {
-  const card = cards.find(c => c.name === name)
-  if (card === undefined) throw new Error(`Card design not found: ${name}`)
-  return card
-}
+export const cardDesigns = cards

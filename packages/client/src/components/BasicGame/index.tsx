@@ -6,12 +6,12 @@ import { CardDesign } from "core2/card_design"
 export type Props = {
   board: Board.Board,
   onEvent: (event: EventToAdd) => void,
-  getCardDesign: (name: string) => CardDesign
+  cardDesigns: CardDesign[]
 }
 
 export function BasicGame(props: Props): React.ReactElement {
   let { board } = props
-  const { getCardDesign } = props
+  const { cardDesigns } = props
 
   let mouseX = 0
   let mouseY = 0
@@ -38,6 +38,6 @@ export function BasicGame(props: Props): React.ReactElement {
       getCards={getCards}
       onMouseMove={onMouseMove}
       onMouseClicked={onMouseClicked}
-      getCardDesign={getCardDesign} />
+      cardDesigns={cardDesigns} />
   )
 }

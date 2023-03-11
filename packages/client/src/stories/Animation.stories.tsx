@@ -34,7 +34,7 @@ function Wrapper(props: WrapperProps): React.ReactElement {
   }
 
   return (
-    <Canvas.Component getCards={() => board.cards.map(card => Card.update(card, Date.now()))} getCardDesign={SampleCards.getCardDesign} />
+    <Canvas.Component getCards={() => board.cards.map(card => Card.update(card, Date.now()))} cardDesigns={SampleCards.cardDesigns} />
   )
 }
 

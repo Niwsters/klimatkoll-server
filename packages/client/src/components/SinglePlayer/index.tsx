@@ -39,12 +39,6 @@ export function SinglePlayer(props: Props) {
 
   cardDesigns = [...cardDesigns, space]
 
-  const getCardDesign = (name: string) => {
-    const card = cardDesigns.find(card => card.name === name)
-    if (card === undefined) throw new Error(`Can't find card design with name: ${name}`)
-    return card
-  }
-
   const deck: Card.Card[] = cards.map(card => {
     return Card.create(card.name, positioning)
   })
@@ -56,6 +50,6 @@ export function SinglePlayer(props: Props) {
   return <BasicGame
     board={board}
     onEvent={onGameEvent}
-    getCardDesign={getCardDesign}
+    cardDesigns={cardDesigns}
     />
 }

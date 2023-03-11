@@ -1,4 +1,4 @@
-import React from 'react'
+import _React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import * as SampleCards from './sample_cards'
 import * as Card from '../core2/card'
@@ -12,7 +12,7 @@ export default {
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof Canvas.Component> =
-  (args) => <Canvas.Component {...args} getCardDesign={SampleCards.getCardDesign} />;
+  (args) => <Canvas.Component {...args} cardDesigns={SampleCards.cardDesigns} />;
 
 const positioning = {
   x: Canvas.CARD_WIDTH / 2,
