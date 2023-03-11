@@ -6,20 +6,14 @@ import { Event } from '../events'
 
 type CardCreatedEvent = {
   type: "card_created",
-  payload: {
-    id: string,
-    image: string
-  }
+  payload: { id: string }
 }
 
-export async function createCard(db: Database, image: string) {
+export async function createCard(db: Database) {
   const id = uniqid()
   const event: CardCreatedEvent = {
     type: "card_created",
-    payload: {
-      id,
-      image: '/' + image
-    }
+    payload: { id }
   }
   return insertEvent(db, "card", event)
 }
@@ -30,7 +24,6 @@ export function card_created(cards: Card[], event: Event): Card[] {
     {
       id: event.payload.id,
       name: "No name set",
-      image: event.payload.image,
       emissions: -1,
       language: "none"
     }

@@ -23,20 +23,7 @@ export function SinglePlayer(props: Props) {
   const onGameEvent = (event: EventToAdd) => console.log(event)
   const currentTime = Date.now()
 
-  let cardDesigns: CardDesign[] = cards.map(card => {
-    return {
-      name: card.name,
-      title: "",
-      subtitle: "",
-      emissions: 0,
-      descr_front: "",
-      descr_back: "",
-      duration: "",
-
-      bg_color_front: "#1C1C45",
-      bg_color_back: "#FAD44C",
-    }
-  })
+  let cardDesigns: CardDesign[] = cards
 
   const space: CardDesign = {
     name: "space",

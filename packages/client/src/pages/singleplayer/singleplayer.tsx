@@ -1,8 +1,6 @@
 import { EventToAdd } from "@shared/events";
 import { Card } from "core/card";
 import { Game } from "core/game";
-import { Page } from "pages/page";
-import { Services } from "pages/page-factory";
 import React from "react";
 import { SPServer } from './server'
 import { SP_SOCKET_ID } from "core/constants";
@@ -16,15 +14,15 @@ function leaveGame(): EventToAdd {
   }
 }
 
-export class SinglePlayerPage implements Page {
+export class SinglePlayerPage {
   private game: Game
   private server: SPServer = new SPServer()
   private readonly socketID: number = SP_SOCKET_ID
-  private readonly services: Services
+  private readonly services: any 
 
   component: React.ReactElement;
 
-  constructor(services: Services) {
+  constructor(services: any) {
     this.services = services
     this.services.events$.subscribe(event => this.addEvent(event))
 

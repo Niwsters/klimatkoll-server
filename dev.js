@@ -3,9 +3,9 @@ const chokidar = require('chokidar')
 const fs = require('fs')
 
 async function exec(command) {
-  return new Promise((resolve, _reject) => {
+  return new Promise((resolve, reject) => {
     child_process.exec(command, (err, stdout) => {
-      if (err) resolve(err)
+      if (err) reject(err)
       resolve(stdout)
     }, { stdio: "inherit" })
   })
@@ -13,7 +13,11 @@ async function exec(command) {
 
 async function build() {
   console.log("Compiling...")
-  console.log(await exec("npm run build"))
+  try {
+    await exec("npm run build")
+  } catch (e) {
+    console.log("Error in build script:", e)
+  }
   console.log("Finished compiling")
 }
 
