@@ -51,11 +51,24 @@ const space: CardDesign = {
   bg_color_front: ""
 }
 
+const noCard: CardDesign = {
+  name: "no-card",
+  title: "",
+  subtitle: "",
+  emissions: 0,
+  descr_front: "",
+  descr_back: "",
+  duration: "",
+  bg_color_back: "",
+  bg_color_front: ""
+}
+
 const cards = [
   card,
   card2,
   card3,
-  space
+  space,
+  noCard
 ]
 
 export function getCardDesign(name: string): CardDesign {

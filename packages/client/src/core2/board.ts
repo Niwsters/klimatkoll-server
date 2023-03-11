@@ -2,19 +2,22 @@ import * as Hand from './hand'
 import * as EmissionsLine from './emissions_line'
 import * as Card from './card'
 import * as Deck from './deck'
+import * as DiscardPile from './discard_pile'
 import { EventToAdd } from '@shared/events'
 
 export type Board = {
   readonly hand: Hand.Hand,
   readonly emissionsLine: EmissionsLine.EmissionsLine,
-  readonly deck: Deck.Deck
+  readonly deck: Deck.Deck,
+  readonly discardPile: DiscardPile.DiscardPile
 }
 
 export function create(deck: Card.Card[]): Board {
   return {
     hand: Hand.create(),
     emissionsLine: EmissionsLine.create(),
-    deck: Deck.create(deck)
+    deck: Deck.create(deck),
+    discardPile: DiscardPile.create()
   }
 }
 
@@ -23,7 +26,8 @@ export function cards(
 ): Card.Card[] {
   return [
     ...board.hand.cards,
-    ...board.emissionsLine.cards
+    ...board.emissionsLine.cards,
+    ...board.discardPile.cards
   ]
 }
 
@@ -78,7 +82,8 @@ export function update(
   return {
     ...board,
     hand: Hand.update(board.hand, mouseX, mouseY, currentTime),
-    emissionsLine: EmissionsLine.update(board.emissionsLine, mouseX, mouseY, currentTime)
+    emissionsLine: EmissionsLine.update(board.emissionsLine, mouseX, mouseY, currentTime),
+    discardPile: DiscardPile.update(board.discardPile, currentTime)
   }
 }
 
@@ -123,4 +128,16 @@ export function mouseClicked(
     events = [...events, cardPlayRequestEvent(Date.now(), selectedHandCard)]
 
   return [selectDeselectHandCard(board, mouseX, mouseY), events]
+}
+
+export function discardCard(
+  board: Board,
+  card: Card.Card,
+  currentTime: number
+): Board {
+  return {
+    ...board,
+    hand: Hand.removeCard(board.hand, card),
+    discardPile: DiscardPile.addCard(card, currentTime)
+  }
 }

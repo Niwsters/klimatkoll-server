@@ -140,6 +140,12 @@ export function addCard(hand: Hand, card: Card.Card, currentTime: number): Hand 
   }
 }
 
+export function removeCard(hand: Hand, card: Card.Card): Hand {
+  return {
+    ...hand,
+    cards: hand.cards.filter(c => c.id !== card.id)
+  }
+}
 
 export function mouseClicked(hand: Hand, mouseX: number, mouseY: number): Hand {
   return {

@@ -12,6 +12,7 @@ export function render(context: CanvasRenderingContext2D, getCards: GetCards, ge
   let animationId: number | undefined
   function draw(timestamp: number) {
     const cards = getCards()
+      .filter(c => c.visible === true)
       .sort((a, b) => a.zLevel - b.zLevel)
       .map(card => {
         return {

@@ -100,3 +100,21 @@ HandAndEmissionsLine.args = {
   board: combinedBoard(),
   onEvent: onEvent
 };
+
+const discardPile = (): Board.Board => {
+  const currentTime = Date.now()
+  
+  let board = Board.create([...deck])
+  board = Board.drawHandCard(board, currentTime)
+  board = Board.drawHandCard(board, currentTime)
+  const card = board.hand.cards[0]
+  board = Board.discardCard(board, card, currentTime)
+
+  return board
+}
+
+export const DiscardPile = Template.bind({});
+DiscardPile.args = {
+  board: discardPile(),
+  onEvent: onEvent
+};

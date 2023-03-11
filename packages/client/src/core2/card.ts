@@ -18,6 +18,25 @@ export type Card = CardPositioning & {
   readonly animation: Animation.Animation
 }
 
+const defaultCardPositioning = (): CardPositioning => ({
+  zLevel: 0,
+  x: 0,
+  y: 0,
+  rotation: 0,
+  scale: 1
+})
+
+export const defaultCard = (name: string): Card => ({
+  name,
+  id: Math.random().toString(),
+  flipped: false,
+  selected: false,
+  visible: true,
+  isSpace: false,
+  animation: Animation.create(),
+  ...defaultCardPositioning()
+})
+
 export function create(name: string, positioning: CardPositioning): Card {
   return {
     id: Math.random().toString().split("").slice(2).join(""),
