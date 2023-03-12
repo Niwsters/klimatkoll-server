@@ -37,8 +37,17 @@ const deck = [
   card("Oh hi", ":D", 300)
 ]
 
+const translations = {
+  "sp-instructions": "Play cards!",
+  "leave-game": "Leave game"
+}
+
+const t = (key: string) => Object.hasOwn(translations, key) ? translations[key] : key
+const onLeaveGame = () => console.log("Leave game button pressed")
+
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof SinglePlayer> = (args) => <SinglePlayer {...args} />;
+const Template: ComponentStory<typeof SinglePlayer> = (args) =>
+  <SinglePlayer {...args} t={t} onLeaveGame={onLeaveGame} />;
 
 export const PlayCard = Template.bind({});
 PlayCard.args = {

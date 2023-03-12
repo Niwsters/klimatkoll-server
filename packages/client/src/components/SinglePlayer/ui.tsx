@@ -1,7 +1,9 @@
 import { HEIGHT } from "../Canvas"
-import React from "react"
+import { Button } from "../Button"
+import _React, { ReactNode } from "react"
+import { TFunction } from "tfunction"
 
-function Container(props: any): React.ReactElement {
+const Container = (props: { children: ReactNode }) => {
   const style = {
     position: "absolute",
     top: 0,
@@ -19,23 +21,29 @@ function Container(props: any): React.ReactElement {
   )
 }
 
-const t = (name: string) => ""
-
-const Instructions = () => {
-  const style = {
-    "padding": "1em"
-  }
-
-  return (
-    <div style={style}>
-      {t('sp-instructions')}
-    </div>
-  )
+export type Props = {
+  t: TFunction,
+  onLeaveGame: () => void
 }
 
-export const SPUI = () => {
+export const SPUI = (props: Props) => {
+  const { t, onLeaveGame } = props
+
+  const Instructions = () => {
+    const style = {
+      "padding": "1em"
+    }
+
+    return (
+      <div style={style}>
+        {t('sp-instructions')}
+      </div>
+    )
+  }
+
   return <Container>
     <Instructions></Instructions>
+    <Button color="pink" onClick={onLeaveGame}>{t('leave-game')}</Button>
   </Container>
 }
 

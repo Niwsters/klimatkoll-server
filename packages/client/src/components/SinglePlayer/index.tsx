@@ -5,6 +5,7 @@ import { BasicGame } from '../BasicGame'
 import { ServerCard } from 'components/App/fetch-cards'
 import { equijoin } from '../../util'
 import { SPUI } from './ui'
+import { TFunction } from 'tfunction'
 
 const positioning: Card.CardPositioning = {
   x: 0,
@@ -14,16 +15,14 @@ const positioning: Card.CardPositioning = {
   zLevel: 0
 }
 
-const UI = (props: {}) => {
-  
-}
-
 export type Props = {
-  cards: ServerCard[]
+  cards: ServerCard[],
+  t: TFunction,
+  onLeaveGame: () => void
 }
 
 export const SinglePlayer = (props: Props) => {
-  const { cards } = props
+  const { cards, t, onLeaveGame } = props
 
   const currentTime = Date.now()
 
@@ -82,6 +81,9 @@ export const SinglePlayer = (props: Props) => {
       onBoardUpdate={onBoardUpdate}
       cardDesigns={cardDesigns}
       />
-    <SPUI />
+    <SPUI
+      t={t}
+      onLeaveGame={onLeaveGame}
+      />
   </div>
 }
