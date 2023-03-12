@@ -20,7 +20,6 @@ export type ServerCard = {
 export async function fetchCards(env: Environment): Promise<ServerCard[]> {
   try {
     const cards = await (await fetch(`${env.httpServerURL}/${env.language}/cards.json`)).json()
-    console.log(cards)
     return cards
   } catch (e) {
     console.log("Failed to fetch cards:", e)

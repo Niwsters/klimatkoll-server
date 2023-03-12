@@ -23,6 +23,7 @@ export function Router(props: Props) {
     switch (event.event_type) {
       case "singleplayer_started":
         return "canvas"
+      case "leave_game":
       default:
         return "menu"
     }
@@ -33,6 +34,13 @@ export function Router(props: Props) {
     setPage(route(event))
   }
 
+  const leaveGameEvent = {
+    event_type: "leave_game",
+    payload: {},
+    timestamp: Date.now()
+  } as const
+  const onLeaveGame = () => setPage(route(leaveGameEvent))
+
   const menu = <Menu
     httpServerURL={root.environment.httpServerURL}
     resolution$={root.resolution$}
@@ -41,7 +49,12 @@ export function Router(props: Props) {
     t={t}
     />
 
-  const singleplayer = <SinglePlayer cards={cards} />
+  const singleplayer = <SinglePlayer
+    cards={cards}
+    t={t}
+    onLeaveGame={onLeaveGame}
+    />
+
   const component = (route: Page) => {
     switch (route) {
       case "menu":
