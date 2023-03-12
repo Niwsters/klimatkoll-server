@@ -22,9 +22,11 @@ async function build() {
 }
 
 const restart = () => {
-  const write = text => fs.writeFileSync("./packages/dev-server/restart.txt", text)
+  const filePath = "./packages/dev-server/restart.txt"
+  const write = text => fs.writeFileSync(filePath, text)
 
-  const text = fs.readFileSync("./packages/dev-server/restart.txt").toString()
+  if (!fs.existsSync(filePath)) write("a")
+  const text = fs.readFileSync(filePath).toString()
   if (text === "a")
     write("b")
   else
