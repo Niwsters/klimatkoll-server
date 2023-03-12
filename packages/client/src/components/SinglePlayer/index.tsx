@@ -48,6 +48,7 @@ export const SinglePlayer = (props: Props) => {
     board = isCorrectPlacement(board, cardName, position)
       ? Board.playCardFromHand(board, cardName, currentTime, position)
       : Board.discardCard(board, cardName, currentTime)
+    board = Board.drawHandCard(board, currentTime)
   }
 
   const space: CardDesign = {
@@ -66,13 +67,15 @@ export const SinglePlayer = (props: Props) => {
   const deck: Card.Card[] = cards.map(card => Card.create(card.name, positioning))
 
   let board = Board.create(deck)
+  board = Board.shuffleDeck(board)
   board = Board.drawHandCard(board, currentTime)
   board = Board.playCardFromDeck(board, currentTime)
 
   const onBoardUpdate = (b: Board.Board) => board = b
 
   const style = {
-    position: "relative"
+    position: "relative",
+    fontFamily: "Poppins"
   } as const
   return <div style={style}>
     <BasicGame

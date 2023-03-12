@@ -135,3 +135,8 @@ export function discardCard(
 
   return board
 }
+
+export const shuffleDeck = (board: Board): Board => ({
+  ...board,
+  deck: Deck.shuffle(board.deck)
+})
