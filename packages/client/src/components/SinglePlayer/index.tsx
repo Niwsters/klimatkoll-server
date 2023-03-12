@@ -4,6 +4,7 @@ import { CardDesign } from '../../core2/card_design'
 import { BasicGame } from '../BasicGame'
 import { ServerCard } from 'components/App/fetch-cards'
 import { equijoin } from '../../util'
+import { SPUI } from './ui'
 
 const positioning: Card.CardPositioning = {
   x: 0,
@@ -13,11 +14,15 @@ const positioning: Card.CardPositioning = {
   zLevel: 0
 }
 
+const UI = (props: {}) => {
+  
+}
+
 export type Props = {
   cards: ServerCard[]
 }
 
-export function SinglePlayer(props: Props) {
+export const SinglePlayer = (props: Props) => {
   const { cards } = props
 
   const currentTime = Date.now()
@@ -67,10 +72,16 @@ export function SinglePlayer(props: Props) {
 
   const onBoardUpdate = (b: Board.Board) => board = b
 
-  return <BasicGame
-    board={() => board}
-    onCardPlayRequested={onCardPlayRequested}
-    onBoardUpdate={onBoardUpdate}
-    cardDesigns={cardDesigns}
-    />
+  const style = {
+    position: "relative"
+  } as const
+  return <div style={style}>
+    <BasicGame
+      board={() => board}
+      onCardPlayRequested={onCardPlayRequested}
+      onBoardUpdate={onBoardUpdate}
+      cardDesigns={cardDesigns}
+      />
+    <SPUI />
+  </div>
 }
