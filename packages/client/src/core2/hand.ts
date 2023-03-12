@@ -172,6 +172,6 @@ export function selectedCard(hand: Hand): Card.Card | null {
 export function draw(hand: Hand, cardName: string): [Hand, Card.Card] {
   const card = hand.cards.find(c => c.name === cardName)
   if (!card) throw new Error(`Card not found with ID: ${cardName}`)
-  hand = { ...hand, cards: hand.cards.filter(c => c.id !== cardName) }
+  hand = { ...hand, cards: hand.cards.filter(c => c.name !== cardName) }
   return [hand, card]
 }
