@@ -52,8 +52,8 @@ export function playCardFromDeck(board: Board, currentTime: number) {
   }
 }
 
-export function playCardFromHand(board: Board, cardID: string, position: number, currentTime: number) {
-  const [hand, card] = Hand.draw(board.hand, cardID)
+export function playCardFromHand(board: Board, cardName: string, position: number, currentTime: number) {
+  const [hand, card] = Hand.draw(board.hand, cardName)
 
   return {
     ...board,
@@ -78,13 +78,13 @@ export function update(
 
 export type CardPlayRequestedEvent = EventToAdd & {
   event_type: "card_play_requested",
-  payload: { cardID: string, position: number }
+  payload: { cardName: string, position: number }
 }
 
 function cardPlayRequestEvent(timestamp: number, card: Card.Card, position: number): CardPlayRequestedEvent {
   return {
     event_type: "card_play_requested",
-    payload: { cardID: card.id, position },
+    payload: { cardName: card.name, position },
     timestamp
   }
 }
@@ -121,12 +121,17 @@ export function mouseClicked(
 
 export function discardCard(
   board: Board,
-  card: Card.Card,
+  cardName: string,
   currentTime: number
 ): Board {
-  return {
-    ...board,
-    hand: Hand.removeCard(board.hand, card),
-    discardPile: DiscardPile.addCard(card, currentTime)
-  }
+  const [hand, card] = Hand.draw(board.hand, cardName)
+
+  if (hand !== undefined && card !== undefined)
+    return {
+      ...board,
+      hand: hand,
+      discardPile: DiscardPile.addCard(card, currentTime)
+    }
+
+  return board
 }

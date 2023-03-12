@@ -3,6 +3,7 @@ import * as Card from '../../core2/card'
 import { CardDesign } from '../../core2/card_design'
 import { BasicGame } from '../BasicGame'
 import { ServerCard } from 'components/App/fetch-cards'
+import { equijoin } from '../../util'
 
 const positioning: Card.CardPositioning = {
   x: 0,
@@ -21,12 +22,29 @@ export function SinglePlayer(props: Props) {
 
   const currentTime = Date.now()
 
-  const onCardPlayRequested = (event: Board.CardPlayRequestedEvent) => {
-    const { cardID, position } = event.payload
-    board = Board.playCardFromHand(board, cardID, Date.now(), position)
+  const cardEmissions = cards.map(c => ({ name: c.name, emissions: c.emissions }))
+  const isCorrectPlacement = (board: Board.Board, cardName: string, position: number) => {
+    const card = cardEmissions.find(c => c.name === cardName)
+    if (card === undefined) return
+
+    const cards = equijoin(board.emissionsLine.cards, cardEmissions, a => a.name, b => b.name)
+      .sort((a,b) => a.emissions - b.emissions)
+
+    const leftCard = cards[position]
+    const rightCard = cards[position+1]
+
+    return (leftCard === undefined || leftCard.emissions <= card.emissions) &&
+           (rightCard === undefined || card.emissions <= rightCard.emissions)
   }
 
-  let cardDesigns: CardDesign[] = cards
+  const onCardPlayRequested = (event: Board.CardPlayRequestedEvent) => {
+    const { cardName, position } = event.payload
+    const currentTime = event.timestamp
+
+    board = isCorrectPlacement(board, cardName, position)
+      ? Board.playCardFromHand(board, cardName, currentTime, position)
+      : Board.discardCard(board, cardName, currentTime)
+  }
 
   const space: CardDesign = {
     name: "space",
@@ -39,12 +57,9 @@ export function SinglePlayer(props: Props) {
     bg_color_back: "",
     bg_color_front: ""
   }
+  const cardDesigns: CardDesign[] = [...cards, space]
 
-  cardDesigns = [...cardDesigns, space]
-
-  const deck: Card.Card[] = cards.map(card => {
-    return Card.create(card.name, positioning)
-  })
+  const deck: Card.Card[] = cards.map(card => Card.create(card.name, positioning))
 
   let board = Board.create(deck)
   board = Board.drawHandCard(board, currentTime)

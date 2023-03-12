@@ -40,7 +40,7 @@ const deck = [
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof SinglePlayer> = (args) => <SinglePlayer {...args} />;
 
-export const Something = Template.bind({});
-Something.args = {
+export const PlayCard = Template.bind({});
+PlayCard.args = {
   cards: deck
 };
