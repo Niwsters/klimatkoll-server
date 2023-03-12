@@ -4,7 +4,8 @@ import {
   setCardName,
   setCardEmissions,
   setCardLanguage,
-  removeCard
+  removeCard,
+  createCard
 } from "./cards";
 import { events } from "./events";
 import { languages } from "./languages";
@@ -17,11 +18,22 @@ import { setCardDuration } from "./cards/set-card-duration";
 import { setCardBGColorFront } from "./cards/set-card-bg-color-front";
 import { setCardBGColorBack } from "./cards/set-card-bg-color-back";
 
+const sortBy = <T>(list: T[], param: (obj: T) => any): T[] => {
+  return list.sort((a, b) => {
+    if (param(a) < param(b)) return -1
+    if (param(a) > param(b)) return 1
+    return 0
+  })
+}
+
+const sortByDesc = <T>(list: T[], param: (obj: T) => any) => sortBy(list, param).reverse()
+
 function listView(db: Database): Controller {
   return async (req, _res, renderView) => {
     const search = req.query.search as string
+    const list = await cards(db, search)
     renderView("cards", {
-      cards: await cards(db, search),
+      cards: sortByDesc(list, c => c.createdAt),
       languages: languages(await events(db, "language")),
       search: search
     })
@@ -72,9 +84,19 @@ function updateView(db: Database): Controller {
   }
 }
 
+const createView = (db: Database): Controller => {
+  return async (req, res) => {
+    createCard(db)
+    const { search } = req.query
+    const query = search !== undefined ? `?search=${search}` : ''
+    return res.redirect(`/admin/cards${query}`)
+  }
+}
+
 export default {
   list: listView,
   listJSON: listJSONView,
   remove: removeView,
-  update: updateView
+  update: updateView,
+  create: createView
 }

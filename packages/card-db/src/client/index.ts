@@ -8,15 +8,15 @@ const start = () => {
     canvas.height = CARD_HEIGHT
     elem.append(canvas)
 
-    const cardJSON = elem.attributes.getNamedItem("card").value
+    const cardJSON = elem.attributes.getNamedItem("card")?.value || "{}"
     const card = {
-      name: "pendla",
-      title: "Pendla",
-      subtitle: "i medelstor biodieselbil",
-      emissions: 4000,
-      descr_front: "Köra 40 km varje arbetsdag i ett år",
-      descr_back: "Biodieselproduktionen leder till avskogning vilket orsakar stora men svåruppskattade utsläpp",
-      duration: "230 dagar",
+      name: "",
+      title: "",
+      subtitle: "",
+      emissions: 0,
+      descr_front: "",
+      descr_back: "",
+      duration: "",
 
       bg_color_front: "#1C1C45",
       bg_color_back: "#FAD44C",
@@ -25,8 +25,10 @@ const start = () => {
       ...JSON.parse(cardJSON)
     }
     const context = canvas.getContext("2d")
-    drawCard(context, card)
-    drawCard(context, {...card, x: card.x + CARD_WIDTH, flipped: true })
+    if (context) {
+      drawCard(context, card)
+      drawCard(context, {...card, x: card.x + CARD_WIDTH, flipped: true })
+    }
   }
 }
 

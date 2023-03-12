@@ -1,12 +1,17 @@
 import { Database } from "sqlite3"
 
 type EventRow = {
-  event: string
+  event: string,
+  timestamp: string
 }
 
 export type Event = {
   type: string,
   payload: any
+}
+
+export type ParsedEvent = Event & {
+  timestamp: string
 }
 
 function database(location: string) {
@@ -44,9 +49,9 @@ export async function insertEvent(db: Database, aggregate: string, event: Event)
   await exec(db, "INSERT INTO Events (aggregate, event) VALUES (?, ?)", [aggregate, JSON.stringify(event)])
 }
 
-export async function events(db: Database, aggregate: string): Promise<Event[]> {
-  const rows = await query<EventRow[]>(db, "SELECT event FROM Events WHERE aggregate LIKE ?", [aggregate])
-  return rows.map(row => JSON.parse(row.event))
+export async function events(db: Database, aggregate: string): Promise<ParsedEvent[]> {
+  const rows = await query<EventRow[]>(db, "SELECT event, timestamp FROM Events WHERE aggregate LIKE ?", [aggregate])
+  return rows.map(row => ({ ...JSON.parse(row.event), timestamp: row.timestamp }))
 }
 
 export function ensureEventsDBCreated(location: string): Database {

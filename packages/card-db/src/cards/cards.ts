@@ -1,5 +1,5 @@
 import { Database } from 'sqlite3'
-import { events, Event } from '../events'
+import { events, ParsedEvent } from '../events'
 import { Card } from './card'
 import { card_created } from './create-card'
 import { card_emissions_set } from './set-card-emissions'
@@ -15,7 +15,7 @@ import { card_bg_color_front_set } from './set-card-bg-color-front'
 import { card_bg_color_back_set } from './set-card-bg-color-back'
 import { Language, languages } from '../languages'
 
-type Handler = (cards: Card[], event: Event) => Card[]
+type Handler = (cards: Card[], event: ParsedEvent) => Card[]
 
 type EnrichedCard = Card & { languageLabel: string }
 
@@ -42,7 +42,7 @@ function handler(eventType: string): Handler {
   return (cards, _event) => cards
 }
 
-function onEvent(cards: Card[], event: Event): Card[] {
+function onEvent(cards: Card[], event: ParsedEvent): Card[] {
   return handler(event.type)(cards, event)
 }
 

@@ -1,8 +1,7 @@
 import { Database } from 'sqlite3'
-import { insertEvent } from '../events'
+import { insertEvent, ParsedEvent } from '../events'
 import uniqid from 'uniqid'
 import { Card } from './card'
-import { Event } from '../events'
 
 type CardCreatedEvent = {
   type: "card_created",
@@ -18,12 +17,13 @@ export async function createCard(db: Database) {
   return insertEvent(db, "card", event)
 }
 
-export function card_created(cards: Card[], event: Event): Card[] {
+export function card_created(cards: Card[], event: ParsedEvent): Card[] {
   return [
     ...cards,
     {
       id: event.payload.id,
       name: "No name set",
+      createdAt: event.timestamp,
       emissions: -1,
       language: "none"
     }
