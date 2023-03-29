@@ -1,5 +1,6 @@
 import { Card, CardPosition, Reflection } from 'core2/card'
 import { CardDesign } from 'core2/card_design'
+import { Move } from 'core2/move'
 import React, { useEffect, useRef } from 'react'
 import { render } from './render'
 
@@ -23,6 +24,7 @@ export type CanvasProps = {
   getAnimations: () => Animation[],
   getSpaceCards: () => Card[],
   getReflections: () => Reflection[],
+  getMoves: () => Move[],
   designs: CardDesign[],
   onMouseMove?: (x: number, y: number) => void,
   onMouseClicked?: (x: number, y: number) => void
@@ -36,6 +38,7 @@ export function Component(props: CanvasProps): React.ReactElement {
     getSelected,
     getSpaceCards,
     getReflections,
+    getMoves,
     designs
   } = props
 
@@ -68,7 +71,8 @@ export function Component(props: CanvasProps): React.ReactElement {
           getFlipped(),
           getSelected(),
           getSpaceCards(),
-          getReflections()
+          getReflections(),
+          getMoves()
         )
       }
     }
