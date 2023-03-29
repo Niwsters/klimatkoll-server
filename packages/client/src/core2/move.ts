@@ -1,8 +1,16 @@
 import { Card } from './card'
 
 export type Move = {
-  readonly card: Card
-  readonly field: "x" | "y" | "rotation" | "scale"
+  readonly from: number
   readonly to: number
-  readonly timestamp: number
+  readonly started: number
+}
+
+export type Moves = {
+  [card: Card]: {
+    x: Move,
+    y: Move,
+    rotation: Move,
+    scale: Move
+  }
 }

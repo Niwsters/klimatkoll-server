@@ -1,8 +1,64 @@
 
 import _React from 'react'
-/*
 import { ComponentStory, ComponentMeta } from '@storybook/react'
+import * as Canvas from '../components/Canvas';
+import * as SampleCards from './sample_cards'
+import { Card, CardPosition } from '../core2/card';
+import { handMoves } from '../core2/hand'
+import { Move } from 'core2/move';
 
+export default {
+  title: 'Canvas/Board',
+  component: Canvas.Component
+} as ComponentMeta<typeof Canvas.Component>;
+
+const position = (card: Card): CardPosition => ({
+  card,
+  x: Canvas.CARD_WIDTH / 2,
+  y: Canvas.CARD_HEIGHT / 2,
+  rotation: 0,
+  scale: 1.0,
+  zLevel: 1.0
+})
+
+export type Pile = "hand"
+
+export type PileCard = {
+  card: Card,
+  pile: Pile
+}
+
+const designs = SampleCards.cardDesigns
+const cards = designs.map(d => d.card)
+const positions = designs.map(d => position(d.card))
+const visible: Card[] = cards.slice(0, 1)
+
+let moves: Move[] = []
+const hand = new Set(designs.map(d => d.card))
+
+const Template: ComponentStory<typeof Canvas.Component> = (args) => {
+  moves = []
+  return <Canvas.Component {...args} />;
+}
+
+const args = {
+  designs: designs,
+  getPositions: () => positions,
+  getFlipped: () => [],
+  getVisible: () => visible,
+  getSelected: () => [],
+  getSpaceCards: () => [],
+  getReflections: () => [],
+  getMoves: () => {
+    moves = handMoves(moves, hand, positions, Date.now())
+    return moves
+  }
+}
+
+export const Hand = Template.bind({});
+Hand.args = { ...args }
+
+/*
 import * as Canvas from '../components/Canvas'
 import * as Board from '../core2/board'
 import * as SampleCards from './sample_cards'

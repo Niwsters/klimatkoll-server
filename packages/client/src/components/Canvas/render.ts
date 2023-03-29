@@ -1,4 +1,4 @@
-import { Move } from '../../core2/move'
+import { Move, Moves } from '../../core2/move'
 import { Card, CardPosition, Reflection } from '../../core2/card'
 import { CardDesign } from '../../core2/card_design'
 
@@ -14,7 +14,7 @@ export function render(
   selected: Card[],
   spaceCards: Card[],
   reflections: Reflection[],
-  moves: Move[]
+  moves: Moves
 ) {
   let previousTimestamp: number = -1
 
@@ -31,13 +31,18 @@ export function render(
       positionsDict[position.card] = position
     }
 
-    for (const move of moves) {
-      const position = positionsDict[move.card]
-      const from = position[move.field]
+    for (const card in moves) {
+      // move x
+      const move = moves[card]
+      const position = positionsDict[card]
 
-      positionsDict[move.card] = {
+      const { x, y, rotation, scale } = move
+      positionsDict[card] = {
         ...position,
-        [move.field]: transpose(from, move.to, move.timestamp, Date.now())
+        x: transpose(x.from, x.to, x.started, Date.now()),
+        y: transpose(y.from, y.to, y.started, Date.now()),
+        rotation: transpose(rotation.from, rotation.to, rotation.started, Date.now()),
+        scale: transpose(scale.from, scale.to, scale.started, Date.now()),
       }
     }
 

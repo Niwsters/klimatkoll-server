@@ -1,8 +1,8 @@
 import * as Canvas from '../components/Canvas'
 import { WIDTH, HEIGHT } from '../core/constants'
-import * as Card from '../core2/card'
+import { Card, CardPosition } from '../core2/card'
+import { Move } from './move'
 
-/*
 const HAND_POSITION_X = WIDTH / 2
 const HAND_POSITION_Y = HEIGHT + 50
 const HAND_CARD_ANGLE = Math.PI/5
@@ -11,6 +11,27 @@ const HAND_Y_RADIUS = 80
 const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not map to the same ellipse as the position
 const CARD_SCALE = 0.5
 
+export const handMoves = (moves: Move[], hand: Set<Card>, positions: CardPosition[], currentTime: number): Move[] => {
+  positions = positions.filter(p => hand.has(p.card))
+
+  for (const position of positions) {
+    if (position.x !== 300) {
+      const move: Move = {
+        card: position.card,
+        field: "x",
+        to: 300,
+        timestamp: currentTime
+      }
+      moves = [...moves, move]
+    }
+  }
+
+  return moves
+}
+
+
+
+/*
 export type Hand = {
   readonly cards: Card.Card[],
 }

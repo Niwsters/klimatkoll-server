@@ -3,7 +3,8 @@ import { ComponentStory, ComponentMeta } from '@storybook/react';
 import * as SampleCards from './sample_cards'
 import { Card, CardPosition, Reflection } from '../core2/card'
 import * as Canvas from '../components/Canvas';
-import { Move } from 'core2/move';
+import { Moves } from 'core2/move';
+import './font.css';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -38,7 +39,7 @@ const args = {
   getSelected: () => [],
   getSpaceCards: () => [],
   getReflections: () => [],
-  getMoves: () => []
+  getMoves: () => ({})
 }
 
 export const Front = Template.bind({});
@@ -95,12 +96,14 @@ ReflectOtherCard.args = {
   getReflections: () => [reflection]
 }
 
-const moves: () => Move[] = () => [
-  { card: cards[0], field: "x", to: 300, timestamp: Date.now() },
-  { card: cards[0], field: "y", to: 300, timestamp: Date.now() },
-  { card: cards[0], field: "rotation", to: Math.PI/6, timestamp: Date.now() },
-  { card: cards[0], field: "scale", to: 2.0, timestamp: Date.now() },
-]
+const moves = (): Moves => ({
+  [cards[0]]: {
+    x: { from: 0, to: 300, started: Date.now() },
+    y: { from: 0, to: 300, started: Date.now() },
+    rotation: { from: 0, to: Math.PI/6, started: Date.now() },
+    scale: { from: 0, to: 2.0, started: Date.now() }
+  }
+}) 
 
 export const Transition = Template.bind({})
 Transition.args = {

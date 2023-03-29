@@ -1,6 +1,6 @@
 import { Card, CardPosition, Reflection } from 'core2/card'
 import { CardDesign } from 'core2/card_design'
-import { Move } from 'core2/move'
+import { Moves } from 'core2/move'
 import React, { useEffect, useRef } from 'react'
 import { render } from './render'
 
@@ -24,7 +24,7 @@ export type CanvasProps = {
   getAnimations: () => Animation[],
   getSpaceCards: () => Card[],
   getReflections: () => Reflection[],
-  getMoves: () => Move[],
+  getMoves: () => Moves,
   designs: CardDesign[],
   onMouseMove?: (x: number, y: number) => void,
   onMouseClicked?: (x: number, y: number) => void
