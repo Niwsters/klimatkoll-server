@@ -47,6 +47,21 @@ export const emissionsLineGoals = (moves: Moves, emissionsLine: Card[]): Positio
   return goals
 }
 
+const spaceCard = () => Math.random().toString()
+
+export const reformSpaceCards = (cards: Card[], spaceCards: Card[]): Card[] => {
+  const spaceCardsSet = new Set(spaceCards)
+  cards = cards.filter(c => !spaceCardsSet.has(c))
+  cards = cards.reduce((cards, card) => {
+    return [
+      ...cards,
+      card,
+      spaceCard()
+    ]
+  }, [spaceCard()])
+  return cards
+}
+
 
 /*
 const EMISSIONS_LINE_MAX_LENGTH = Canvas.WIDTH

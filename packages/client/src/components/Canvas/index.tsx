@@ -13,13 +13,11 @@ function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: n
 }
 
 export type CanvasProps = {
-  getCards: () => Card[],
   getPositions: () => CardPosition[],
   getZLevels: () => ZLevel[],
   getVisible: () => Card[],
   getFlipped: () => Card[],
   getSelected: () => Card[],
-  getAnimations: () => Animation[],
   getSpaceCards: () => Card[],
   getReflections: () => Reflection[],
   getMoves: (moves: Moves) => Moves,

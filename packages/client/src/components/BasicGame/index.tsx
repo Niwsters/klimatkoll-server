@@ -1,7 +1,37 @@
-import * as Board from "../../core2/board"
 import * as Canvas from "../Canvas"
-import { EventToAdd } from "@shared/events"
-import { CardDesign } from "core2/card_design"
+import { CardDesign } from "../../core2/card_design"
+import { Card, defaultCardPositioning } from "../../core2/card"
+import { getMoves, Moves } from "../../core2/move"
+import { reformSpaceCards } from "../../core2/emissions_line"
+
+export type Props = {
+  designs: CardDesign[],
+  hand: Card[],
+  emissionsLine: Card[]
+}
+
+export const BasicGame = (props: Props): React.ReactElement => {
+  let { designs, hand, emissionsLine } = props
+
+  const cards = [...hand, ...emissionsLine]
+
+  emissionsLine = reformSpaceCards(emissionsLine, [])
+  const positions = designs.map(d => defaultCardPositioning(d.card))
+
+  const args = {
+    designs: designs,
+    getPositions: () => positions,
+    getFlipped: () => emissionsLine,
+    getVisible: () => cards,
+    getSelected: () => [],
+    getSpaceCards: () => [],
+    getReflections: () => [],
+    getZLevels: () => [],
+    getMoves: (moves: Moves) => getMoves(moves, hand, emissionsLine, Date.now()),
+  }
+
+  return <Canvas.Component {...args} />
+}
 
 /*
 export type Props = {

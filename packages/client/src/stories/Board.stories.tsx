@@ -2,23 +2,13 @@ import _React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import * as Canvas from '../components/Canvas';
 import * as SampleCards from './sample_cards'
-import { Card, CardPosition } from '../core2/card';
-import { getMoves } from '../core2/move'
-import { Moves } from '../core2/move';
-import { CARD_HEIGHT, CARD_WIDTH } from '../core2/constants';
+import { Card } from '../core2/card';
+import { BasicGame } from '../components/BasicGame';
 
 export default {
   title: 'Canvas/Board',
   component: Canvas.Component
 } as ComponentMeta<typeof Canvas.Component>;
-
-const position = (card: Card): CardPosition => ({
-  card,
-  x: CARD_WIDTH / 2,
-  y: CARD_HEIGHT / 2,
-  rotation: 0,
-  scale: 1.0
-})
 
 export type Pile = "hand"
 
@@ -29,81 +19,26 @@ export type PileCard = {
 
 const designs = SampleCards.cardDesigns
 const cards = designs.map(d => d.card)
-const positions = designs.map(d => position(d.card))
-const visible: Card[] = cards
 
-const Template: ComponentStory<typeof Canvas.Component> = (args) =>
-  <Canvas.Component {...args} />;
-
-const args = {
-  designs: designs,
-  getPositions: () => positions,
-  getFlipped: () => [],
-  getVisible: () => visible,
-  getSelected: () => [],
-  getSpaceCards: () => [],
-  getReflections: () => [],
-  getZLevels: () => [],
-  getMoves: () => ({}),
-}
-
-export const Hand = Template.bind({});
-Hand.args = { ...args, getMoves: (moves: Moves) => getMoves(moves, cards, [], Date.now()) }
-
-/*
-const getELMoves = () => {
-  moves = elMoves(moves, emissionsLine, Date.now())
-  return moves
-}
-*/
-
-export const EmissionsLine = Template.bind({});
-EmissionsLine.args = { ...args };
-EmissionsLine.args = {
-  ...args,
-  getMoves: (moves: Moves) => getMoves(moves, [], cards, Date.now())
-}
-
-/*
-import * as Canvas from '../components/Canvas'
-import * as Board from '../core2/board'
-import * as SampleCards from './sample_cards'
-import * as EL from '../core2/emissions_line'
-import * as Card from '../core2/card'
-import { BasicGame } from '../components/BasicGame'
-import { cardDesigns } from './sample_cards'
-
-// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-export default {
-  title: 'Canvas/Board',
-  component: Canvas.Component
-} as ComponentMeta<typeof Canvas.Component>;
-
-// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof BasicGame> = (args) =>
-  <BasicGame {...args} cardDesigns={cardDesigns} />;
+  <BasicGame {...args} />;
 
-const currentTime = Date.now()
+const args = { designs }
 
-let handBoard = Board.create(deck)
-handBoard = Board.drawHandCard(handBoard, currentTime)
-handBoard = Board.drawHandCard(handBoard, currentTime)
-handBoard = Board.drawHandCard(handBoard, currentTime)
 export const Hand = Template.bind({});
-Hand.args = {
-  board: () => handBoard,
-  onBoardUpdate: b => handBoard = b
-};
+Hand.args = { ...args, hand: cards, emissionsLine: [] }
 
-let elBoard = Board.create(deck)
-elBoard = Board.playCardFromDeck(elBoard, currentTime)
-elBoard = Board.playCardFromDeck(elBoard, currentTime)
-elBoard = Board.playCardFromDeck(elBoard, currentTime)
 export const EmissionsLine = Template.bind({});
-EmissionsLine.args = {
-  board: () => elBoard,
-  onBoardUpdate: b => elBoard = b
-};
+EmissionsLine.args = { ...args, hand: [], emissionsLine: cards }
+
+export const HandAndEmissionsLine = Template.bind({});
+HandAndEmissionsLine.args = {
+  ...args,
+  hand: cards.slice(2),
+  emissionsLine: cards.slice(0, 2)
+}
+
+/*
 
 let elBoardSpaceCards = { ...elBoard }
 elBoardSpaceCards = {

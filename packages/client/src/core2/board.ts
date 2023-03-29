@@ -1,6 +1,13 @@
+import { Card } from "./card"
 
-import * as Hand from './hand'
+export type Board = {
+  hand: Card[],
+  emissionsLine: Card[]
+}
+
+
 /*
+import * as Hand from './hand'
 import * as EmissionsLine from './emissions_line'
 import * as Card from './card'
 import * as Deck from './deck'
