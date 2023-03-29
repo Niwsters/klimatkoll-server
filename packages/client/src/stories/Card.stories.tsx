@@ -21,28 +21,23 @@ const position = (card: Card): CardPosition => ({
 
 const designs = SampleCards.cardDesigns
 const positions = designs.map(d => position(d.card))
+const visible: Card[] = designs.map(d => d.card).slice(0, 1)
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof Canvas.Component> =
   (args) => <Canvas.Component
     {...args}
     designs={designs}
-    getPositions={() => positions}/>;
-
-/*
-const card2 = Card.create(SampleCards.card2.name, positioning)
-const spaceCard = Card.spaceCard(positioning, true)
-*/
-
-const visible: Card[] = designs.map(d => d.card).slice(0, 1)
+    getPositions={() => positions}
+    getVisible={() => visible}/>;
 
 export const Front = Template.bind({});
-Front.args = { getVisible: () => visible };
+Front.args = { getFlipped: () => [] };
+
+export const Back = Template.bind({});
+Back.args = { getFlipped: () => visible };
 
 /*
-export const Back = Template.bind({});
-Back.args = {};
-
 export const Rotation = Template.bind({});
 Rotation.args = {
   getCards: () => [{ ...card, flipped: true, rotation: Math.PI/6 }]

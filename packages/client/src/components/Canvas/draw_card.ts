@@ -221,7 +221,8 @@ export const drawCards = (
   context: CanvasRenderingContext2D,
   positions: CardPosition[],
   designs: CardDesign[],
-  visible: Card[]
+  visible: Card[],
+  flipped: Card[]
 ) => {
   let designDict = {}
   for (const design of designs) {
@@ -233,11 +234,16 @@ export const drawCards = (
     positionDict[position.card] = position
   }
 
+  let flippedSet = new Set(flipped)
+
   for (const card of visible) {
     const design = designDict[card]
     const position = positionDict[card]
+    const flipped = flippedSet.has(card)
+    const isSpace = false
+    const selected = false
     if (design !== undefined) {
-        drawCard(context, position, design, false, false, false)
+        drawCard(context, position, design, isSpace, flipped, selected)
     }
   }
 }

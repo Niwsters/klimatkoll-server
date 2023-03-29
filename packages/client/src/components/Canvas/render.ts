@@ -1,18 +1,14 @@
 import { Card, CardPosition } from '../../core2/card'
 import { CardDesign } from '../../core2/card_design'
-import { Animation, animate } from 'core2/animation'
 
 import { drawCards } from './draw_card'
-
-export type GetCards = () => Card[]
-export type GetCardDesign = (name: string) => CardDesign
-export type GetAnimations = () => Animation[]
 
 export function render(
   context: CanvasRenderingContext2D,
   designs: CardDesign[],
   positions: CardPosition[],
-  visible: Card[]
+  visible: Card[],
+  flipped: Card[]
 ) {
   let previousTimestamp: number = -1
 
@@ -24,7 +20,7 @@ export function render(
     if (previousTimestamp === -1)
       previousTimestamp = timestamp
 
-    drawCards(context, positions, designs, visible)
+    drawCards(context, positions, designs, visible, flipped)
 
     /*
     const cards = equijoin(getCards(), cardDesigns, a => a.name, b => b.name)
