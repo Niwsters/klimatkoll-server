@@ -1,7 +1,7 @@
 import * as Canvas from '../components/Canvas'
 import { WIDTH, HEIGHT } from '../core/constants'
 import { Card, CardPosition } from '../core2/card'
-import { Move } from './move'
+import { Moves, transpose } from './move'
 
 const HAND_POSITION_X = WIDTH / 2
 const HAND_POSITION_Y = HEIGHT + 50
@@ -11,22 +11,53 @@ const HAND_Y_RADIUS = 80
 const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not map to the same ellipse as the position
 const CARD_SCALE = 0.5
 
-export const handMoves = (moves: Move[], hand: Set<Card>, positions: CardPosition[], currentTime: number): Move[] => {
-  positions = positions.filter(p => hand.has(p.card))
+const getCardAngle = (i: number, cardCount: number) => {
+  const n = cardCount - 1
+  return HAND_CARD_ANGLE * (i - n/2)
+}
 
-  for (const position of positions) {
-    if (position.x !== 300) {
-      const move: Move = {
-        card: position.card,
-        field: "x",
-        to: 300,
-        timestamp: currentTime
+const getCardPosition = (i: number, cardCount: number) => {
+  const angle = getCardAngle(i, cardCount)
+  const x = HAND_POSITION_X + HAND_X_RADIUS * Math.sin(angle)
+  const y = HAND_POSITION_Y - HAND_Y_RADIUS * Math.cos(angle)
+  return [x, y]
+}
+
+export const handMoves = (moves: Moves, hand: Card[], currentTime: number): Moves => {
+
+  let newMoves = {...moves}
+
+  hand.forEach((card, index) => {
+    const move = moves[card]
+    if (move !== undefined) {
+      const { x, y, rotation, scale } = move
+
+      const [goalX, goalY] = getCardPosition(index, hand.length)
+
+      if (x.to !== goalX) {
+        const from = transpose(x, currentTime)
+        newMoves[card].x = { from, to: goalX, started: currentTime }
       }
-      moves = [...moves, move]
-    }
-  }
 
-  return moves
+      if (y.to !== goalY) {
+        const from = transpose(y, currentTime)
+        newMoves[card].y = { from, to: goalY, started: currentTime }
+      }
+
+      const angle = getCardAngle(index, hand.length)
+      if (rotation.to !== angle) {
+        const from = transpose(rotation, currentTime)
+        newMoves[card].rotation = { from, to: angle, started: currentTime }
+      }
+
+      if (scale.to !== CARD_SCALE) {
+        const from = transpose(scale, currentTime)
+        newMoves[card].scale = { from, to: CARD_SCALE, started: currentTime }
+      }
+    }
+  })
+
+  return newMoves
 }
 
 

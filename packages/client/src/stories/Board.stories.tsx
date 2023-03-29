@@ -5,7 +5,7 @@ import * as Canvas from '../components/Canvas';
 import * as SampleCards from './sample_cards'
 import { Card, CardPosition } from '../core2/card';
 import { handMoves } from '../core2/hand'
-import { Move } from 'core2/move';
+import { initMoves, Moves } from '../core2/move';
 
 export default {
   title: 'Canvas/Board',
@@ -29,15 +29,14 @@ export type PileCard = {
 }
 
 const designs = SampleCards.cardDesigns
-const cards = designs.map(d => d.card)
+const hand = designs.map(d => d.card).slice(0, 3)
 const positions = designs.map(d => position(d.card))
-const visible: Card[] = cards.slice(0, 1)
+const visible: Card[] = hand
 
-let moves: Move[] = []
-const hand = new Set(designs.map(d => d.card))
+let moves: Moves = {}
 
 const Template: ComponentStory<typeof Canvas.Component> = (args) => {
-  moves = []
+  moves = initMoves(hand)
   return <Canvas.Component {...args} />;
 }
 
@@ -50,7 +49,7 @@ const args = {
   getSpaceCards: () => [],
   getReflections: () => [],
   getMoves: () => {
-    moves = handMoves(moves, hand, positions, Date.now())
+    moves = handMoves(moves, hand, Date.now())
     return moves
   }
 }

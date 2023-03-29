@@ -1,4 +1,4 @@
-import { Move, Moves } from '../../core2/move'
+import { Moves } from '../../core2/move'
 import { Card, CardPosition, Reflection } from '../../core2/card'
 import { CardDesign } from '../../core2/card_design'
 
