@@ -229,21 +229,21 @@ export const drawCards = (
     designDict[design.card] = design
   }
 
-  let positionDict = {}
+  const flippedSet = new Set(flipped)
+  const visibleSet = new Set(visible)
+
+  positions = positions.sort((a,b) => a.zLevel - b.zLevel)
+
   for (const position of positions) {
-    positionDict[position.card] = position
-  }
-
-  let flippedSet = new Set(flipped)
-
-  for (const card of visible) {
-    const design = designDict[card]
-    const position = positionDict[card]
-    const flipped = flippedSet.has(card)
-    const isSpace = false
-    const selected = false
-    if (design !== undefined) {
-        drawCard(context, position, design, isSpace, flipped, selected)
+    const card = position.card
+    if (visibleSet.has(card)) {
+      const design = designDict[card]
+      const flipped = flippedSet.has(card)
+      const isSpace = false
+      const selected = false
+      if (design !== undefined) {
+          drawCard(context, position, design, isSpace, flipped, selected)
+      }
     }
   }
 }
