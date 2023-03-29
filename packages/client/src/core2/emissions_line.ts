@@ -1,6 +1,6 @@
 import * as Canvas from '../components/Canvas'
 import { Card } from './card'
-import { Moves } from './move'
+import { Moves, PositionGoals } from './move'
 
 const EMISSIONS_LINE_MAX_LENGTH = Canvas.WIDTH
 const EMISSIONS_LINE_POSITION_X = Canvas.WIDTH / 2
@@ -27,11 +27,10 @@ const cardY = () => {
   return EMISSIONS_LINE_POSITION_Y
 }
 
-export const elMoves = (
-  moves: Moves,
-  emissionsLine: Card[],
-  currentTime: number
-): Moves => moves
+export const emissionsLineGoals = (moves: Moves, emissionsLine: Card[]): PositionGoals => {
+  return {}
+}
+
 
 /*
 const EMISSIONS_LINE_MAX_LENGTH = Canvas.WIDTH

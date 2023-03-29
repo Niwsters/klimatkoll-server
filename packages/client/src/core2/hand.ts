@@ -1,6 +1,6 @@
 import { WIDTH, HEIGHT } from '../core/constants'
 import { Card } from '../core2/card'
-import { Move, Moves, transpose } from './move'
+import { Moves, PositionGoal, PositionGoals } from './move'
 
 const HAND_POSITION_X = WIDTH / 2
 const HAND_POSITION_Y = HEIGHT + 50
@@ -25,26 +25,15 @@ const cardY = (i: number, cardCount: number): number => {
   return HAND_POSITION_Y - HAND_Y_RADIUS * Math.cos(angle)
 }
 
-export type Goal = {
-  x: number,
-  y: number,
-  rotation: number,
-  scale: number
-}
-
-export type Goals = {
-  [card: Card]: Goal
-}
-
-const handGoal = (i: number, cardCount: number): Goal => ({
+const handGoal = (i: number, cardCount: number): PositionGoal => ({
   x: cardX(i, cardCount),
   y: cardY(i, cardCount),
   rotation: cardAngle(i, cardCount),
   scale: CARD_SCALE
 })
 
-const handGoals = (moves: Moves, hand: Card[]): Goals => {
-  const goals: Goals = {}
+export const handGoals = (moves: Moves, hand: Card[]): PositionGoals => {
+  const goals: PositionGoals = {}
   hand.forEach((card, index) => {
     const move = moves[card]
     if (move !== undefined) {
@@ -54,31 +43,6 @@ const handGoals = (moves: Moves, hand: Card[]): Goals => {
   })
   return goals
 }
-
-export const handMoves = (moves: Moves, hand: Card[], currentTime: number): Moves => {
-  let newMoves = {...moves}
-
-  const goals: Goals = handGoals(moves, hand)
-
-  for (const [card, goal] of Object.entries(goals)) {
-    for (const [field, value] of Object.entries(goal)) {
-      const move = moves[card]
-      const fieldMove: Move = move[field]
-      if (move[field].to !== value) {
-        const from = transpose(fieldMove, currentTime)
-        newMoves[card][field] = { from, to: value, started: currentTime }
-      }
-    }
-  }
-
-  return newMoves
-}
-
-export const getMoves = (moves: Moves, hand: Card[], currentTime: number): Moves => {
-  moves = handMoves(moves, hand, currentTime)
-  return moves
-}
-
 
 /*
 export type Hand = {

@@ -3,7 +3,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import * as Canvas from '../components/Canvas';
 import * as SampleCards from './sample_cards'
 import { Card, CardPosition } from '../core2/card';
-import { handMoves } from '../core2/hand'
+import { getMoves } from '../core2/move'
 import { elMoves } from '../core2/emissions_line'
 import { Moves } from '../core2/move';
 
@@ -29,11 +29,11 @@ export type PileCard = {
 
 const designs = SampleCards.cardDesigns
 const cards = designs.map(d => d.card)
-const hand = cards
 const positions = designs.map(d => position(d.card))
-const visible: Card[] = hand
+const visible: Card[] = cards
 
-const Template: ComponentStory<typeof Canvas.Component> = (args) => <Canvas.Component {...args} />;
+const Template: ComponentStory<typeof Canvas.Component> = (args) =>
+  <Canvas.Component {...args} />;
 
 const args = {
   designs: designs,
@@ -47,11 +47,8 @@ const args = {
   getMoves: () => ({}),
 }
 
-const getHandMoves = (moves: Moves) => handMoves(moves, hand, Date.now())
-
 export const Hand = Template.bind({});
-Hand.args = { ...args, getMoves: getHandMoves }
-
+Hand.args = { ...args, getMoves: (moves: Moves) => getMoves(moves, cards, [], Date.now()) }
 
 /*
 const getELMoves = () => {
@@ -65,6 +62,10 @@ const getELmoves = (moves: Moves) => elMoves(moves, emissionsLine, Date.now())
 
 export const EmissionsLine = Template.bind({});
 EmissionsLine.args = { ...args };
+EmissionsLine.args = {
+  ...args,
+  getMoves: (moves: Moves) => getMoves(moves, [], cards, Date.now())
+}
 
 /*
 import * as Canvas from '../components/Canvas'
