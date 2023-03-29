@@ -1,5 +1,37 @@
 import * as Canvas from '../components/Canvas'
-import * as Card from './card'
+import { Card } from './card'
+import { Moves } from './move'
+
+const EMISSIONS_LINE_MAX_LENGTH = Canvas.WIDTH
+const EMISSIONS_LINE_POSITION_X = Canvas.WIDTH / 2
+const EMISSIONS_LINE_POSITION_Y = Canvas.HEIGHT / 2
+const CARD_SCALE = 0.5
+
+function cardDistance(cardCount: number): number {
+  const cardWidth = Canvas.CARD_WIDTH * CARD_SCALE
+  const totalELWidth = cardWidth * cardCount
+  let cardDistance = cardWidth / 2
+  if (totalELWidth > EMISSIONS_LINE_MAX_LENGTH) {
+    cardDistance = (EMISSIONS_LINE_MAX_LENGTH - cardWidth) / (cardCount-1)
+  }
+  return cardDistance
+}
+
+const cardX = (index: number, cardCount: number) => {
+  const width = cardDistance(cardCount)
+  const startOffset = 0 - width*cardCount/2 - width/2
+  return EMISSIONS_LINE_POSITION_X + startOffset + width * index
+}
+
+const cardY = () => {
+  return EMISSIONS_LINE_POSITION_Y
+}
+
+export const elMoves = (
+  moves: Moves,
+  emissionsLine: Card[],
+  currentTime: number
+): Moves => moves
 
 /*
 const EMISSIONS_LINE_MAX_LENGTH = Canvas.WIDTH

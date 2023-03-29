@@ -1,6 +1,5 @@
 export type CardPosition = {
   readonly card: string,
-  readonly zLevel: number,
   readonly x: number,
   readonly y: number,
   readonly rotation: number,
@@ -14,9 +13,13 @@ export type Reflection = {
   reflected: Card
 }
 
+export type ZLevel = {
+  card: Card,
+  zLevel: number
+}
+
 export const defaultCardPositioning = (card: Card): CardPosition => ({
   card,
-  zLevel: 0,
   x: 0,
   y: 0,
   rotation: 0,

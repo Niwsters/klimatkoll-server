@@ -1,5 +1,5 @@
 import { Moves } from '../../core2/move'
-import { Card, CardPosition, Reflection } from '../../core2/card'
+import { Card, CardPosition, Reflection, ZLevel } from '../../core2/card'
 import { CardDesign } from '../../core2/card_design'
 
 import { drawCards } from './draw_card'
@@ -14,7 +14,8 @@ export function render(
   selected: Card[],
   spaceCards: Card[],
   reflections: Reflection[],
-  moves: Moves
+  zLevels: ZLevel[],
+  moves: Moves,
 ) {
   let previousTimestamp: number = -1
 
@@ -56,7 +57,8 @@ export function render(
       flipped,
       selected,
       spaceCards,
-      reflections
+      reflections,
+      zLevels
     )
 
     animationId = requestAnimationFrame(draw)

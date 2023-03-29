@@ -1,5 +1,5 @@
 import { CardDesign } from '../../core2/card_design'
-import { Card, CardPosition, Reflection } from '../../core2/card'
+import { Card, CardPosition, Reflection, ZLevel } from '../../core2/card'
 import roundRect from './round_rect'
 import { setFont, drawText, wordWrap } from './text'
 
@@ -226,7 +226,8 @@ export const drawCards = (
   flipped: Card[],
   selected: Card[],
   spaceCards: Card[],
-  reflections: Reflection[]
+  reflections: Reflection[],
+  zLevels: ZLevel[]
 ) => {
   let designDict = {}
   for (const design of designs) {
@@ -248,7 +249,12 @@ export const drawCards = (
     }
   }
 
-  positions = positions.sort((a,b) => a.zLevel - b.zLevel)
+  const zLevelsDict = {}
+  for (const zLevel of zLevels) {
+    zLevelsDict[zLevel.card] = zLevel.zLevel
+  }
+  const zLevel = (card: Card) => zLevelsDict[card] || 0
+  positions = positions.sort((a,b) => zLevel(a.card) - zLevel(b.card))
 
   for (const position of positions) {
     const card = position.card

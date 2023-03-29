@@ -4,7 +4,8 @@ import * as Canvas from '../components/Canvas';
 import * as SampleCards from './sample_cards'
 import { Card, CardPosition } from '../core2/card';
 import { handMoves } from '../core2/hand'
-import { initMoves, Moves } from '../core2/move';
+import { elMoves } from '../core2/emissions_line'
+import { Moves } from '../core2/move';
 
 export default {
   title: 'Canvas/Board',
@@ -16,8 +17,7 @@ const position = (card: Card): CardPosition => ({
   x: Canvas.CARD_WIDTH / 2,
   y: Canvas.CARD_HEIGHT / 2,
   rotation: 0,
-  scale: 1.0,
-  zLevel: 1.0
+  scale: 1.0
 })
 
 export type Pile = "hand"
@@ -28,16 +28,12 @@ export type PileCard = {
 }
 
 const designs = SampleCards.cardDesigns
-const hand = designs.map(d => d.card).slice(0, 3)
+const cards = designs.map(d => d.card)
+const hand = cards
 const positions = designs.map(d => position(d.card))
 const visible: Card[] = hand
 
-let moves: Moves = {}
-
-const Template: ComponentStory<typeof Canvas.Component> = (args) => {
-  moves = initMoves(hand)
-  return <Canvas.Component {...args} />;
-}
+const Template: ComponentStory<typeof Canvas.Component> = (args) => <Canvas.Component {...args} />;
 
 const args = {
   designs: designs,
@@ -47,14 +43,28 @@ const args = {
   getSelected: () => [],
   getSpaceCards: () => [],
   getReflections: () => [],
-  getMoves: () => {
-    moves = handMoves(moves, hand, Date.now())
-    return moves
-  }
+  getZLevels: () => [],
+  getMoves: () => ({}),
 }
 
+const getHandMoves = (moves: Moves) => handMoves(moves, hand, Date.now())
+
 export const Hand = Template.bind({});
-Hand.args = { ...args }
+Hand.args = { ...args, getMoves: getHandMoves }
+
+
+/*
+const getELMoves = () => {
+  moves = elMoves(moves, emissionsLine, Date.now())
+  return moves
+}
+*/
+
+const emissionsLine = cards
+const getELmoves = (moves: Moves) => elMoves(moves, emissionsLine, Date.now())
+
+export const EmissionsLine = Template.bind({});
+EmissionsLine.args = { ...args };
 
 /*
 import * as Canvas from '../components/Canvas'
@@ -70,19 +80,6 @@ export default {
   title: 'Canvas/Board',
   component: Canvas.Component
 } as ComponentMeta<typeof Canvas.Component>;
-
-const positioning: Card.CardPositioning = {
-  x: 0,
-  y: 0,
-  rotation: 0,
-  scale: 1,
-  zLevel: 0
-}
-
-const card = Card.create(SampleCards.card.name, positioning)
-const card2 = Card.create(SampleCards.card2.name, positioning)
-const card3 = Card.create(SampleCards.card3.name, positioning)
-const deck = [card, card2, card3]
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof BasicGame> = (args) =>

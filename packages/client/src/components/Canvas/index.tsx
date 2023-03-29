@@ -1,6 +1,6 @@
-import { Card, CardPosition, Reflection } from 'core2/card'
-import { CardDesign } from 'core2/card_design'
-import { Moves } from 'core2/move'
+import { Card, CardPosition, Reflection, ZLevel } from '../../core2/card'
+import { CardDesign } from '../../core2/card_design'
+import { initMoves, Moves } from '../../core2/move'
 import React, { useEffect, useRef } from 'react'
 import { render } from './render'
 
@@ -18,13 +18,14 @@ function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: n
 export type CanvasProps = {
   getCards: () => Card[],
   getPositions: () => CardPosition[],
+  getZLevels: () => ZLevel[],
   getVisible: () => Card[],
   getFlipped: () => Card[],
   getSelected: () => Card[],
   getAnimations: () => Animation[],
   getSpaceCards: () => Card[],
   getReflections: () => Reflection[],
-  getMoves: () => Moves,
+  getMoves: (moves: Moves) => Moves,
   designs: CardDesign[],
   onMouseMove?: (x: number, y: number) => void,
   onMouseClicked?: (x: number, y: number) => void
@@ -38,11 +39,14 @@ export function Component(props: CanvasProps): React.ReactElement {
     getSelected,
     getSpaceCards,
     getReflections,
+    getZLevels,
     getMoves,
     designs
   } = props
 
   const canvasRef = useRef(null)
+
+  let moves = initMoves(getVisible())
 
   useEffect(() => {
     if (canvasRef.current !== null) {
@@ -72,7 +76,8 @@ export function Component(props: CanvasProps): React.ReactElement {
           getSelected(),
           getSpaceCards(),
           getReflections(),
-          getMoves()
+          getZLevels(),
+          getMoves(moves)
         )
       }
     }

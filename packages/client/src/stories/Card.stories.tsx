@@ -1,10 +1,10 @@
 import _React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import * as SampleCards from './sample_cards'
-import { Card, CardPosition, Reflection } from '../core2/card'
+import { Card, CardPosition, defaultCardPositioning, Reflection, ZLevel } from '../core2/card'
 import * as Canvas from '../components/Canvas';
 import { Moves } from 'core2/move';
 import './font.css';
+import * as SampleCards from './sample_cards'
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -12,24 +12,22 @@ export default {
   component: Canvas.Component
 } as ComponentMeta<typeof Canvas.Component>;
 
-const position = (card: Card): CardPosition => ({
-  card,
-  x: Canvas.CARD_WIDTH / 2,
-  y: Canvas.CARD_HEIGHT / 2,
-  rotation: 0,
-  scale: 1.0,
-  zLevel: 1.0
+// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
+const Template: ComponentStory<typeof Canvas.Component> =
+  (args) => <Canvas.Component
+    {...args}/>;
+
+
+const position = (card: Card) => ({
+  ...defaultCardPositioning(card),
+  x: Canvas.CARD_WIDTH/2,
+  y: Canvas.CARD_HEIGHT/2
 })
 
 const designs = SampleCards.cardDesigns
 const cards = designs.map(d => d.card)
 const positions = designs.map(d => position(d.card))
 const visible: Card[] = cards.slice(0, 1)
-
-// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof Canvas.Component> =
-  (args) => <Canvas.Component
-    {...args}/>;
 
 const args = {
   designs: designs,
@@ -39,7 +37,8 @@ const args = {
   getSelected: () => [],
   getSpaceCards: () => [],
   getReflections: () => [],
-  getMoves: () => ({})
+  getMoves: () => ({}),
+  getZLevels: () => []
 }
 
 export const Front = Template.bind({});
@@ -59,12 +58,21 @@ Scale.args = { ...args, getPositions: () => scaled(positions) }
 export const ScaleAndRotation = Template.bind({});
 ScaleAndRotation.args = { ...args, getPositions: () => rotated(scaled(positions)) }
 
-const zLeveled = [
-  { ...positions[0], zLevel: 10 },
-  { ...positions[1], zLevel: 0, x: 300, y: 300 }
+const zLevels: ZLevel[] = [
+  { card: positions[0].card, zLevel: 10 },
+  { card: positions[1].card, zLevel: 0 }
 ]
-export const ZLevel = Template.bind({})
-ZLevel.args = { ...args, getVisible: () => cards.slice(0, 2), getPositions: () => zLeveled }
+const zLevelPositions = [
+  { ...positions[0] },
+  { ...positions[1], x: 300, y: 300 }
+]
+export const ZLevels = Template.bind({})
+ZLevels.args = {
+  ...args,
+  getVisible: () => cards.slice(0, 2),
+  getPositions: () => zLevelPositions,
+  getZLevels: () => zLevels
+}
 
 const selected = visible
 export const Selected = Template.bind({})

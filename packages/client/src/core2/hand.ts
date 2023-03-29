@@ -12,7 +12,7 @@ const CARD_SCALE = 0.5
 
 const cardAngle = (i: number, cardCount: number) => {
   const n = cardCount - 1
-  return HAND_CARD_ANGLE * (i - n/2)
+  return HAND_CARD_ANGLE * (i - n/2) * HAND_ANGLE_FACTOR
 }
 
 const cardX = (i: number, cardCount: number): number => {
@@ -25,41 +25,59 @@ const cardY = (i: number, cardCount: number): number => {
   return HAND_POSITION_Y - HAND_Y_RADIUS * Math.cos(angle)
 }
 
-export type Goals = {
+export type Goal = {
   x: number,
   y: number,
   rotation: number,
   scale: number
 }
 
-const cardGoals = (i: number, cardCount: number): Goals => ({
+export type Goals = {
+  [card: Card]: Goal
+}
+
+const handGoal = (i: number, cardCount: number): Goal => ({
   x: cardX(i, cardCount),
   y: cardY(i, cardCount),
   rotation: cardAngle(i, cardCount),
   scale: CARD_SCALE
 })
 
-export const handMoves = (moves: Moves, hand: Card[], currentTime: number): Moves => {
-  let newMoves = {...moves}
-
+const handGoals = (moves: Moves, hand: Card[]): Goals => {
+  const goals: Goals = {}
   hand.forEach((card, index) => {
     const move = moves[card]
     if (move !== undefined) {
-      const goals = cardGoals(index, hand.length)
+      goals[card] = handGoal(index, hand.length)
+    }
+    return goals
+  })
+  return goals
+}
 
-      for (const [field, goal] of Object.entries(goals)) {
-        const fieldMove: Move = move[field]
-        if (move[field].to !== goal) {
-          const from = transpose(fieldMove, currentTime)
-          newMoves[card][field] = { from, to: goal, started: currentTime }
-        }
+export const handMoves = (moves: Moves, hand: Card[], currentTime: number): Moves => {
+  let newMoves = {...moves}
+
+  const goals: Goals = handGoals(moves, hand)
+
+  for (const [card, goal] of Object.entries(goals)) {
+    for (const [field, value] of Object.entries(goal)) {
+      const move = moves[card]
+      const fieldMove: Move = move[field]
+      if (move[field].to !== value) {
+        const from = transpose(fieldMove, currentTime)
+        newMoves[card][field] = { from, to: value, started: currentTime }
       }
     }
-  })
+  }
 
   return newMoves
 }
 
+export const getMoves = (moves: Moves, hand: Card[], currentTime: number): Moves => {
+  moves = handMoves(moves, hand, currentTime)
+  return moves
+}
 
 
 /*
