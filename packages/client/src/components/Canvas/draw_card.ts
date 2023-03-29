@@ -1,5 +1,5 @@
 import { CardDesign } from '../../core2/card_design'
-import { Card, CardPosition } from '../../core2/card'
+import { Card, CardPosition, Reflection } from '../../core2/card'
 import roundRect from './round_rect'
 import { setFont, drawText, wordWrap } from './text'
 
@@ -179,7 +179,8 @@ export function drawCard(
   design: CardDesign,
   isSpace: boolean,
   flipped: boolean,
-  selected: boolean
+  selected: boolean,
+  opacity: number
 ) {
   const width = CARD_WIDTH
   const height = CARD_HEIGHT
@@ -207,7 +208,7 @@ export function drawCard(
   if (isSpace) {
     drawSpaceCard()
   } else {
-    drawNormalCard(context, design, flipped, selected, width, height, borderRadius)
+    drawNormalCard(context, design, flipped, selected, width, height, borderRadius, opacity)
   }
 
   // Reset translation and rotation
@@ -222,7 +223,10 @@ export const drawCards = (
   positions: CardPosition[],
   designs: CardDesign[],
   visible: Card[],
-  flipped: Card[]
+  flipped: Card[],
+  selected: Card[],
+  spaceCards: Card[],
+  reflections: Reflection[]
 ) => {
   let designDict = {}
   for (const design of designs) {
@@ -231,6 +235,18 @@ export const drawCards = (
 
   const flippedSet = new Set(flipped)
   const visibleSet = new Set(visible)
+  const selectedSet = new Set(selected)
+  const spaceCardsSet = new Set(spaceCards)
+  let opacity = 1.0
+
+  for (const reflection of reflections) {
+    const reflectedDesign = designDict[reflection.reflected]
+    if (reflectedDesign !== undefined) {
+      designDict[reflection.card] = reflectedDesign
+      spaceCardsSet.delete(reflection.card)
+      opacity = 0.7
+    }
+  }
 
   positions = positions.sort((a,b) => a.zLevel - b.zLevel)
 
@@ -238,11 +254,11 @@ export const drawCards = (
     const card = position.card
     if (visibleSet.has(card)) {
       const design = designDict[card]
-      const flipped = flippedSet.has(card)
-      const isSpace = false
-      const selected = false
       if (design !== undefined) {
-          drawCard(context, position, design, isSpace, flipped, selected)
+          const flipped = flippedSet.has(card)
+          const selected = selectedSet.has(card)
+          const isSpace = spaceCardsSet.has(card)
+          drawCard(context, position, design, isSpace, flipped, selected, opacity)
       }
     }
   }

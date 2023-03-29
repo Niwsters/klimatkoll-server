@@ -1,5 +1,3 @@
-import * as Animation from './animation'
-
 export type CardPosition = {
   readonly card: string,
   readonly zLevel: number,
@@ -10,6 +8,11 @@ export type CardPosition = {
 }
 
 export type Card = string
+
+export type Reflection = {
+  card: Card,
+  reflected: Card
+}
 
 export const defaultCardPositioning = (card: Card): CardPosition => ({
   card,

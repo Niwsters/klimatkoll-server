@@ -1,7 +1,7 @@
 import _React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import * as SampleCards from './sample_cards'
-import { Card, CardPosition } from '../core2/card'
+import { Card, CardPosition, Reflection } from '../core2/card'
 import * as Canvas from '../components/Canvas';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -29,7 +29,15 @@ const Template: ComponentStory<typeof Canvas.Component> =
   (args) => <Canvas.Component
     {...args}/>;
 
-const args = { designs: designs, getPositions: () => positions, getFlipped: () => [], getVisible: () => visible }
+const args = {
+  designs: designs,
+  getPositions: () => positions,
+  getFlipped: () => [],
+  getVisible: () => visible,
+  getSelected: () => [],
+  getSpaceCards: () => [],
+  getReflections: () => []
+}
 
 export const Front = Template.bind({});
 Front.args = { ...args };
@@ -54,30 +62,33 @@ const zLeveled = [
 ]
 export const ZLevel = Template.bind({})
 ZLevel.args = { ...args, getVisible: () => cards.slice(0, 2), getPositions: () => zLeveled }
-/*
-  getCards: () => [{ ...card, zLevel: 10}, {...card2, zLevel: 0, x: 300, y: 300 }]
-}
-*/
 
-/*
+const selected = visible
 export const Selected = Template.bind({})
-Selected.args = {
-  getCards: () => [{ ...card, selected: true }]
-}
+Selected.args = { ...args, getSelected: () => selected }
 
+const spaceCards = visible
 export const SpaceCard = Template.bind({})
-SpaceCard.args = {
-  getCards: () => [{ ...spaceCard }]
-}
+SpaceCard.args = { ...args, getSpaceCards: () => spaceCards }
 
 export const SpaceCardHidden = Template.bind({})
-SpaceCardHidden.args = {
-  getCards: () => [{ ...spaceCard, visible: false }]
+SpaceCardHidden.args = { ...args, getSpaceCards: () => spaceCards, getVisible: () => [] }
+
+export const MultipleSpaceCards = Template.bind({})
+MultipleSpaceCards.args = {
+  ...args,
+  getSpaceCards: () => cards, 
+  getVisible: () => cards.slice(0, 2),
+  getPositions: () => [positions[0], { ...positions[1], x: 300, y: 300 }]
 }
 
-const spaceCard2 = Card.spaceCard({...positioning, x: Canvas.CARD_WIDTH, y: Canvas.CARD_HEIGHT / 2}, true)
-export const SpaceCardReflectOtherCard = Template.bind({})
-SpaceCardReflectOtherCard.args = {
-  getCards: () => [{ ...spaceCard, name: SampleCards.card.name }, { ...spaceCard2, name: SampleCards.card.name, flipped: true }]
+const reflection: Reflection = {
+  card: cards[0],
+  reflected: cards[1]
 }
-*/
+export const ReflectOtherCard = Template.bind({})
+ReflectOtherCard.args = {
+  ...args,
+  getSpaceCards: () => [reflection.card],
+  getReflections: () => [reflection]
+}

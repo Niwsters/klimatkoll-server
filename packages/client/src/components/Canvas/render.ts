@@ -1,4 +1,4 @@
-import { Card, CardPosition } from '../../core2/card'
+import { Card, CardPosition, Reflection } from '../../core2/card'
 import { CardDesign } from '../../core2/card_design'
 
 import { drawCards } from './draw_card'
@@ -8,7 +8,10 @@ export function render(
   designs: CardDesign[],
   positions: CardPosition[],
   visible: Card[],
-  flipped: Card[]
+  flipped: Card[],
+  selected: Card[],
+  spaceCards: Card[],
+  reflections: Reflection[]
 ) {
   let previousTimestamp: number = -1
 
@@ -20,7 +23,7 @@ export function render(
     if (previousTimestamp === -1)
       previousTimestamp = timestamp
 
-    drawCards(context, positions, designs, visible, flipped)
+    drawCards(context, positions, designs, visible, flipped, selected, spaceCards, reflections)
 
     /*
     const cards = equijoin(getCards(), cardDesigns, a => a.name, b => b.name)

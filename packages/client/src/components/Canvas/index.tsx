@@ -1,4 +1,4 @@
-import { Card, CardPosition } from 'core2/card'
+import { Card, CardPosition, Reflection } from 'core2/card'
 import { CardDesign } from 'core2/card_design'
 import React, { useEffect, useRef } from 'react'
 import { render } from './render'
@@ -19,14 +19,25 @@ export type CanvasProps = {
   getPositions: () => CardPosition[],
   getVisible: () => Card[],
   getFlipped: () => Card[],
+  getSelected: () => Card[],
   getAnimations: () => Animation[],
+  getSpaceCards: () => Card[],
+  getReflections: () => Reflection[],
   designs: CardDesign[],
   onMouseMove?: (x: number, y: number) => void,
   onMouseClicked?: (x: number, y: number) => void
 }
 
 export function Component(props: CanvasProps): React.ReactElement {
-  const { getPositions, getVisible, getFlipped, designs } = props
+  const {
+    getPositions,
+    getVisible,
+    getFlipped,
+    getSelected,
+    getSpaceCards,
+    getReflections,
+    designs
+  } = props
 
   const canvasRef = useRef(null)
 
@@ -49,7 +60,16 @@ export function Component(props: CanvasProps): React.ReactElement {
       const context = canvas.getContext('2d')
 
       if (context !== null) {
-        return render(context, designs, getPositions(), getVisible(), getFlipped())
+        return render(
+          context,
+          designs,
+          getPositions(),
+          getVisible(),
+          getFlipped(),
+          getSelected(),
+          getSpaceCards(),
+          getReflections()
+        )
       }
     }
   }, [])
