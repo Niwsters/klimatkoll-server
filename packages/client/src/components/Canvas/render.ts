@@ -15,7 +15,7 @@ export function render(
   spaceCards: Card[],
   reflections: Reflection[],
   zLevels: ZLevel[],
-  moves: Moves,
+  getMoves: () => Moves,
 ) {
   let previousTimestamp: number = -1
 
@@ -32,6 +32,7 @@ export function render(
       positionsDict[position.card] = position
     }
 
+    const moves = getMoves()
     for (const card in moves) {
       // move x
       const move = moves[card]

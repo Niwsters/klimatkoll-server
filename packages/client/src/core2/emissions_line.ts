@@ -63,6 +63,8 @@ export const reformSpaceCards = (cards: Card[], spaceCards: Card[]): Card[] => {
 }
 
 
+
+
 /*
 const EMISSIONS_LINE_MAX_LENGTH = Canvas.WIDTH
 const EMISSIONS_LINE_POSITION_X = Canvas.WIDTH / 2

@@ -20,7 +20,7 @@ export type CanvasProps = {
   getSelected: () => Card[],
   getSpaceCards: () => Card[],
   getReflections: () => Reflection[],
-  getMoves: (moves: Moves) => Moves,
+  getMoves: (moves: Moves, mouseX: number, mouseY: number) => Moves,
   designs: CardDesign[],
   onMouseMove?: (x: number, y: number) => void,
   onMouseClicked?: (x: number, y: number) => void
@@ -44,11 +44,16 @@ export function Component(props: CanvasProps): React.ReactElement {
   let moves = initMoves(getVisible())
 
   useEffect(() => {
+    let mouseX = 0
+    let mouseY = 0
+
     if (canvasRef.current !== null) {
       const canvas = canvasRef.current as HTMLCanvasElement
 
       canvas.onmousemove = (event: MouseEvent) => {
         const { x, y } = coords(canvas, event)
+        mouseX = x
+        mouseY = y
         if (props.onMouseMove !== undefined)
           props.onMouseMove(x, y)
       }
@@ -72,7 +77,7 @@ export function Component(props: CanvasProps): React.ReactElement {
           getSpaceCards(),
           getReflections(),
           getZLevels(),
-          getMoves(moves)
+          () => getMoves(moves, mouseX, mouseY)
         )
       }
     }

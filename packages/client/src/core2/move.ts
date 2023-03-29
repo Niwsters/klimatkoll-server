@@ -75,10 +75,12 @@ export const getMoves = (
   moves: Moves,
   hand: Card[],
   emissionsLine: Card[],
+  mouseX: number,
+  mouseY: number,
   currentTime: number
 ): Moves => {
   const goals = {
-    ...handGoals(moves, hand),
+    ...handGoals(moves, hand, mouseX, mouseY),
     ...emissionsLineGoals(moves, emissionsLine)
   }
   moves = applyGoals(moves, goals, currentTime)

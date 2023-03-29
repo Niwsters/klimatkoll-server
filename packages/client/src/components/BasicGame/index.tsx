@@ -17,8 +17,8 @@ export const BasicGame = (props: Props): React.ReactElement => {
 
   emissionsLine = reformSpaceCards(emissionsLine, [])
   const positions = designs.map(d => defaultCardPositioning(d.card))
-
-  const args = {
+  
+  const args: Canvas.CanvasProps = {
     designs: designs,
     getPositions: () => positions,
     getFlipped: () => emissionsLine,
@@ -27,7 +27,14 @@ export const BasicGame = (props: Props): React.ReactElement => {
     getSpaceCards: () => [],
     getReflections: () => [],
     getZLevels: () => [],
-    getMoves: (moves: Moves) => getMoves(moves, hand, emissionsLine, Date.now()),
+    getMoves: (moves: Moves, mouseX: number, mouseY: number) => getMoves(
+      moves,
+      hand,
+      emissionsLine,
+      mouseX,
+      mouseY,
+      Date.now()
+    )
   }
 
   return <Canvas.Component {...args} />
