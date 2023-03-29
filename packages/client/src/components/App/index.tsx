@@ -1,4 +1,5 @@
 import { createSocket } from '../../socket/socket'
+/*
 import { createRoot, Resolution, Root } from '../../root'
 import { MultiPlayerServer } from 'socket/multiplayer-server'
 import i18next, { TFunction } from 'i18next'
@@ -82,3 +83,4 @@ export function App({ rootElem }: Props) {
     </div>
   )
 }
+*/

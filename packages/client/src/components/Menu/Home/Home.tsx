@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from '@shared/components'
+import { Button } from '../../Button'
 import { ButtonLayout } from '../ButtonLayout'
 import { SetRoute } from '../set-route'
 

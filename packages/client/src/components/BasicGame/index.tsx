@@ -3,6 +3,7 @@ import * as Canvas from "../Canvas"
 import { EventToAdd } from "@shared/events"
 import { CardDesign } from "core2/card_design"
 
+/*
 export type Props = {
   board: () => Board.Board,
   onCardPlayRequested: (event: Board.CardPlayRequestedEvent) => void,
@@ -45,3 +46,4 @@ export function BasicGame(props: Props): React.ReactElement {
       cardDesigns={cardDesigns} />
   )
 }
+*/

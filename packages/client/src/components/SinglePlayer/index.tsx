@@ -1,4 +1,5 @@
 import * as Board from '../../core2/board'
+/*
 import * as Card from '../../core2/card'
 import { CardDesign } from '../../core2/card_design'
 import { BasicGame } from '../BasicGame'
@@ -90,3 +91,4 @@ export const SinglePlayer = (props: Props) => {
       />
   </div>
 }
+*/

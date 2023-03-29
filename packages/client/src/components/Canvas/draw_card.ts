@@ -1,12 +1,10 @@
 import { CardDesign } from '../../core2/card_design'
-import { Card as CoreCard } from '../../core2/card'
+import { Card, CardPosition } from '../../core2/card'
 import roundRect from './round_rect'
 import { setFont, drawText, wordWrap } from './text'
 
 export const CARD_WIDTH = 256
 export const CARD_HEIGHT = 335
-
-export type Card = CoreCard & CardDesign
 
 function formatEmissions(n: number): string {
   let n_str = n.toString().split("").reverse().join("")
@@ -33,7 +31,9 @@ function colorHex(color: string, opacity: number): string {
 
 function drawNormalCard(
   context: CanvasRenderingContext2D,
-  card: Card,
+  design: CardDesign,
+  flipped: boolean,
+  selected: boolean,
   width: number,
   height: number,
   borderRadius: number,
@@ -46,7 +46,7 @@ function drawNormalCard(
   const backFontColor = (bg_color_back: string): string => bg_color_back === "#265157" ? lightGrey : darkBlue
 
   // Header background
-  const header_bg = card.flipped ? colorHex(card.bg_color_back, opacity) : colorHex(card.bg_color_front, opacity)
+  const header_bg = flipped ? colorHex(design.bg_color_back, opacity) : colorHex(design.bg_color_front, opacity)
   context.fillStyle = header_bg
   roundRect(
     context,
@@ -72,7 +72,7 @@ function drawNormalCard(
   )
   context.fill()
 
-  const headerFontColor = card.flipped ? backFontColor(card.bg_color_back) : lightGrey
+  const headerFontColor = flipped ? backFontColor(design.bg_color_back) : lightGrey
   context.fillStyle = headerFontColor
   context.strokeStyle = headerFontColor
 
@@ -81,7 +81,7 @@ function drawNormalCard(
   setFont(context, 28)
   drawText(
     context,
-    card.title.toUpperCase(),
+    design.title.toUpperCase(),
     width / 2,
     titleY
   )
@@ -91,18 +91,18 @@ function drawNormalCard(
   setFont(context, 16)
   drawText(
     context,
-    card.subtitle,
+    design.subtitle,
     width / 2,
     subtitleY
   )
 
   // Emissions
-  if (card.flipped) {
+  if (flipped) {
     const emissionsY = subtitleY + 36 + 12
     setFont(context, 36)
     drawText(
       context,
-      formatEmissions(card.emissions),
+      formatEmissions(design.emissions),
       width / 2,
       emissionsY
     )
@@ -133,7 +133,7 @@ function drawNormalCard(
   setFont(context, fontSize, 400)
 
   // Manual word wrapping :DDD
-  const descr = card.flipped ? card.descr_back : card.descr_front
+  const descr = flipped ? design.descr_back : design.descr_front
   const lines = wordWrap(context, descr, width - padding * 2)
   for (let i=0; i<lines.length; i++) {
     drawText(
@@ -149,14 +149,14 @@ function drawNormalCard(
   setFont(context, 14)
   drawText(
     context,
-    card.duration,
+    design.duration,
     width - padding,
     height - padding,
     'right'
   )
 
   // Selected card border
-  if (card.selected === true) {
+  if (selected === true) {
     context.strokeStyle = colorHex('#17a2b8', opacity)
     context.lineWidth = 8.0
     roundRect(
@@ -173,44 +173,71 @@ function drawNormalCard(
   }
 }
 
-function drawSpaceCard(context: CanvasRenderingContext2D, card: Card, width: number, height: number, borderRadius: number) {
-  if (!card.visible) return
-
-  if (card.name !== "space")
-    return drawNormalCard(context, card, width, height, borderRadius, 0.5)
-
-  context.fillStyle = 'rgba(0, 0, 0, 0.3)'
-  roundRect(
-    context,
-    0,
-    0,
-    width,
-    height,
-    borderRadius,
-    borderRadius
-  )
-  context.fill()
-}
-
-export function drawCard(context: CanvasRenderingContext2D, card: Card) {
+export function drawCard(
+  context: CanvasRenderingContext2D,
+  position: CardPosition,
+  design: CardDesign,
+  isSpace: boolean,
+  flipped: boolean,
+  selected: boolean
+) {
   const width = CARD_WIDTH
   const height = CARD_HEIGHT
   const borderRadius = 14
 
-  context.translate(card.x, card.y)
-  context.rotate(card.rotation)
-  context.scale(card.scale, card.scale)
+  context.translate(position.x, position.y)
+  context.rotate(position.rotation)
+  context.scale(position.scale, position.scale)
   context.translate(-width/2, -height/2)
 
-  if (card.isSpace) {
-    drawSpaceCard(context, card, width, height, borderRadius)
+  const drawSpaceCard = () => {
+    context.fillStyle = 'rgba(0, 0, 0, 0.3)'
+    roundRect(
+      context,
+      0,
+      0,
+      width,
+      height,
+      borderRadius,
+      borderRadius
+    )
+    context.fill()
+  }
+
+  if (isSpace) {
+    drawSpaceCard()
   } else {
-    drawNormalCard(context, card, width, height, borderRadius)
+    drawNormalCard(context, design, flipped, selected, width, height, borderRadius)
   }
 
   // Reset translation and rotation
   context.translate(width/2, height/2)
-  context.scale(1/card.scale, 1/card.scale)
-  context.rotate(-card.rotation)
-  context.translate(-card.x, -card.y)
+  context.scale(1/position.scale, 1/position.scale)
+  context.rotate(-position.rotation)
+  context.translate(-position.x, -position.y)
+}
+
+export const drawCards = (
+  context: CanvasRenderingContext2D,
+  positions: CardPosition[],
+  designs: CardDesign[],
+  visible: Card[]
+) => {
+  let designDict = {}
+  for (const design of designs) {
+    designDict[design.card] = design
+  }
+
+  let positionDict = {}
+  for (const position of positions) {
+    positionDict[position.card] = position
+  }
+
+  for (const card of visible) {
+    const design = designDict[card]
+    const position = positionDict[card]
+    if (design !== undefined) {
+        drawCard(context, position, design, false, false, false)
+    }
+  }
 }

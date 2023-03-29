@@ -2,6 +2,7 @@ import * as Canvas from '../components/Canvas'
 import { WIDTH, HEIGHT } from '../core/constants'
 import * as Card from '../core2/card'
 
+/*
 const HAND_POSITION_X = WIDTH / 2
 const HAND_POSITION_Y = HEIGHT + 50
 const HAND_CARD_ANGLE = Math.PI/5
@@ -175,3 +176,4 @@ export function draw(hand: Hand, cardName: string): [Hand, Card.Card] {
   hand = { ...hand, cards: hand.cards.filter(c => c.name !== cardName) }
   return [hand, card]
 }
+*/

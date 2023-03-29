@@ -15,7 +15,8 @@
     "coverage": "npm test -- --coverage --watchAll=false",
     "deps": "depcruise --include-only \"^src\" --output-type dot src --metrics | dot -T svg > deps.svg",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "typecheck": "tsc --noEmit --watch"
   },
   "browserslist": {
     "production": [

@@ -1,7 +1,7 @@
 import { CardDesign } from '../core2/card_design'
 
 export const card: CardDesign = {
-  name: "pendla",
+  card: "pendla",
   title: "Pendla",
   subtitle: "i medelstor biodieselbil",
   emissions: 4000,
@@ -14,7 +14,7 @@ export const card: CardDesign = {
 }
 
 export const card2: CardDesign = {
-  name: "blandkost",
+  card: "blandkost",
   title: "Blandkost",
   subtitle: "svensk genomsnitt",
   emissions: 2000,
@@ -27,7 +27,7 @@ export const card2: CardDesign = {
 }
 
 export const card3: CardDesign = {
-  name: "dator",
+  card: "dator",
   title: "Dator",
   subtitle: "påslagen dygnet runt",
   emissions: 110,
@@ -40,7 +40,7 @@ export const card3: CardDesign = {
 }
 
 const space: CardDesign = {
-  name: "space",
+  card: "space",
   title: "",
   subtitle: "",
   emissions: 0,
@@ -52,7 +52,7 @@ const space: CardDesign = {
 }
 
 const noCard: CardDesign = {
-  name: "no-card",
+  card: "no-card",
   title: "",
   subtitle: "",
   emissions: 0,

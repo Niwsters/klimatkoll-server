@@ -1,5 +1,5 @@
 export type CardDesign = {
-  readonly name: string,
+  readonly card: string,
   readonly title: string,
   readonly subtitle: string,
   readonly emissions: number,

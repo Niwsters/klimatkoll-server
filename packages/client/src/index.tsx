@@ -1,5 +1,6 @@
-import { App } from './components/App';
 import * as ReactDOM from 'react-dom/client';
+/*
+import { App } from './components/App';
 
 function getRootElem(): HTMLElement {
   const rootElem = document.getElementById('climate-call')
@@ -14,3 +15,4 @@ async function start() {
 }
 
 start()
+*/

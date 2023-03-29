@@ -1,6 +1,7 @@
 import * as Animation from './animation'
 
-export type CardPositioning = {
+export type CardPosition = {
+  readonly card: string,
   readonly zLevel: number,
   readonly x: number,
   readonly y: number,
@@ -8,84 +9,13 @@ export type CardPositioning = {
   readonly scale: number
 }
 
-export type Card = CardPositioning & {
-  readonly id: string,
-  readonly name: string,
-  readonly flipped: boolean,
-  readonly selected: boolean,
-  readonly visible: boolean,
-  readonly isSpace: boolean,
-  readonly animation: Animation.Animation
-}
+export type Card = string
 
-const defaultCardPositioning = (): CardPositioning => ({
+export const defaultCardPositioning = (card: Card): CardPosition => ({
+  card,
   zLevel: 0,
   x: 0,
   y: 0,
   rotation: 0,
   scale: 1
 })
-
-export const defaultCard = (name: string): Card => ({
-  name,
-  id: Math.random().toString(),
-  flipped: false,
-  selected: false,
-  visible: true,
-  isSpace: false,
-  animation: Animation.create(),
-  ...defaultCardPositioning()
-})
-
-export function create(name: string, positioning: CardPositioning): Card {
-  return {
-    id: Math.random().toString().split("").slice(2).join(""),
-    name,
-    ...positioning,
-    animation: Animation.create(positioning),
-    flipped: false,
-    selected: false,
-    visible: true,
-    isSpace: false
-  }
-}
-
-export function update(card: Card, currentTime: number): Card {
-  const animated = Animation.animate(card.animation, currentTime)
-  return {
-    ...card,
-    ...animated
-  }
-}
-
-export function move_x(card: Card, x: number, currentTime: number): Card {
-  return {
-    ...card,
-    animation: Animation.move_x(card.animation, x, currentTime)
-  }
-}
-
-export function move_y(card: Card, y: number, currentTime: number): Card {
-  return {
-    ...card,
-    animation: Animation.move_y(card.animation, y, currentTime)
-  }
-}
-
-export function rotate(card: Card, rotation: number, currentTime: number): Card {
-  return {
-    ...card,
-    animation: Animation.rotate(card.animation, rotation, currentTime)
-  }
-}
-
-export function scale(card: Card, scale: number, currentTime: number): Card {
-  return {
-    ...card,
-    animation: Animation.scale(card.animation, scale, currentTime)
-  }
-}
-
-export function spaceCard(positioning: CardPositioning, visible: boolean): Card {
-  return { ...create("space", positioning), isSpace: true, visible }
-}

@@ -1,6 +1,7 @@
 import * as Canvas from '../components/Canvas'
 import * as Card from './card'
 
+/*
 const EMISSIONS_LINE_MAX_LENGTH = Canvas.WIDTH
 const EMISSIONS_LINE_POSITION_X = Canvas.WIDTH / 2
 const EMISSIONS_LINE_POSITION_Y = Canvas.HEIGHT / 2
@@ -211,3 +212,4 @@ export function update(
     cards
   }
 }
+*/

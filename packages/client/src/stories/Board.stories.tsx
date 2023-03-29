@@ -1,4 +1,6 @@
+
 import _React from 'react'
+/*
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import * as Canvas from '../components/Canvas'
@@ -89,3 +91,4 @@ DiscardPile.args = {
   board: () => discardPileBoard,
   onBoardUpdate: b => discardPileBoard = b
 };
+*/

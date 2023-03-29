@@ -1,6 +1,7 @@
 import { HEIGHT, WIDTH } from '../core/constants'
-import { Card, defaultCard, move_x, move_y, update as updateCard, scale } from './card'
+import { Card } from './card'
 
+/*
 const DISCARD_PILE_POSITION_X = WIDTH-100
 const DISCARD_PILE_POSITION_Y = HEIGHT/2+154/2+20
 const CARD_SCALE = 0.5
@@ -28,3 +29,4 @@ export function addCard(card: Card, currentTime: number): DiscardPile {
 export const update = (pile: DiscardPile, currentTime: number): DiscardPile => ({
   cards: pile.cards.map(c => updateCard(c, currentTime))
 })
+*/

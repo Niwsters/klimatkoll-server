@@ -1,6 +1,7 @@
+import { Card, CardPosition } from 'core2/card'
 import { CardDesign } from 'core2/card_design'
 import React, { useEffect, useRef } from 'react'
-import { GetCards, render } from './render'
+import { GetAnimations, GetCards, render } from './render'
 
 export const WIDTH = 960
 export const HEIGHT = 540
@@ -15,13 +16,16 @@ function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: n
 
 export type CanvasProps = {
   getCards: GetCards,
-  cardDesigns: CardDesign[],
+  getPositions: () => CardPosition[],
+  getVisible: () => Card[],
+  getAnimations: GetAnimations,
+  designs: CardDesign[],
   onMouseMove?: (x: number, y: number) => void,
   onMouseClicked?: (x: number, y: number) => void
 }
 
 export function Component(props: CanvasProps): React.ReactElement {
-  const { getCards, cardDesigns } = props
+  const { getPositions, getVisible, designs } = props
 
   const canvasRef = useRef(null)
 
@@ -44,7 +48,7 @@ export function Component(props: CanvasProps): React.ReactElement {
       const context = canvas.getContext('2d')
 
       if (context !== null) {
-        return render(context, getCards, cardDesigns)
+        return render(context, designs, getPositions(), getVisible())
       }
     }
   }, [])

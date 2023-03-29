@@ -3,6 +3,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import * as Canvas from '../components/Canvas'
 import * as Card from '../core2/card'
+import * as Animation from '../core2/animation'
 
 import * as SampleCards from './sample_cards'
 
@@ -12,6 +13,7 @@ export default {
   component: Canvas.Component
 } as ComponentMeta<typeof Canvas.Component>;
 
+/*
 const card: Card.Card = Card.create(SampleCards.card.name, {
   zLevel: 0,
   x: Canvas.CARD_WIDTH / 2,
@@ -29,12 +31,13 @@ type WrapperProps = {
 }
 
 function Wrapper(props: WrapperProps): React.ReactElement {
-  const board: Board = {
-    cards: [props.getCard()]
-  }
+  const cards = [props.getCard()]
+  const getCards = () => cards
+  const animations = cards.map(c => Animation.create(c.id))
+  const getAnimations = () => animations
 
   return (
-    <Canvas.Component getCards={() => board.cards.map(card => Card.update(card, Date.now()))} cardDesigns={SampleCards.cardDesigns} />
+    <Canvas.Component getAnimations={getAnimations} getCards={getCards} cardDesigns={SampleCards.cardDesigns} />
   )
 }
 
@@ -66,9 +69,9 @@ AddedRotation.args = {
     return animated
   }
 };
-*/
 
 export const Scale = Template.bind({});
 Scale.args = {
   getCard: () => Card.scale(card, 2.0, Date.now())
 };
+*/

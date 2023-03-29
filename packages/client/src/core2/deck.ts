@@ -1,5 +1,6 @@
-import { Card, move_x, move_y, scale, update as updateCard } from './card'
+import { Card } from './card'
 
+/*
 const DECK_POSITION_X = 800
 const DECK_POSITION_Y = 100
 const CARD_SCALE = 0.5
@@ -47,3 +48,4 @@ export const update = (deck: Deck, currentTime: number): Deck => ({
 })
 
 export const cards = (deck: Deck): Card[] => deck.cards.slice(0, 1)
+*/

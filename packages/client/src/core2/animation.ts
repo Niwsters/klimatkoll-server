@@ -1,6 +1,7 @@
 import * as Transition from './transition'
 
 export type Animation = {
+  readonly entityID: string,
   readonly xGoal: Transition.Transition,
   readonly yGoal: Transition.Transition,
   readonly rotationGoal: Transition.Transition,
@@ -9,6 +10,7 @@ export type Animation = {
 }
 
 export type Animated = {
+  readonly entityID: string,
   readonly x: number,
   readonly y: number,
   readonly rotation: number,
@@ -22,8 +24,9 @@ type Position = {
   scale?: number
 }
 
-export function create(position?: Position): Animation {
+export function create(entityID: string, position?: Position): Animation {
   return {
+    entityID,
     xGoal: Transition.create(position?.x || 0),
     yGoal: Transition.create(position?.y || 0),
     rotationGoal: Transition.create(position?.rotation || 0),
@@ -32,17 +35,14 @@ export function create(position?: Position): Animation {
   }
 }
 
-export function animate(
-  animation: Animation,
-  currentTime: number
-): Animated {
-  return {
+export const animate = (animations: Animation[], currentTime: number): Animated[] =>
+  animations.map(animation => ({
+    entityID: animation.entityID,
     x: get_x(animation, currentTime),
     y: get_y(animation, currentTime),
     rotation: get_rotation(animation, currentTime) + get_added_rotation(animation, currentTime),
     scale: get_scale(animation, currentTime)
-  }
-}
+  }))
 
 function get_x(animation: Animation, currentTime: number): number {
   return Transition.transpose(animation.xGoal, currentTime)

@@ -1,7 +1,7 @@
 import _React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import * as SampleCards from './sample_cards'
-import * as Card from '../core2/card'
+import { Card, CardPosition } from '../core2/card'
 import * as Canvas from '../components/Canvas';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -10,31 +10,38 @@ export default {
   component: Canvas.Component
 } as ComponentMeta<typeof Canvas.Component>;
 
-// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof Canvas.Component> =
-  (args) => <Canvas.Component {...args} cardDesigns={SampleCards.cardDesigns} />;
-
-const positioning = {
+const position = (card: Card): CardPosition => ({
+  card,
   x: Canvas.CARD_WIDTH / 2,
   y: Canvas.CARD_HEIGHT / 2,
   rotation: 0,
   scale: 1.0,
   zLevel: 1.0
-}
+})
 
-const card = Card.create(SampleCards.card.name, positioning)
+const designs = SampleCards.cardDesigns
+const positions = designs.map(d => position(d.card))
+
+// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
+const Template: ComponentStory<typeof Canvas.Component> =
+  (args) => <Canvas.Component
+    {...args}
+    designs={designs}
+    getPositions={() => positions}/>;
+
+/*
 const card2 = Card.create(SampleCards.card2.name, positioning)
 const spaceCard = Card.spaceCard(positioning, true)
+*/
+
+const visible: Card[] = designs.map(d => d.card).slice(0, 1)
 
 export const Front = Template.bind({});
-Front.args = {
-  getCards: () => [card]
-};
+Front.args = { getVisible: () => visible };
 
+/*
 export const Back = Template.bind({});
-Back.args = {
-  getCards: () => [{ ...card, flipped: true }]
-};
+Back.args = {};
 
 export const Rotation = Template.bind({});
 Rotation.args = {
@@ -76,3 +83,4 @@ export const SpaceCardReflectOtherCard = Template.bind({})
 SpaceCardReflectOtherCard.args = {
   getCards: () => [{ ...spaceCard, name: SampleCards.card.name }, { ...spaceCard2, name: SampleCards.card.name, flipped: true }]
 }
+*/
