@@ -27,7 +27,8 @@ export function cards(
   return [
     ...board.hand.cards,
     ...board.emissionsLine.cards,
-    ...board.discardPile.cards
+    ...board.discardPile.cards,
+    ...board.deck.cards
   ]
 }
 
@@ -72,7 +73,8 @@ export function update(
     ...board,
     hand: Hand.update(board.hand, mouseX, mouseY, currentTime),
     emissionsLine: EmissionsLine.update(board.emissionsLine, mouseX, mouseY, currentTime),
-    discardPile: DiscardPile.update(board.discardPile, currentTime)
+    discardPile: DiscardPile.update(board.discardPile, currentTime),
+    deck: Deck.update(board.deck, currentTime)
   }
 }
 
