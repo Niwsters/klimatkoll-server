@@ -4,8 +4,8 @@ import * as Canvas from '../components/Canvas';
 import * as SampleCards from './sample_cards'
 import { Card, CardPosition } from '../core2/card';
 import { getMoves } from '../core2/move'
-import { elMoves } from '../core2/emissions_line'
 import { Moves } from '../core2/move';
+import { CARD_HEIGHT, CARD_WIDTH } from '../core2/constants';
 
 export default {
   title: 'Canvas/Board',
@@ -14,8 +14,8 @@ export default {
 
 const position = (card: Card): CardPosition => ({
   card,
-  x: Canvas.CARD_WIDTH / 2,
-  y: Canvas.CARD_HEIGHT / 2,
+  x: CARD_WIDTH / 2,
+  y: CARD_HEIGHT / 2,
   rotation: 0,
   scale: 1.0
 })
@@ -56,9 +56,6 @@ const getELMoves = () => {
   return moves
 }
 */
-
-const emissionsLine = cards
-const getELmoves = (moves: Moves) => elMoves(moves, emissionsLine, Date.now())
 
 export const EmissionsLine = Template.bind({});
 EmissionsLine.args = { ...args };

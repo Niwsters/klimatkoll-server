@@ -2,7 +2,8 @@ import _React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { Card, CardPosition, defaultCardPositioning, Reflection, ZLevel } from '../core2/card'
 import * as Canvas from '../components/Canvas';
-import { Moves } from 'core2/move';
+import { CARD_WIDTH, CARD_HEIGHT } from '../core2/constants';
+import { Moves } from '../core2/move';
 import './font.css';
 import * as SampleCards from './sample_cards'
 
@@ -20,8 +21,8 @@ const Template: ComponentStory<typeof Canvas.Component> =
 
 const position = (card: Card) => ({
   ...defaultCardPositioning(card),
-  x: Canvas.CARD_WIDTH/2,
-  y: Canvas.CARD_HEIGHT/2
+  x: CARD_WIDTH/2,
+  y: CARD_HEIGHT/2
 })
 
 const designs = SampleCards.cardDesigns

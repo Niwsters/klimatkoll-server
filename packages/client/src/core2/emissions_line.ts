@@ -1,14 +1,14 @@
-import * as Canvas from '../components/Canvas'
 import { Card } from './card'
-import { Moves, PositionGoals } from './move'
+import { Moves, PositionGoal, PositionGoals } from './move'
+import { WIDTH, HEIGHT, CARD_WIDTH } from './constants'
 
-const EMISSIONS_LINE_MAX_LENGTH = Canvas.WIDTH
-const EMISSIONS_LINE_POSITION_X = Canvas.WIDTH / 2
-const EMISSIONS_LINE_POSITION_Y = Canvas.HEIGHT / 2
+const EMISSIONS_LINE_MAX_LENGTH = WIDTH
+const EMISSIONS_LINE_POSITION_X = WIDTH / 2
+const EMISSIONS_LINE_POSITION_Y = HEIGHT / 2
 const CARD_SCALE = 0.5
 
 function cardDistance(cardCount: number): number {
-  const cardWidth = Canvas.CARD_WIDTH * CARD_SCALE
+  const cardWidth = CARD_WIDTH * CARD_SCALE
   const totalELWidth = cardWidth * cardCount
   let cardDistance = cardWidth / 2
   if (totalELWidth > EMISSIONS_LINE_MAX_LENGTH) {
@@ -17,18 +17,34 @@ function cardDistance(cardCount: number): number {
   return cardDistance
 }
 
-const cardX = (index: number, cardCount: number) => {
+const cardX = (index: number, cardCount: number): number => {
   const width = cardDistance(cardCount)
   const startOffset = 0 - width*cardCount/2 - width/2
-  return EMISSIONS_LINE_POSITION_X + startOffset + width * index
+  const result = EMISSIONS_LINE_POSITION_X + startOffset + width * index
+  return result
 }
 
 const cardY = () => {
   return EMISSIONS_LINE_POSITION_Y
 }
 
+const goal = (index: number, cardCount: number): PositionGoal => ({
+  x: cardX(index, cardCount),
+  y: cardY(),
+  rotation: 0,
+  scale: CARD_SCALE
+})
+
 export const emissionsLineGoals = (moves: Moves, emissionsLine: Card[]): PositionGoals => {
-  return {}
+  const goals: PositionGoals = {}
+  emissionsLine.forEach((card, index) => {
+    const move = moves[card]
+    if (move !== undefined) {
+      goals[card] = goal(index, emissionsLine.length)
+    }
+    return goals
+  })
+  return goals
 }
 
 

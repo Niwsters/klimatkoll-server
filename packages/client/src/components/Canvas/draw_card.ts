@@ -2,9 +2,7 @@ import { CardDesign } from '../../core2/card_design'
 import { Card, CardPosition, Reflection, ZLevel } from '../../core2/card'
 import roundRect from './round_rect'
 import { setFont, drawText, wordWrap } from './text'
-
-export const CARD_WIDTH = 256
-export const CARD_HEIGHT = 335
+import { CARD_WIDTH, CARD_HEIGHT } from '../../core2/constants'
 
 function formatEmissions(n: number): string {
   let n_str = n.toString().split("").reverse().join("")

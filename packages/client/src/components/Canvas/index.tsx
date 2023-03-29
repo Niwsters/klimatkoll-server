@@ -3,10 +3,7 @@ import { CardDesign } from '../../core2/card_design'
 import { initMoves, Moves } from '../../core2/move'
 import React, { useEffect, useRef } from 'react'
 import { render } from './render'
-
-export const WIDTH = 960
-export const HEIGHT = 540
-export { CARD_WIDTH, CARD_HEIGHT } from './draw_card'
+import { WIDTH, HEIGHT } from '../../core2/constants'
 
 function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: number } {
   const rect = canvas.getBoundingClientRect()
