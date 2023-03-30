@@ -36,7 +36,7 @@ function handWidth(cardCount: number): number {
 
 const distance = (a: number, b: number): number => Math.abs(a - b)
 
-const closestCardToMouse = (cardCount: number, mouseX: number): number => {
+const closestCardIndexToMouse = (cardCount: number, mouseX: number): number => {
   let closestCardX = 99999999
   let closestCardIndex = -1
 
@@ -61,7 +61,7 @@ function isCardFocused(
   cardIndex: number
 ): boolean {
   const width = handWidth(cardCount)
-  const closestCardIndex = closestCardToMouse(cardCount, mouseX)
+  const closestCardIndex = closestCardIndexToMouse(cardCount, mouseX)
   return closestCardIndex !== -1 &&
          cardIndex === closestCardIndex &&
          mouseY > HOVER_Y_AXIS_LIMIT &&
@@ -95,6 +95,9 @@ const handGoal = (cardCount: number, mouseX: number, mouseY: number, index: numb
 
   return defaultGoal
 }
+
+export const focusedCards = (hand: Card[], mouseX: number, mouseY: number): Card[] => 
+  hand.filter((_, index) => isCardFocused(hand.length, mouseX, mouseY, index))
 
 export const handGoals = (
   moves: Movements,

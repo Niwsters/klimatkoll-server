@@ -1,22 +1,36 @@
 import { getMovements, initMovements, Movements } from './move'
 import { Card, CardPosition, Reflection } from './card'
-import { ZLevel, zLevels } from './z_levels'
+import { zLevels } from './z_levels'
 import { CardDesign } from './card_design'
 import { CardToDraw, drawCards } from './draw_card'
 import { transpose } from './transition'
 import { createDrawingQueue } from './drawing_queue'
+import { getSelected } from './select'
+
+
+export type MouseClickedEvent = {}
+export type MousePosition = {
+  x: number,
+  y: number
+}
 
 function update(
   designs: CardDesign[],
   moves: Movements,
   hand: Card[],
   emissionsLine: Card[],
-  mouseX: number,
-  mouseY: number,
+  selected: Card[],
+  mouse: MousePosition,
+  mouseClickedEvents: MouseClickedEvent[],
   currentTime: number
-): [Movements, CardToDraw[]] {
+): [Card[], Movements, CardToDraw[]] {
+  for (const _ of mouseClickedEvents) {
+    selected = getSelected(hand, mouse.x, mouse.y)
+  }
+
+  moves = getMovements(moves, hand, emissionsLine, mouse.x, mouse.y, currentTime)
+
   let positionsDict: {[card: Card]: CardPosition} = {}
-  moves = getMovements(moves, hand, emissionsLine, mouseX, mouseY, currentTime)
   for (const card in moves) {
     const move = moves[card]
     if (move !== undefined) {
@@ -36,9 +50,9 @@ function update(
   const cards = positions.map(p => p.card)
   const visible = cards
   const flipped = emissionsLine
-  const selected: Card[] = []
   const spaceCards: Card[] = []
   const reflections: Reflection[] = []
+
   const queue = createDrawingQueue(
     positions,
     designs,
@@ -50,7 +64,7 @@ function update(
     zLevels(hand)
   )
 
-  return [moves, queue]
+  return [selected, moves, queue]
 }
 
 // Game state -----
@@ -70,27 +84,29 @@ function update(
 // reflections
 // zLevels
 
+
+
 export function start(
   context: CanvasRenderingContext2D,
   designs: CardDesign[],
   getHand: () => Card[],
   getEmissionsLine: () => Card[],
-  getMousePosition: () => [number, number]
+  getMousePosition: () => MousePosition,
+  getMouseClickedEvents: () => MouseClickedEvent[]
 ) {
   let animationId: number | undefined
   let moves: Movements = initMovements([...getHand(), ...getEmissionsLine()])
+  let selected: Card[]
   function loop() {
     let queue: CardToDraw[] = [];
-    const [mouseX, mouseY] = getMousePosition();
-    const hand = getHand();
-    const emissionsLine = getEmissionsLine();
-    [moves, queue] = update(
+    [selected, moves, queue] = update(
       designs,
       moves,
-      hand,
-      emissionsLine,
-      mouseX,
-      mouseY,
+      getHand(),
+      getEmissionsLine(),
+      selected,
+      getMousePosition(),
+      getMouseClickedEvents(),
       Date.now()
     )
     drawCards(context, queue)

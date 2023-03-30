@@ -1,7 +1,7 @@
 import { Card } from '../core2/card'
 import { CardDesign } from '../core2/card_design'
 import React, { useEffect, useRef } from 'react'
-import { start } from '../core2/loop'
+import { start, MouseClickedEvent } from '../core2/loop'
 import { WIDTH, HEIGHT } from '../core2/constants'
 
 function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: number } {
@@ -30,6 +30,18 @@ export function Component(props: CanvasProps): React.ReactElement {
     let mouseX = 0
     let mouseY = 0
 
+    let mouseClickedEvents: MouseClickedEvent[] = []
+    const getMouseClickedEvents = () => {
+      const events = [...mouseClickedEvents]
+      mouseClickedEvents = []
+      return events
+    }
+
+    const getMousePosition = () => ({
+      x: mouseX,
+      y: mouseY
+    })
+
     if (canvasRef.current !== null) {
       const canvas = canvasRef.current as HTMLCanvasElement
 
@@ -41,6 +53,7 @@ export function Component(props: CanvasProps): React.ReactElement {
 
       canvas.onmousedown = (_event: MouseEvent) => {
         //const { x, y } = coords(canvas, event)
+        mouseClickedEvents.push({})
       }
 
       const context = canvas.getContext('2d')
@@ -51,7 +64,8 @@ export function Component(props: CanvasProps): React.ReactElement {
           designs,
           getHand,
           getEmissionsLine,
-          () => [mouseX, mouseY]
+          getMousePosition,
+          getMouseClickedEvents
         )
       }
     }
