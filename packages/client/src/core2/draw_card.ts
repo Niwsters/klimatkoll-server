@@ -10,7 +10,7 @@ function wordWrap(context: CanvasRenderingContext2D, text: string, maxWidth: num
   if (words.length == 0)
     return []
 
-  var currentLine = words[0];
+  var currentLine: string = words[0] || "";
   for (const word of words.slice(1)) {
     var width = context.measureText(currentLine + " " + word).width
     if (width < maxWidth) {
@@ -195,15 +195,15 @@ function drawNormalCard(
   // Manual word wrapping :DDD
   const descr = flipped ? design.descr_back : design.descr_front
   const lines = wordWrap(context, descr, width - padding * 2)
-  for (let i=0; i<lines.length; i++) {
+  lines.forEach((line, index) => {
     drawText(
       context,
-      lines[i],
+      line,
       descrX,
-      descrY + (fontSize + 8) * i,
+      descrY + (fontSize + 8) * index,
       'left'
     )
-  }
+  })
 
   // Duration
   setFont(context, 14)

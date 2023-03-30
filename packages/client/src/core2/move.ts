@@ -63,17 +63,24 @@ const entries = (goal: PositionGoal): Entries<PositionGoal> => {
   return Object.entries(goal) as any
 }
 
+const applyGoal = (move: Movement, goal: PositionGoal, currentTime: number): Movement => {
+  const newMove = { ...move }
+  for (const [field, value] of entries(goal)) {
+    const transition: Transition = move[field]
+    if (transition.to !== value) {
+      const from = transpose(transition, currentTime)
+      newMove[field] = { from, to: value, started: currentTime }
+    }
+  }
+  return newMove
+}
+
 const applyGoals = (moves: Movements, goals: PositionGoals, currentTime: number): Movements => {
   let newMovements: Movements = {...moves}
-
   for (const [card, goal] of Object.entries(goals)) {
-    for (const [field, value] of entries(goal)) {
-      const move: Movement = moves[card]
-      const transition: Transition = move[field]
-      if (transition.to !== value) {
-        const from = transpose(transition, currentTime)
-        newMovements[card][field] = { from, to: value, started: currentTime }
-      }
+    const move = moves[card]
+    if (move !== undefined) {
+      newMovements[card] = applyGoal(move, goal, currentTime)
     }
   }
 

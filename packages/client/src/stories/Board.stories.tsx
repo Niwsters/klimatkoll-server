@@ -4,6 +4,7 @@ import * as Canvas from '../components/Canvas';
 import * as SampleCards from './sample_cards'
 import { Card } from '../core2/card';
 import { BasicGame } from '../components/BasicGame';
+import './font.css'
 
 export default {
   title: 'Canvas/Board',

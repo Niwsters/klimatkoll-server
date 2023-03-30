@@ -31,8 +31,14 @@ export const createDrawingQueue = (
   }
 
   const zLevelsDict = dict(zLevels, z => z.card)
-  const zLevel = (card: Card): ZLevel => zLevelsDict[card] || 0
-  positions = positions.sort((a,b) => zLevel(a.card).zLevel - zLevel(b.card).zLevel)
+  const zLevel = (card: Card): number => {
+    const zLevel = zLevelsDict[card]
+    if (zLevel !== undefined) {
+      return zLevel.zLevel
+    }
+    return 0
+  }
+  positions = positions.sort((a,b) => zLevel(a.card) - zLevel(b.card))
 
   const cardsToDraw: CardToDraw[] = []
   for (const position of positions) {

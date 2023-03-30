@@ -26,14 +26,8 @@ export const BasicGame = (props: Props): React.ReactElement => {
     getSpaceCards: () => [],
     getReflections: () => [],
     getZLevels: () => [],
-    getMovements: (moves: Movements, mouseX: number, mouseY: number) => getMovements(
-      moves,
-      hand,
-      emissionsLine,
-      mouseX,
-      mouseY,
-      Date.now()
-    )
+    getHand: () => hand,
+    getEmissionsLine: () => emissionsLine
   }
 
   return <Canvas.Component {...args} />

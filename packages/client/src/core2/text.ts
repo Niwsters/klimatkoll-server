@@ -6,7 +6,7 @@ export function wordWrap(context: CanvasRenderingContext2D, text: string, maxWid
   if (words.length == 0)
     return []
 
-  var currentLine = words[0];
+  let currentLine: string = words[0] || "";
   for (const word of words.slice(1)) {
     var width = context.measureText(currentLine + " " + word).width
     if (width < maxWidth) {

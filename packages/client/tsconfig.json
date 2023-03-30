@@ -20,6 +20,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
     "baseUrl": "./src",
     "paths": {
         "@shared/components": ["shared/components"],

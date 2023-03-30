@@ -20,10 +20,11 @@ export type CanvasProps = {
   getSelected: () => Card[],
   getSpaceCards: () => Card[],
   getReflections: () => Reflection[],
-  getMovements: (moves: Movements, mouseX: number, mouseY: number) => Movements,
   designs: CardDesign[],
   onMouseMovement?: (x: number, y: number) => void,
-  onMouseClicked?: (x: number, y: number) => void
+  onMouseClicked?: (x: number, y: number) => void,
+  getHand: () => Card[],
+  getEmissionsLine: () => Card[]
 }
 
 export function Component(props: CanvasProps): React.ReactElement {
@@ -35,7 +36,8 @@ export function Component(props: CanvasProps): React.ReactElement {
     getSpaceCards,
     getReflections,
     getZLevels,
-    getMovements,
+    getHand,
+    getEmissionsLine,
     designs
   } = props
 
@@ -77,7 +79,9 @@ export function Component(props: CanvasProps): React.ReactElement {
           getSpaceCards(),
           getReflections(),
           getZLevels(),
-          () => getMovements(moves, mouseX, mouseY)
+          getHand,
+          getEmissionsLine,
+          () => [mouseX, mouseY]
         )
       }
     }
