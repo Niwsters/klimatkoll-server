@@ -17,9 +17,9 @@ function update(
   zLevels: ZLevel[],
   getMovements: () => Movements,
 ): CardToDraw[] {
-  let positionsDict = {}
+  let positionsDict: {[card: Card]: CardPosition} = {}
   for (const position of positions) {
-    positionsDict[position.card] = position
+    //positionsDict[position.card] = position
   }
 
   const moves = getMovements()

@@ -4,19 +4,21 @@ import { handGoals } from './hand'
 
 const ANIMATION_DURATION_MS = 300
 
-export type Movement = {
+export type Transition = {
   readonly from: number
   readonly to: number
   readonly started: number
 }
 
+export type Movement = {
+  x: Transition,
+  y: Transition,
+  rotation: Transition,
+  scale: Transition
+}
+
 export type Movements = {
-  [card: Card]: {
-    x: Movement,
-    y: Movement,
-    rotation: Movement,
-    scale: Movement
-  }
+  [card: Card]: Movement
 }
 
 export const initMovements = (cards: Card[]): Movements => {
@@ -32,7 +34,7 @@ export const initMovements = (cards: Card[]): Movements => {
   return moves
 }
 
-export function transpose(move: Movement, currentTime: number): number {
+export function transpose(move: Transition, currentTime: number): number {
   const { from, to, started } = move
   const timePassed = currentTime - started
 
@@ -54,15 +56,22 @@ export type PositionGoals = {
   [card: Card]: PositionGoal
 }
 
+type Entries<T> = {
+  [K in keyof T]: [K, T[K]]
+}[keyof T][]
+const entries = (goal: PositionGoal): Entries<PositionGoal> => {
+  return Object.entries(goal) as any
+}
+
 const applyGoals = (moves: Movements, goals: PositionGoals, currentTime: number): Movements => {
-  let newMovements = {...moves}
+  let newMovements: Movements = {...moves}
 
   for (const [card, goal] of Object.entries(goals)) {
-    for (const [field, value] of Object.entries(goal)) {
-      const move = moves[card]
-      const fieldMovement: Movement = move[field]
-      if (move[field].to !== value) {
-        const from = transpose(fieldMovement, currentTime)
+    for (const [field, value] of entries(goal)) {
+      const move: Movement = moves[card]
+      const transition: Transition = move[field]
+      if (transition.to !== value) {
+        const from = transpose(transition, currentTime)
         newMovements[card][field] = { from, to: value, started: currentTime }
       }
     }

@@ -1,6 +1,7 @@
 import { CardDesign } from './card_design'
 import { Card, CardPosition, Reflection, ZLevel } from './card'
 import { CardToDraw } from './draw_card'
+import { dict } from './util'
 
 export const createDrawingQueue = (
   positions: CardPosition[],
@@ -12,10 +13,7 @@ export const createDrawingQueue = (
   reflections: Reflection[],
   zLevels: ZLevel[]
 ): CardToDraw[] => {
-  let designDict = {}
-  for (const design of designs) {
-    designDict[design.card] = design
-  }
+  const designDict = dict(designs, d => d.card)
 
   const flippedSet = new Set(flipped)
   const visibleSet = new Set(visible)
@@ -32,12 +30,9 @@ export const createDrawingQueue = (
     }
   }
 
-  const zLevelsDict = {}
-  for (const zLevel of zLevels) {
-    zLevelsDict[zLevel.card] = zLevel.zLevel
-  }
-  const zLevel = (card: Card) => zLevelsDict[card] || 0
-  positions = positions.sort((a,b) => zLevel(a.card) - zLevel(b.card))
+  const zLevelsDict = dict(zLevels, z => z.card)
+  const zLevel = (card: Card): ZLevel => zLevelsDict[card] || 0
+  positions = positions.sort((a,b) => zLevel(a.card).zLevel - zLevel(b.card).zLevel)
 
   const cardsToDraw: CardToDraw[] = []
   for (const position of positions) {
