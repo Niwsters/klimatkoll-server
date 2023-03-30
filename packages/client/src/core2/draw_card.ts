@@ -1,5 +1,5 @@
 import { CardDesign } from './card_design'
-import { Card, CardPosition, Reflection, ZLevel } from './card'
+import { CardPosition } from './card'
 import { CARD_WIDTH, CARD_HEIGHT, BORDER_RADIUS, WIDTH, HEIGHT } from './constants'
 
 // Cheers @ https://stackoverflow.com/questions/2936112/text-wrap-in-a-canvas-element

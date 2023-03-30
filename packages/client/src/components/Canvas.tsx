@@ -1,6 +1,5 @@
-import { Card, CardPosition, Reflection, ZLevel } from '../core2/card'
+import { Card } from '../core2/card'
 import { CardDesign } from '../core2/card_design'
-import { initMovements, Movements } from '../core2/move'
 import React, { useEffect, useRef } from 'react'
 import { start } from '../core2/loop'
 import { WIDTH, HEIGHT } from '../core2/constants'
@@ -13,37 +12,19 @@ function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: n
 }
 
 export type CanvasProps = {
-  getPositions: () => CardPosition[],
-  getZLevels: () => ZLevel[],
-  getVisible: () => Card[],
-  getFlipped: () => Card[],
-  getSelected: () => Card[],
-  getSpaceCards: () => Card[],
-  getReflections: () => Reflection[],
   designs: CardDesign[],
-  onMouseMovement?: (x: number, y: number) => void,
-  onMouseClicked?: (x: number, y: number) => void,
   getHand: () => Card[],
   getEmissionsLine: () => Card[]
 }
 
 export function Component(props: CanvasProps): React.ReactElement {
   const {
-    getPositions,
-    getVisible,
-    getFlipped,
-    getSelected,
-    getSpaceCards,
-    getReflections,
-    getZLevels,
     getHand,
     getEmissionsLine,
     designs
   } = props
 
   const canvasRef = useRef(null)
-
-  let moves = initMovements(getVisible())
 
   useEffect(() => {
     let mouseX = 0
@@ -56,14 +37,10 @@ export function Component(props: CanvasProps): React.ReactElement {
         const { x, y } = coords(canvas, event)
         mouseX = x
         mouseY = y
-        if (props.onMouseMovement !== undefined)
-          props.onMouseMovement(x, y)
       }
 
-      canvas.onmousedown = (event: MouseEvent) => {
-        const { x, y } = coords(canvas, event)
-        if (props.onMouseClicked !== undefined)
-          props.onMouseClicked(x, y)
+      canvas.onmousedown = (_event: MouseEvent) => {
+        //const { x, y } = coords(canvas, event)
       }
 
       const context = canvas.getContext('2d')
@@ -72,13 +49,6 @@ export function Component(props: CanvasProps): React.ReactElement {
         return start(
           context,
           designs,
-          getPositions(),
-          getVisible(),
-          getFlipped(),
-          getSelected(),
-          getSpaceCards(),
-          getReflections(),
-          getZLevels(),
           getHand,
           getEmissionsLine,
           () => [mouseX, mouseY]

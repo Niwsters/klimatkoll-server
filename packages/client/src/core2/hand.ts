@@ -26,9 +26,6 @@ const cardY = (i: number, cardCount: number): number => {
   return HAND_POSITION_Y - HAND_Y_RADIUS * Math.cos(angle)
 }
 
-// + 10 to prevent first card going under emissions line card when zooming out
-export const zLevel = (index: number): number => index + 10
-
 function handWidth(cardCount: number): number {
   const leftIndex = 0
   const rightIndex = cardCount - 1
@@ -53,10 +50,6 @@ const closestCardToMouse = (cardCount: number, mouseX: number): number => {
   }
 
   return closestCardIndex
-}
-
-export const selectCard = (hand: Card[], mouseX: number, mouseY: number): Card[] => {
-  return hand.slice(0, 1)
 }
 
 const HOVER_Y_AXIS_LIMIT: number =

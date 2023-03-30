@@ -13,11 +13,6 @@ export type Reflection = {
   reflected: Card
 }
 
-export type ZLevel = {
-  card: Card,
-  zLevel: number
-}
-
 export const defaultCardPositioning = (card: Card): CardPosition => ({
   card,
   x: 0,

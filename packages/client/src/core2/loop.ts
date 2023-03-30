@@ -1,26 +1,19 @@
 import { getMovements, initMovements, Movements } from './move'
-import { Card, CardPosition, Reflection, ZLevel } from './card'
+import { Card, CardPosition, Reflection } from './card'
+import { ZLevel, zLevels } from './z_levels'
 import { CardDesign } from './card_design'
-
 import { CardToDraw, drawCards } from './draw_card'
 import { transpose } from './transition'
 import { createDrawingQueue } from './drawing_queue'
 
 function update(
+  designs: CardDesign[],
   moves: Movements,
   hand: Card[],
   emissionsLine: Card[],
   mouseX: number,
   mouseY: number,
-  currentTime: number,
-  designs: CardDesign[],
-  positions: CardPosition[],
-  visible: Card[],
-  flipped: Card[],
-  selected: Card[],
-  spaceCards: Card[],
-  reflections: Reflection[],
-  zLevels: ZLevel[]
+  currentTime: number
 ): [Movements, CardToDraw[]] {
   let positionsDict: {[card: Card]: CardPosition} = {}
   moves = getMovements(moves, hand, emissionsLine, mouseX, mouseY, currentTime)
@@ -38,8 +31,14 @@ function update(
     }
   }
 
-  positions = Object.values(positionsDict)
+  const positions = Object.values(positionsDict)
 
+  const cards = positions.map(p => p.card)
+  const visible = cards
+  const flipped = emissionsLine
+  const selected: Card[] = []
+  const spaceCards: Card[] = []
+  const reflections: Reflection[] = []
   const queue = createDrawingQueue(
     positions,
     designs,
@@ -48,7 +47,7 @@ function update(
     selected,
     spaceCards,
     reflections,
-    zLevels
+    zLevels(hand)
   )
 
   return [moves, queue]
@@ -74,13 +73,6 @@ function update(
 export function start(
   context: CanvasRenderingContext2D,
   designs: CardDesign[],
-  positions: CardPosition[],
-  visible: Card[],
-  flipped: Card[],
-  selected: Card[],
-  spaceCards: Card[],
-  reflections: Reflection[],
-  zLevels: ZLevel[],
   getHand: () => Card[],
   getEmissionsLine: () => Card[],
   getMousePosition: () => [number, number]
@@ -90,21 +82,16 @@ export function start(
   function loop() {
     let queue: CardToDraw[] = [];
     const [mouseX, mouseY] = getMousePosition();
+    const hand = getHand();
+    const emissionsLine = getEmissionsLine();
     [moves, queue] = update(
+      designs,
       moves,
-      getHand(),
-      getEmissionsLine(),
+      hand,
+      emissionsLine,
       mouseX,
       mouseY,
-      Date.now(),
-      designs,
-      positions,
-      visible,
-      flipped,
-      selected,
-      spaceCards,
-      reflections,
-      zLevels
+      Date.now()
     )
     drawCards(context, queue)
     animationId = requestAnimationFrame(loop)

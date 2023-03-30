@@ -1,5 +1,6 @@
 import { CardDesign } from './card_design'
-import { Card, CardPosition, Reflection, ZLevel } from './card'
+import { Card, CardPosition, Reflection } from './card'
+import { ZLevel } from './z_levels'
 import { CardToDraw } from './draw_card'
 import { dict } from './util'
 
