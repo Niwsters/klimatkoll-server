@@ -168,7 +168,7 @@ export class GameState {
   card_played_from_hand(event: Event, timePassed: number = Date.now()): [GameState, EventToAdd[]] {
     let state = this.new()
     // { socketID, cardID, position }
-    // Move card to emissions line
+    // Movement card to emissions line
     const playedCard = state.cards.find(c => c.id === event.payload.cardID)
     if (!playedCard) {
       throw new Error("Played card does not exist with ID: " + event.payload.cardID)

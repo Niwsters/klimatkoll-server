@@ -33,7 +33,7 @@ export function mouseClickedEvent(mouseX: number, mouseY: number): EventToAdd {
   return eventToAdd("mouse_clicked", { mouseX, mouseY })
 }
 
-export function mouseMovedEvent(mouseX: number, mouseY: number): EventToAdd {
+export function mouseMovementdEvent(mouseX: number, mouseY: number): EventToAdd {
   return eventToAdd("mouse_moved", { mouseX, mouseY })
 }
 

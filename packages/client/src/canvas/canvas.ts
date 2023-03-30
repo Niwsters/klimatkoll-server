@@ -1,6 +1,6 @@
 import { ICard, CardData } from '@shared/models'
 import { CardSprite } from './card-sprite'
-import { EventToAdd, mouseMovedEvent, mouseClickedEvent } from '../event/event'
+import { EventToAdd, mouseMovementdEvent, mouseClickedEvent } from '../event/event'
 import { StreamChannel } from '../stream'
 import { fetchCardData } from 'shared/fetch-card-data'
 
@@ -21,7 +21,7 @@ export class Canvas {
 
     canvas.addEventListener('mousemove', (e: MouseEvent) => {
       const ratio = 960 / canvas.width * window.devicePixelRatio
-      this.events$.next(mouseMovedEvent(e.clientX * ratio, e.clientY * ratio))
+      this.events$.next(mouseMovementdEvent(e.clientX * ratio, e.clientY * ratio))
     }, false)
 
     canvas.addEventListener('click', (e: MouseEvent) => {

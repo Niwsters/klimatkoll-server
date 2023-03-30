@@ -1,7 +1,7 @@
 import { WIDTH, HEIGHT } from '../core/constants'
 import { Card } from '../core2/card'
 import { CARD_HEIGHT, CARD_WIDTH } from './constants'
-import { Moves, PositionGoal, PositionGoals } from './move'
+import { Movements, PositionGoal, PositionGoals } from './move'
 
 const HAND_POSITION_X = WIDTH / 2
 const HAND_POSITION_Y = HEIGHT + 50
@@ -39,7 +39,7 @@ function handWidth(cardCount: number): number {
 
 const distance = (a: number, b: number): number => Math.abs(a - b)
 
-function closestCardToMouse(cardCount: number, mouseX: number): number {
+const closestCardToMouse = (cardCount: number, mouseX: number): number => {
   let closestCardX = 99999999
   let closestCardIndex = -1
 
@@ -53,6 +53,10 @@ function closestCardToMouse(cardCount: number, mouseX: number): number {
   }
 
   return closestCardIndex
+}
+
+export const selectCard = (hand: Card[], mouseX: number, mouseY: number): Card[] => {
+  return hand.slice(0, 1)
 }
 
 const HOVER_Y_AXIS_LIMIT: number =
@@ -84,25 +88,6 @@ function zoomInOnCard(goal: PositionGoal): PositionGoal {
   }
 }
 
-/*
-function zoomHoveredCards(
-  hand: Card[],
-  mouseX: number,
-  mouseY: number,
-  currentTime: number
-): PositionGoals {
-  return {
-    ...hand,
-    cards: hand.cards.map((card, cardIndex) => {
-      if (isCardFocused(hand, cardIndex, mouseX, mouseY))
-        return zoomInOnCard(card, currentTime)
-
-      return moveCardDefault(card, cardIndex, hand.cards.length, currentTime)
-    })
-  }
-}
-*/
-
 const handGoal = (cardCount: number, mouseX: number, mouseY: number, index: number): PositionGoal => {
   const defaultGoal = {
     x: cardX(index, cardCount),
@@ -119,7 +104,7 @@ const handGoal = (cardCount: number, mouseX: number, mouseY: number, index: numb
 }
 
 export const handGoals = (
-  moves: Moves,
+  moves: Movements,
   hand: Card[],
   mouseX: number,
   mouseY: number
@@ -134,146 +119,3 @@ export const handGoals = (
   })
   return goals
 }
-
-/*
-
-function moveCardDefault(
-  card: Card.Card,
-  cardIndex: number,
-  cardCount: number,
-  currentTime: number
-): Card.Card {
-  const [x, y] = getCardPosition(cardIndex, cardCount)
-  const rotation = getCardRotation(cardIndex, cardCount)
-  card = Card.move_x(card, x, currentTime)
-  card = Card.move_y(card, y, currentTime)
-  card = Card.rotate(card, rotation, currentTime)
-  card = { ...card, zLevel: zLevel(cardIndex) }
-  return Card.scale(card, CARD_SCALE, currentTime)
-}
-
-function handWidth(hand: Hand): number {
-  const leftCard = hand.cards[0]
-  const rightCard = hand.cards[hand.cards.length - 1]
-  return rightCard.x - leftCard.x + Canvas.CARD_WIDTH
-}
-
-function distance(a: number, b: number) {
-  return Math.abs(a - b)
-}
-
-function closestCardToMouse(hand: Hand, mouseX: number): number | undefined {
-  let closestCard: Card.Card | undefined
-  let closestCardIndex: number | undefined
-  let i: number = 0
-
-  for (const card of hand.cards) {
-    if (!closestCard) {
-      closestCard = card
-      closestCardIndex = i
-    }
-
-    if (distance(mouseX, card.x) < distance(mouseX, closestCard.x)) {
-      closestCard = card
-      closestCardIndex = i
-    }
-
-    i++
-  }
-
-  return closestCardIndex
-}
-
-const HOVER_Y_AXIS_LIMIT: number =
-  HAND_POSITION_Y - HAND_Y_RADIUS - Canvas.CARD_HEIGHT / 2 * CARD_SCALE
-function isCardFocused(
-  hand: Hand,
-  cardIndex: number,
-  mouseX: number,
-  mouseY: number
-): boolean {
-  const width = handWidth(hand)
-  const closestCardIndex = closestCardToMouse(hand, mouseX)
-  return closestCardIndex !== undefined &&
-         cardIndex === closestCardIndex &&
-         mouseY > HOVER_Y_AXIS_LIMIT &&
-         mouseX > HAND_POSITION_X - width / 2 &&
-         mouseX < HAND_POSITION_X + width / 2
-}
-
-function zoomInOnCard(card: Card.Card, currentTime: number): Card.Card {
-  const scale = 1
-  card = Card.move_y(card, Canvas.HEIGHT - Canvas.CARD_HEIGHT / 2 * scale, currentTime)
-  card = Card.scale(card, scale, currentTime)
-  card = Card.rotate(card, 0, currentTime)
-  card = { ...card, zLevel: 999 }
-  return card
-}
-
-function zoomHoveredCards(
-  hand: Hand,
-  mouseX: number,
-  mouseY: number,
-  currentTime: number
-): Hand {
-  return {
-    ...hand,
-    cards: hand.cards.map((card, cardIndex) => {
-      if (isCardFocused(hand, cardIndex, mouseX, mouseY))
-        return zoomInOnCard(card, currentTime)
-
-      return moveCardDefault(card, cardIndex, hand.cards.length, currentTime)
-    })
-  }
-}
-
-export function create(): Hand {
-  return { cards: [] }
-}
-
-export function addCard(hand: Hand, card: Card.Card, currentTime: number): Hand {
-  card = Card.move_x(card, HAND_POSITION_X, currentTime)
-  card = Card.move_y(card, HAND_POSITION_Y, currentTime)
-
-  return {
-    ...hand,
-    cards: [...hand.cards, card]
-  }
-}
-
-export function removeCard(hand: Hand, card: Card.Card): Hand {
-  return {
-    ...hand,
-    cards: hand.cards.filter(c => c.id !== card.id)
-  }
-}
-
-export function mouseClicked(hand: Hand, mouseX: number, mouseY: number): Hand {
-  return {
-    ...hand,
-    cards: hand.cards.map((card, cardIndex) => {
-      if (isCardFocused(hand, cardIndex, mouseX, mouseY))
-        return { ...card, selected: true }
-
-      return { ...card, selected: false }
-    })
-  }
-}
-
-export function update(hand: Hand, mouseX: number, mouseY: number, currentTime: number): Hand {
-  let cards = hand.cards.map(card => Card.update(card, currentTime))
-  hand = { ...hand, cards }
-  return zoomHoveredCards(hand, mouseX, mouseY, currentTime)
-}
-
-export function selectedCard(hand: Hand): Card.Card | null {
-  return hand.cards.find(card => card.selected) || null
-}
-
-export function draw(hand: Hand, cardName: string): [Hand, Card.Card] {
-  const card = hand.cards.find(c => c.name === cardName)
-  if (!card) throw new Error(`Card not found with ID: ${cardName}`)
-  hand = { ...hand, cards: hand.cards.filter(c => c.name !== cardName) }
-  return [hand, card]
-}
-*/

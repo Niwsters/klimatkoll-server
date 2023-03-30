@@ -3,7 +3,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { Card, CardPosition, defaultCardPositioning, Reflection, ZLevel } from '../core2/card'
 import * as Canvas from '../components/Canvas';
 import { CARD_WIDTH, CARD_HEIGHT } from '../core2/constants';
-import { Moves } from '../core2/move';
+import { Movements } from '../core2/move';
 import './font.css';
 import * as SampleCards from './sample_cards'
 
@@ -38,7 +38,7 @@ const args = {
   getSelected: () => [],
   getSpaceCards: () => [],
   getReflections: () => [],
-  getMoves: () => ({}),
+  getMovements: () => ({}),
   getZLevels: () => []
 }
 
@@ -105,17 +105,18 @@ ReflectOtherCard.args = {
   getReflections: () => [reflection]
 }
 
-const moves = (): Moves => ({
+const moves = (moves: Movements): Movements => ({
+  ...moves,
   [cards[0]]: {
     x: { from: 0, to: 300, started: Date.now() },
     y: { from: 0, to: 300, started: Date.now() },
     rotation: { from: 0, to: Math.PI/6, started: Date.now() },
     scale: { from: 0, to: 2.0, started: Date.now() }
   }
-}) 
+})
 
 export const Transition = Template.bind({})
 Transition.args = {
   ...args,
-  getMoves: moves
+  getMovements: moves
 }

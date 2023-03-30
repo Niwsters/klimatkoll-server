@@ -1,7 +1,7 @@
 import * as Canvas from "../Canvas"
 import { CardDesign } from "../../core2/card_design"
 import { Card, defaultCardPositioning } from "../../core2/card"
-import { getMoves, Moves } from "../../core2/move"
+import { getMovements, Movements } from "../../core2/move"
 import { reformSpaceCards } from "../../core2/emissions_line"
 
 export type Props = {
@@ -14,7 +14,6 @@ export const BasicGame = (props: Props): React.ReactElement => {
   let { designs, hand, emissionsLine } = props
 
   const cards = [...hand, ...emissionsLine]
-
   emissionsLine = reformSpaceCards(emissionsLine, [])
   const positions = designs.map(d => defaultCardPositioning(d.card))
   
@@ -27,7 +26,7 @@ export const BasicGame = (props: Props): React.ReactElement => {
     getSpaceCards: () => [],
     getReflections: () => [],
     getZLevels: () => [],
-    getMoves: (moves: Moves, mouseX: number, mouseY: number) => getMoves(
+    getMovements: (moves: Movements, mouseX: number, mouseY: number) => getMovements(
       moves,
       hand,
       emissionsLine,
@@ -52,13 +51,13 @@ export function BasicGame(props: Props): React.ReactElement {
   const { board, cardDesigns, onCardPlayRequested, onBoardUpdate } = props
 
   let mouseX = 0
+  let mouseX = 0
   let mouseY = 0
 
-  function onMouseMove(x: number, y: number) {
+  function onMouseMovement(x: number, y: number) {
     mouseX = x
     mouseY = y
   }
-
   const matches = { "card_play_requested": onCardPlayRequested }
   const getMatch = (match: string) => Object.hasOwn(matches, match) ? matches[match] : () => {}
   const onGameEvent = (event: EventToAdd) => getMatch(event.event_type)(event)
@@ -76,11 +75,11 @@ export function BasicGame(props: Props): React.ReactElement {
   }
 
   return (
+  return (
     <Canvas.Component
       getCards={getCards}
-      onMouseMove={onMouseMove}
+      onMouseMovement={onMouseMovement}
       onMouseClicked={onMouseClicked}
       cardDesigns={cardDesigns} />
   )
-}
 */

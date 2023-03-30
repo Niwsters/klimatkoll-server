@@ -1,5 +1,5 @@
 import { Card } from './card'
-import { Moves, PositionGoal, PositionGoals } from './move'
+import { Movements, PositionGoal, PositionGoals } from './move'
 import { WIDTH, HEIGHT, CARD_WIDTH } from './constants'
 
 const EMISSIONS_LINE_MAX_LENGTH = WIDTH
@@ -35,7 +35,7 @@ const goal = (index: number, cardCount: number): PositionGoal => ({
   scale: CARD_SCALE
 })
 
-export const emissionsLineGoals = (moves: Moves, emissionsLine: Card[]): PositionGoals => {
+export const emissionsLineGoals = (moves: Movements, emissionsLine: Card[]): PositionGoals => {
   const goals: PositionGoals = {}
   emissionsLine.forEach((card, index) => {
     const move = moves[card]

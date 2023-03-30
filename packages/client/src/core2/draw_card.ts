@@ -1,8 +1,71 @@
-import { CardDesign } from '../../core2/card_design'
-import { Card, CardPosition, Reflection, ZLevel } from '../../core2/card'
-import roundRect from './round_rect'
-import { setFont, drawText, wordWrap } from './text'
-import { CARD_WIDTH, CARD_HEIGHT } from '../../core2/constants'
+import { CardDesign } from './card_design'
+import { Card, CardPosition, Reflection, ZLevel } from './card'
+import { CARD_WIDTH, CARD_HEIGHT, BORDER_RADIUS, WIDTH, HEIGHT } from './constants'
+
+// Cheers @ https://stackoverflow.com/questions/2936112/text-wrap-in-a-canvas-element
+function wordWrap(context: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  var words = text.split(" ");
+  var lines: string[] = [];
+
+  if (words.length == 0)
+    return []
+
+  var currentLine = words[0];
+  for (const word of words.slice(1)) {
+    var width = context.measureText(currentLine + " " + word).width
+    if (width < maxWidth) {
+      currentLine += " " + word
+    } else {
+      lines.push(currentLine)
+      currentLine = word
+    }
+  }
+  lines.push(currentLine)
+
+  return lines;
+}
+
+function setFont(
+  context: CanvasRenderingContext2D,
+  size: number,
+  weight: number = 600
+) {
+  context.font = `${weight} ${size}px Poppins`
+}
+
+function drawText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  textAlign: CanvasTextAlign = 'center'
+) {
+  context.textAlign = textAlign
+  context.fillText(text, x, y)
+}
+
+function roundRect(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  rTop: number,
+  rBottom: number
+) {
+  if (w < 2 * rTop) rTop = w / 2;
+  if (h < 2 * rTop) rTop = h / 2;
+  if (w < 2 * rBottom) rBottom = w / 2;
+  if (h < 2 * rBottom) rBottom = h / 2;
+
+  context.beginPath()
+  context.moveTo(x+rTop, y)
+  context.arcTo(x+w, y,   x+w, y+h, rTop)
+  context.arcTo(x+w, y+h, x,   y+h, rBottom)
+  context.arcTo(x,   y+h, x,   y,   rBottom)
+  context.arcTo(x,   y,   x+w, y,   rTop)
+  context.closePath()
+}
 
 function formatEmissions(n: number): string {
   let n_str = n.toString().split("").reverse().join("")
@@ -34,7 +97,6 @@ function drawNormalCard(
   selected: boolean,
   width: number,
   height: number,
-  borderRadius: number,
   opacity: number = 1.0
 ) {
   const headerHeight = 144
@@ -52,7 +114,7 @@ function drawNormalCard(
     0,
     width,
     headerHeight,
-    borderRadius,
+    BORDER_RADIUS,
     0
   )
   context.fill()
@@ -66,7 +128,7 @@ function drawNormalCard(
     width,
     footerHeight,
     0,
-    borderRadius
+    BORDER_RADIUS
   )
   context.fill()
 
@@ -163,26 +225,31 @@ function drawNormalCard(
       0,
       width,
       height,
-      borderRadius,
-      borderRadius
+      BORDER_RADIUS,
+      BORDER_RADIUS
     )
     context.stroke()
     context.lineWidth = 1.0
   }
 }
 
+export type CardToDraw = {
+  position: CardPosition
+  design: CardDesign
+  isSpace: boolean
+  flipped: boolean
+  selected: boolean
+  opacity: number
+}
+
 export function drawCard(
   context: CanvasRenderingContext2D,
-  position: CardPosition,
-  design: CardDesign,
-  isSpace: boolean,
-  flipped: boolean,
-  selected: boolean,
-  opacity: number
+  card: CardToDraw
 ) {
+  const { position, design, isSpace, flipped, selected, opacity } = card
+
   const width = CARD_WIDTH
   const height = CARD_HEIGHT
-  const borderRadius = 14
 
   context.translate(position.x, position.y)
   context.rotate(position.rotation)
@@ -197,8 +264,8 @@ export function drawCard(
       0,
       width,
       height,
-      borderRadius,
-      borderRadius
+      BORDER_RADIUS,
+      BORDER_RADIUS
     )
     context.fill()
   }
@@ -206,7 +273,7 @@ export function drawCard(
   if (isSpace) {
     drawSpaceCard()
   } else {
-    drawNormalCard(context, design, flipped, selected, width, height, borderRadius, opacity)
+    drawNormalCard(context, design, flipped, selected, width, height, opacity)
   }
 
   // Reset translation and rotation
@@ -218,52 +285,11 @@ export function drawCard(
 
 export const drawCards = (
   context: CanvasRenderingContext2D,
-  positions: CardPosition[],
-  designs: CardDesign[],
-  visible: Card[],
-  flipped: Card[],
-  selected: Card[],
-  spaceCards: Card[],
-  reflections: Reflection[],
-  zLevels: ZLevel[]
+  cards: CardToDraw[]
 ) => {
-  let designDict = {}
-  for (const design of designs) {
-    designDict[design.card] = design
-  }
-
-  const flippedSet = new Set(flipped)
-  const visibleSet = new Set(visible)
-  const selectedSet = new Set(selected)
-  const spaceCardsSet = new Set(spaceCards)
-  let opacity = 1.0
-
-  for (const reflection of reflections) {
-    const reflectedDesign = designDict[reflection.reflected]
-    if (reflectedDesign !== undefined) {
-      designDict[reflection.card] = reflectedDesign
-      spaceCardsSet.delete(reflection.card)
-      opacity = 0.7
-    }
-  }
-
-  const zLevelsDict = {}
-  for (const zLevel of zLevels) {
-    zLevelsDict[zLevel.card] = zLevel.zLevel
-  }
-  const zLevel = (card: Card) => zLevelsDict[card] || 0
-  positions = positions.sort((a,b) => zLevel(a.card) - zLevel(b.card))
-
-  for (const position of positions) {
-    const card = position.card
-    if (visibleSet.has(card)) {
-      const design = designDict[card]
-      if (design !== undefined) {
-          const flipped = flippedSet.has(card)
-          const selected = selectedSet.has(card)
-          const isSpace = spaceCardsSet.has(card)
-          drawCard(context, position, design, isSpace, flipped, selected, opacity)
-      }
-    }
+  context.fillStyle = '#ccc'
+  context.fillRect(0, 0, WIDTH, HEIGHT)
+  for (const card of cards) {
+    drawCard(context, card)
   }
 }

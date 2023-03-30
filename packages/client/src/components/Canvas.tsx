@@ -1,9 +1,9 @@
-import { Card, CardPosition, Reflection, ZLevel } from '../../core2/card'
-import { CardDesign } from '../../core2/card_design'
-import { initMoves, Moves } from '../../core2/move'
+import { Card, CardPosition, Reflection, ZLevel } from '../core2/card'
+import { CardDesign } from '../core2/card_design'
+import { initMovements, Movements } from '../core2/move'
 import React, { useEffect, useRef } from 'react'
-import { render } from './render'
-import { WIDTH, HEIGHT } from '../../core2/constants'
+import { start } from '../core2/loop'
+import { WIDTH, HEIGHT } from '../core2/constants'
 
 function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: number } {
   const rect = canvas.getBoundingClientRect()
@@ -20,9 +20,9 @@ export type CanvasProps = {
   getSelected: () => Card[],
   getSpaceCards: () => Card[],
   getReflections: () => Reflection[],
-  getMoves: (moves: Moves, mouseX: number, mouseY: number) => Moves,
+  getMovements: (moves: Movements, mouseX: number, mouseY: number) => Movements,
   designs: CardDesign[],
-  onMouseMove?: (x: number, y: number) => void,
+  onMouseMovement?: (x: number, y: number) => void,
   onMouseClicked?: (x: number, y: number) => void
 }
 
@@ -35,13 +35,13 @@ export function Component(props: CanvasProps): React.ReactElement {
     getSpaceCards,
     getReflections,
     getZLevels,
-    getMoves,
+    getMovements,
     designs
   } = props
 
   const canvasRef = useRef(null)
 
-  let moves = initMoves(getVisible())
+  let moves = initMovements(getVisible())
 
   useEffect(() => {
     let mouseX = 0
@@ -54,8 +54,8 @@ export function Component(props: CanvasProps): React.ReactElement {
         const { x, y } = coords(canvas, event)
         mouseX = x
         mouseY = y
-        if (props.onMouseMove !== undefined)
-          props.onMouseMove(x, y)
+        if (props.onMouseMovement !== undefined)
+          props.onMouseMovement(x, y)
       }
 
       canvas.onmousedown = (event: MouseEvent) => {
@@ -67,7 +67,7 @@ export function Component(props: CanvasProps): React.ReactElement {
       const context = canvas.getContext('2d')
 
       if (context !== null) {
-        return render(
+        return start(
           context,
           designs,
           getPositions(),
@@ -77,7 +77,7 @@ export function Component(props: CanvasProps): React.ReactElement {
           getSpaceCards(),
           getReflections(),
           getZLevels(),
-          () => getMoves(moves, mouseX, mouseY)
+          () => getMovements(moves, mouseX, mouseY)
         )
       }
     }

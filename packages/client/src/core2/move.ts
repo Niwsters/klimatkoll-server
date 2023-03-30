@@ -4,23 +4,23 @@ import { handGoals } from './hand'
 
 const ANIMATION_DURATION_MS = 300
 
-export type Move = {
+export type Movement = {
   readonly from: number
   readonly to: number
   readonly started: number
 }
 
-export type Moves = {
+export type Movements = {
   [card: Card]: {
-    x: Move,
-    y: Move,
-    rotation: Move,
-    scale: Move
+    x: Movement,
+    y: Movement,
+    rotation: Movement,
+    scale: Movement
   }
 }
 
-export const initMoves = (cards: Card[]): Moves => {
-  let moves: Moves = {}
+export const initMovements = (cards: Card[]): Movements => {
+  let moves: Movements = {}
   for (const card of cards) {
     moves[card] = {
       x: { from: 0, to: 0, started: Date.now() },
@@ -32,7 +32,7 @@ export const initMoves = (cards: Card[]): Moves => {
   return moves
 }
 
-export function transpose(move: Move, currentTime: number): number {
+export function transpose(move: Movement, currentTime: number): number {
   const { from, to, started } = move
   const timePassed = currentTime - started
 
@@ -54,31 +54,31 @@ export type PositionGoals = {
   [card: Card]: PositionGoal
 }
 
-const applyGoals = (moves: Moves, goals: PositionGoals, currentTime: number): Moves => {
-  let newMoves = {...moves}
+const applyGoals = (moves: Movements, goals: PositionGoals, currentTime: number): Movements => {
+  let newMovements = {...moves}
 
   for (const [card, goal] of Object.entries(goals)) {
     for (const [field, value] of Object.entries(goal)) {
       const move = moves[card]
-      const fieldMove: Move = move[field]
+      const fieldMovement: Movement = move[field]
       if (move[field].to !== value) {
-        const from = transpose(fieldMove, currentTime)
-        newMoves[card][field] = { from, to: value, started: currentTime }
+        const from = transpose(fieldMovement, currentTime)
+        newMovements[card][field] = { from, to: value, started: currentTime }
       }
     }
   }
 
-  return newMoves
+  return newMovements
 }
 
-export const getMoves = (
-  moves: Moves,
+export const getMovements = (
+  moves: Movements,
   hand: Card[],
   emissionsLine: Card[],
   mouseX: number,
   mouseY: number,
   currentTime: number
-): Moves => {
+): Movements => {
   const goals = {
     ...handGoals(moves, hand, mouseX, mouseY),
     ...emissionsLineGoals(moves, emissionsLine)
