@@ -62,7 +62,7 @@ function update(
     zLevels(hand, emissionsLine, spaceCards)
   )
 
-  return [selected, moves, reflections(emissionsLine, spaceCards, positions, mouse.x, mouse.y), queue]
+  return [selected, moves, reflections(selected, spaceCards, positions, mouse.x, mouse.y), queue]
 }
 
 // Game state -----
@@ -94,7 +94,7 @@ export function start(
 ) {
   let animationId: number | undefined
   let moves: Movements = initMovements([...getHand(), ...getEmissionsLine()])
-  let selected: Card[]
+  let selected: Card[] = []
   function loop() {
     let queue: CardToDraw[] = [];
     let reflections: Reflection[] = [];
