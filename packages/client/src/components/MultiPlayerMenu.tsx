@@ -1,7 +1,6 @@
 import React from 'react'
 import { TextInput } from './TextInput'
-import { ButtonLayout } from '../ButtonLayout'
-import { SetRoute } from '../set-route'
+import { ButtonLayout } from './ButtonLayout'
 import { Button } from '@shared/components'
 import { createGameEvent, EventToAdd, joinGameEvent } from '@shared/events'
 import { Inbox } from 'inbox'
@@ -10,7 +9,6 @@ interface Props {
   services: {
     httpServerURL: string
     appWidth: number
-    setRoute: SetRoute
     mpServer: Inbox<EventToAdd>,
     t: (key: string) => string
   }
@@ -39,7 +37,7 @@ export class MultiPlayerMenu extends React.Component<Props, State> {
   }
 
   render() {
-    const { appWidth, setRoute, t } = this.props.services
+    const { appWidth, t } = this.props.services
     const setRoomID = this.setRoomID.bind(this)
 
     return (
@@ -58,7 +56,7 @@ export class MultiPlayerMenu extends React.Component<Props, State> {
           />
           <Button
             label={t('go-back')}
-            onClick={() => setRoute("/")}
+            onClick={() => {}}
             color="pink"
           />
         </ButtonLayout>

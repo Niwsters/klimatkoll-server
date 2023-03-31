@@ -26,4 +26,3 @@ export async function fetchCards(env: Environment): Promise<ServerCard[]> {
     return []
   }
 }
-

@@ -18,6 +18,7 @@ type Props = {
   onClick: OnClick,
   color: ButtonColor,
   children?: ReactNode
+  disabled?: boolean
 }
 
 type State = {
@@ -35,6 +36,10 @@ export class Button extends React.Component<Props, State> {
   }
 
   private get colorHex(): string {
+    if (this.props.disabled) {
+      return "#ccc";
+    }
+
     return this.state.hover ? getColorHex("hover") : getColorHex(this.props.color)
   }
 
@@ -53,19 +58,19 @@ export class Button extends React.Component<Props, State> {
   }
 
   render() {
-    const { onClick, label, children } = this.props
+    let { onClick, label, children, disabled } = this.props
+    disabled = disabled === undefined ? false : true
     const hover = () => this.setHover(true)
     const unhover = () => this.setHover(false)
     const style = this.style
 
-    return <button onClick={onClick} style={style} onMouseEnter={hover} onMouseLeave={unhover}>{ label }{ children }</button>
+    return <button
+      onClick={() => !disabled ? onClick() : undefined}
+      style={style}
+      disabled={disabled}
+      onMouseEnter={hover}
+      onMouseLeave={unhover}>
+        { label }{ children }
+      </button>
   }
-}
-
-export function PinkButton(label: string, onClick: () => void) {
-  return <Button label={label} onClick={onClick} color="pink" />
-}
-
-export function YellowButton(label: string, onClick: () => void) {
-  return <Button label={label} onClick={onClick} color="yellow" />
 }

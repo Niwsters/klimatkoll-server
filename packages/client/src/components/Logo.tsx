@@ -1,13 +1,13 @@
 import React from 'react'
+import { TFunction } from '../tfunction'
 
 type Props = {
-  httpServerURL: string
   appWidth: number
-  t: (key: string) => string
+  t: TFunction
 }
 
 export function Logo(props: Props): React.ReactElement {
-  const { appWidth, httpServerURL, t } = props
+  const { appWidth, t } = props
 
   const style: any = {
     "display": "block",
@@ -16,5 +16,5 @@ export function Logo(props: Props): React.ReactElement {
     'paddingBottom': 0.03125 * appWidth,
   }
 
-  return <img src={httpServerURL + "/logo.webp"} alt={t('alt-logo')} style={style} />
+  return <img src={"/logo.webp"} alt={t('alt-logo')} style={style} />
 }
