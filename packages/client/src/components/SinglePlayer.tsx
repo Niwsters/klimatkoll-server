@@ -9,17 +9,37 @@ export type Props = {
   emissionsLine: Card[]
 }
 
+export type State = {
+  hand: Card[]
+}
+
 export const SinglePlayer = (props: Props): React.ReactElement => {
   let { designs } = props
 
-  let hand: Card[] = []
-  let emissionsLine: Card[] = []
+  let deck = designs.map(d => d.card)
+  let hand: Card[] = deck.slice(0, 1)
+  let emissionsLine: Card[] = deck.slice(1, 2)
+  deck = deck.slice(2)
+
+  const onCardPlayed = (playedCard: PlayedCard) => {
+    hand = hand.filter(card => card !== playedCard.card)
+
+    let filled: Card[] = ["filler"]
+    for (const card of emissionsLine) {
+      filled.push(card)
+      filled.push("filler")
+    }
+
+    filled[playedCard.position*2] = playedCard.card
+    emissionsLine = filled.filter(card => card !== "filler")
+  }
+  let getHand: () => Card[] = () => hand
   
   const args = {
     designs: designs,
-    getHand: () => hand,
+    getHand: getHand,
     getEmissionsLine: () => emissionsLine,
-    onCardPlayed: (playedCard: PlayedCard) => {}
+    onCardPlayed
   }
 
   return <Canvas {...args} />

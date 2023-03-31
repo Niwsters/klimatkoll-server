@@ -27,7 +27,7 @@ function update(
   selected = getSelected(selected, hand, mouseClickedEvents)
 
   const positions = getPositions(moves)
-  const cards = positions.map(p => p.card)
+  const cards = [...hand, ...emissionsLine, ...spaceCards]
   const visible = cards
   const flipped = emissionsLine
 

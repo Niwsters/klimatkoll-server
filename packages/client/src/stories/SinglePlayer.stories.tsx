@@ -1,4 +1,19 @@
+import { ComponentMeta, ComponentStory } from '@storybook/react';
+import { SinglePlayer } from '../components/SinglePlayer';
+import * as SampleCards from './sample_cards'
 import _React from 'react'
+
+export default {
+  title: 'Game/SinglePlayer',
+  component: SinglePlayer 
+} as ComponentMeta<typeof SinglePlayer>;
+
+const designs = SampleCards.cardDesigns
+
+const Template: ComponentStory<typeof SinglePlayer> = (args) =>
+  <SinglePlayer {...args} designs={designs} />;
+
+export const PlayCard = Template.bind({});
 /*
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
