@@ -20,15 +20,21 @@ export const createDrawingQueue = (
   const visibleSet = new Set(visible)
   const selectedSet = new Set(selected)
   const spaceCardsSet = new Set(spaceCards)
-  let opacity = 1.0
 
+  const opacities: {[card: Card]: number} = {}
   for (const reflection of reflections) {
     const reflectedDesign = designDict[reflection.reflected]
     if (reflectedDesign !== undefined) {
       designDict[reflection.card] = reflectedDesign
-      spaceCardsSet.delete(reflection.card)
-      opacity = 0.7
+      opacities[reflection.card] = 0.7
     }
+  }
+  const opacity = (card: Card): number => {
+    const opacity = opacities[card]
+    if (opacity === undefined) {
+      return 1.0
+    }
+    return opacity
   }
 
   const zLevelsDict = dict(zLevels, z => z.card)
@@ -49,7 +55,7 @@ export const createDrawingQueue = (
         const selected = selectedSet.has(card)
         const isSpace = spaceCardsSet.has(card)
         const cardToDraw: CardToDraw = 
-          { card, position, isSpace, flipped, selected, opacity }
+          { card, position, isSpace, flipped, selected, opacity: opacity(card) }
         cardsToDraw.push(cardToDraw)
     }
   }

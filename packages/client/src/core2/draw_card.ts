@@ -1,5 +1,5 @@
 import { CardDesign } from './card_design'
-import { Card, CardPosition } from './card'
+import { Card, CardPosition, Reflection } from './card'
 import { CARD_WIDTH, CARD_HEIGHT, BORDER_RADIUS, WIDTH, HEIGHT } from './constants'
 import { dict } from './util';
 
@@ -278,18 +278,28 @@ const reset = (context: CanvasRenderingContext2D, position: CardPosition) => {
 export const drawCards = (
   context: CanvasRenderingContext2D,
   designs: CardDesign[],
+  reflections: Reflection[],
   cards: CardToDraw[]
 ) => {
   context.fillStyle = '#ccc'
   context.fillRect(0, 0, WIDTH, HEIGHT)
 
   const designDict = dict(designs, d => d.card)
+  const reflectionsDict = dict(reflections, r => r.card)
 
   for (const card of cards) {
     setPosition(context, card.position)
 
     if (card.isSpace) {
-      drawSpaceCard(context)
+      const reflection = reflectionsDict[card.card]
+      if (reflection === undefined) {
+        drawSpaceCard(context)
+      } else {
+        const design = designDict[reflection.reflected]
+        if (design !== undefined) {
+          drawNormalCard(context, design, card)
+        }
+      }
     } else {
       const design = designDict[card.card]
       if (design !== undefined) {

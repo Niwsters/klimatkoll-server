@@ -7,6 +7,7 @@ import { transpose } from './transition'
 import { createDrawingQueue } from './drawing_queue'
 import { getSelected } from './select'
 import { getSpaceCards } from './emissions_line'
+import { reflections } from './reflection'
 
 
 export type MouseClickedEvent = {}
@@ -24,7 +25,7 @@ function update(
   mouse: MousePosition,
   mouseClickedEvents: MouseClickedEvent[],
   currentTime: number
-): [Card[], Movements, CardToDraw[]] {
+): [Card[], Movements, Reflection[], CardToDraw[]] {
   for (const _ of mouseClickedEvents) {
     selected = getSelected(hand, mouse.x, mouse.y)
   }
@@ -52,7 +53,6 @@ function update(
   const cards = positions.map(p => p.card)
   const visible = cards
   const flipped = emissionsLine
-  const reflections: Reflection[] = []
 
   const queue = createDrawingQueue(
     positions,
@@ -61,11 +61,11 @@ function update(
     flipped,
     selected,
     spaceCards,
-    reflections,
+    reflections(emissionsLine, spaceCards),
     zLevels(hand, emissionsLine, spaceCards)
   )
 
-  return [selected, moves, queue]
+  return [selected, moves, reflections(emissionsLine, spaceCards), queue]
 }
 
 // Game state -----
@@ -100,7 +100,8 @@ export function start(
   let selected: Card[]
   function loop() {
     let queue: CardToDraw[] = [];
-    [selected, moves, queue] = update(
+    let reflections: Reflection[] = [];
+    [selected, moves, reflections, queue] = update(
       designs,
       moves,
       getHand(),
@@ -110,7 +111,7 @@ export function start(
       getMouseClickedEvents(),
       Date.now()
     )
-    drawCards(context, designs, queue)
+    drawCards(context, designs, reflections, queue)
     animationId = requestAnimationFrame(loop)
   }
 

@@ -1,4 +1,4 @@
-import { Card } from './card'
+import { Card, Reflection } from './card'
 import { PositionGoal, PositionGoals } from './move'
 import { WIDTH, HEIGHT, CARD_WIDTH } from './constants'
 import { entries } from './util'
@@ -77,8 +77,6 @@ export const zLevels = (emissionsLine: Card[], spaceCards: SpaceCards): ZLevel[]
     ...spaceCards.map((card, index) => ({ card, zLevel: index-1 })),
     ...emissionsLine.map((card, index) => ({ card, zLevel: index }))
   ]
-
-
 
 
 /*
