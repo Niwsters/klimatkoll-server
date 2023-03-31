@@ -8,6 +8,7 @@ import { createDrawingQueue } from './drawing_queue'
 import { getSelected } from './select'
 import { getSpaceCards } from './emissions_line'
 import { reflections } from './reflection'
+import { positions as getPositions } from './position'
 
 
 export type MouseClickedEvent = {}
@@ -17,7 +18,6 @@ export type MousePosition = {
 }
 
 function update(
-  designs: CardDesign[],
   moves: Movements,
   hand: Card[],
   emissionsLine: Card[],
@@ -48,24 +48,21 @@ function update(
     }
   }
 
-  const positions = Object.values(positionsDict)
-
+  const positions = getPositions(moves)
   const cards = positions.map(p => p.card)
   const visible = cards
   const flipped = emissionsLine
 
   const queue = createDrawingQueue(
     positions,
-    designs,
     visible,
     flipped,
     selected,
     spaceCards,
-    reflections(emissionsLine, spaceCards),
     zLevels(hand, emissionsLine, spaceCards)
   )
 
-  return [selected, moves, reflections(emissionsLine, spaceCards), queue]
+  return [selected, moves, reflections(emissionsLine, spaceCards, positions, mouse.x, mouse.y), queue]
 }
 
 // Game state -----
@@ -102,7 +99,6 @@ export function start(
     let queue: CardToDraw[] = [];
     let reflections: Reflection[] = [];
     [selected, moves, reflections, queue] = update(
-      designs,
       moves,
       getHand(),
       getEmissionsLine(),

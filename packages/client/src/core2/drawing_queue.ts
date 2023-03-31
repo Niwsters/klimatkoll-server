@@ -1,34 +1,22 @@
-import { CardDesign } from './card_design'
-import { Card, CardPosition, Reflection } from './card'
+import { Card, CardPosition } from './card'
 import { ZLevel } from './z_levels'
 import { CardToDraw } from './draw_card'
 import { dict } from './util'
 
 export const createDrawingQueue = (
   positions: CardPosition[],
-  designs: CardDesign[],
   visible: Card[],
   flipped: Card[],
   selected: Card[],
   spaceCards: Card[],
-  reflections: Reflection[],
   zLevels: ZLevel[]
 ): CardToDraw[] => {
-  const designDict = dict(designs, d => d.card)
-
   const flippedSet = new Set(flipped)
   const visibleSet = new Set(visible)
   const selectedSet = new Set(selected)
   const spaceCardsSet = new Set(spaceCards)
 
   const opacities: {[card: Card]: number} = {}
-  for (const reflection of reflections) {
-    const reflectedDesign = designDict[reflection.reflected]
-    if (reflectedDesign !== undefined) {
-      designDict[reflection.card] = reflectedDesign
-      opacities[reflection.card] = 0.7
-    }
-  }
   const opacity = (card: Card): number => {
     const opacity = opacities[card]
     if (opacity === undefined) {

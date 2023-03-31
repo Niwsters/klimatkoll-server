@@ -1,16 +1,24 @@
-import { Card } from './card'
-import { SpaceCards } from './emissions_line'
+import { Card, CardPosition } from './card'
+import { SpaceCards, focusedCards } from './emissions_line'
 
 export type Reflection = {
   card: Card,
   reflected: Card
 }
 
-export const reflections = (emissionsLine: Card[], spaceCards: SpaceCards): Reflection[] => {
-  return [
-    {
-      card: spaceCards[0] || "nocard",
-      reflected: emissionsLine[0] || "nocard"
+export const reflections = (
+  selectedCards: Card[],
+  spaceCards: SpaceCards,
+  positions: CardPosition[],
+  mouseX: number,
+  mouseY: number
+): Reflection[] => {
+  let reflections: Reflection[] = []
+  for (const focusedCard of focusedCards(spaceCards, positions, mouseX, mouseY)) {
+    const selectedCard = selectedCards[0]
+    if (selectedCard !== undefined) {
+      reflections.push({ card: focusedCard, reflected: selectedCard })
     }
-  ]
+  }
+  return reflections
 }

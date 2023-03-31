@@ -2,6 +2,7 @@ import { WIDTH, HEIGHT } from '../core/constants'
 import { Card } from '../core2/card'
 import { CARD_HEIGHT, CARD_WIDTH } from './constants'
 import { Movements, PositionGoal, PositionGoals } from './move'
+import { distance } from './util'
 
 const HAND_POSITION_X = WIDTH / 2
 const HAND_POSITION_Y = HEIGHT + 50
@@ -33,8 +34,6 @@ function handWidth(cardCount: number): number {
   const rightCardX = cardX(rightIndex, cardCount)
   return rightCardX - leftCardX + CARD_WIDTH
 }
-
-const distance = (a: number, b: number): number => Math.abs(a - b)
 
 const closestCardIndexToMouse = (cardCount: number, mouseX: number): number => {
   let closestCardX = 99999999

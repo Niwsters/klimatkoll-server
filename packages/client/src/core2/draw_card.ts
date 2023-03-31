@@ -1,6 +1,6 @@
 import { CardDesign } from './card_design'
 import { Card, CardPosition, Reflection } from './card'
-import { CARD_WIDTH, CARD_HEIGHT, BORDER_RADIUS, WIDTH, HEIGHT } from './constants'
+import { CARD_WIDTH, CARD_HEIGHT, BORDER_RADIUS, WIDTH, HEIGHT, REFLECTION_OPACITY } from './constants'
 import { dict } from './util';
 
 export type CardToDraw = {
@@ -297,7 +297,7 @@ export const drawCards = (
       } else {
         const design = designDict[reflection.reflected]
         if (design !== undefined) {
-          drawNormalCard(context, design, card)
+          drawNormalCard(context, design, { ...card, opacity: REFLECTION_OPACITY })
         }
       }
     } else {

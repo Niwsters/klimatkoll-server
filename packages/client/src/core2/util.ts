@@ -13,3 +13,5 @@ export const dict = <T>(list: T[], key: (t: T) => Key) => {
   }
   return dict
 }
+
+export const distance = (a: number, b: number): number => Math.abs(a - b)

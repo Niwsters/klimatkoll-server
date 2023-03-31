@@ -1,7 +1,7 @@
-import { Card, Reflection } from './card'
+import { Card, CardPosition, Reflection } from './card'
 import { PositionGoal, PositionGoals } from './move'
-import { WIDTH, HEIGHT, CARD_WIDTH } from './constants'
-import { entries } from './util'
+import { WIDTH, HEIGHT, CARD_WIDTH, CARD_HEIGHT } from './constants'
+import { distance, entries } from './util'
 import { ZLevel } from './z_levels'
 
 const EMISSIONS_LINE_MAX_LENGTH = WIDTH
@@ -78,6 +78,80 @@ export const zLevels = (emissionsLine: Card[], spaceCards: SpaceCards): ZLevel[]
     ...emissionsLine.map((card, index) => ({ card, zLevel: index }))
   ]
 
+const width = (positions: CardPosition[]): number => {
+  let leftCardX = 0
+  let rightCardX = 0
+  for (const position of positions) {
+    const x = position.x
+    if (leftCardX === 0)
+      leftCardX = x
+
+    if (rightCardX === 0)
+      rightCardX = x
+
+    if (x < leftCardX)
+      leftCardX = x
+
+    if (x > rightCardX)
+      rightCardX = x
+  }
+
+  const cardWidth = CARD_WIDTH * CARD_SCALE
+  const x1 = leftCardX - cardWidth / 2
+  const x2 = rightCardX + cardWidth / 2
+
+  return x2 - x1 
+}
+
+const closestCard = (
+  positions: CardPosition[],
+  mouseX: number
+): Card[] =>
+  positions
+    .sort((a, b) => distance(mouseX, a.x) - distance(mouseX, b.x))
+    .slice(0, 1)
+    .map(p => p.card)
+  /*
+  for (const [card, goal] of entries(goals)) {
+    if (!closest) {
+      closest = card
+      continue
+    }
+
+    if (Math.abs(card.x - mouseX) < Math.abs(closest.x - mouseX)) {
+      closest = card
+    }
+  }
+  */
+
+const mouseWithinBounds = (width: number, mouseX: number, mouseY: number): boolean => {
+  const lowerBoundsY = EMISSIONS_LINE_POSITION_Y - CARD_HEIGHT * CARD_SCALE / 2
+  const upperBoundsY = EMISSIONS_LINE_POSITION_Y + CARD_HEIGHT * CARD_SCALE / 2
+
+  const lowerBoundsX = EMISSIONS_LINE_POSITION_X - width / 2
+  const upperBoundsX = EMISSIONS_LINE_POSITION_X + width / 2
+
+  return mouseX > lowerBoundsX &&
+         mouseX < upperBoundsX &&
+         mouseY > lowerBoundsY &&
+         mouseY < upperBoundsY
+}
+
+export const focusedCards = (
+  cards: Card[],
+  positions: CardPosition[],
+  mouseX: number,
+  mouseY: number
+): Card[] => {
+  const cardsSet = new Set(cards)
+  positions = positions.filter(p => cardsSet.has(p.card))
+
+  if (mouseWithinBounds(width(positions), mouseX, mouseY)) {
+    return closestCard(positions, mouseX)
+  }
+
+  return []
+}
 
 /*
 const EMISSIONS_LINE_MAX_LENGTH = Canvas.WIDTH
