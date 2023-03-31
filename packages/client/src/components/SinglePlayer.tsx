@@ -1,24 +1,37 @@
 import { Canvas } from './Canvas'
 import { CardDesign } from "../core/card_design"
 import { PlayedCard } from '../core/play_card'
-import { init, onCardsPlayed } from '../core/singleplayer'
+import { init, playCards, score as getScore } from '../core/singleplayer'
+import { SPUI } from './SPUI'
+import { WIDTH } from '../core/constants'
+import { TFunction } from '../tfunction'
+import { Navigate } from './navigate'
+import { useState } from 'react'
 
 export type Props = {
   designs: CardDesign[]
+  t: TFunction
+  navigate: Navigate
 }
 
 export const SinglePlayer = (props: Props): React.ReactElement => {
-  let { designs } = props
+  let { designs, t, navigate } = props
   let piles = init(designs)
-  
-  const args = {
-    designs: designs,
-    getPiles: () => piles,
-    onCardsPlayed: (playedCards: PlayedCard[]) =>
-      piles = onCardsPlayed(piles, designs, playedCards)
-  }
+  let [score, setScore] = useState(0)
 
-  return <Canvas {...args} />
+  const onCardsPlayed = (playedCards: PlayedCard[]) => {
+    piles = playCards(piles, designs, playedCards)
+    setScore(getScore(piles))
+  } 
+
+  return <div style={{ width: WIDTH }}>
+    <Canvas
+      designs={designs}
+      getPiles={() => piles}
+      onCardsPlayed={onCardsPlayed}
+      />
+    <SPUI t={t} onLeaveGame={() => navigate("menu")} score={score} />
+  </div>
 }
 /*
 import * as Card from '../../core/card'

@@ -11,7 +11,7 @@ export default {
 const designs = SampleCards.cardDesigns
 
 const Template: ComponentStory<typeof SinglePlayer> = (args) =>
-  <SinglePlayer {...args} designs={designs} />;
+  <SinglePlayer {...args} designs={designs} t={key => key}/>;
 
 export const PlayCard = Template.bind({});
 /*

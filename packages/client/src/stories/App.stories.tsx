@@ -10,6 +10,6 @@ export default {
 } as ComponentMeta<typeof App>;
 
 const Template: ComponentStory<typeof App> = (args) =>
-  <App {...args} designs={cardDesigns} />;
+  <App {...args} designs={cardDesigns} t={key => key} />;
 
 export const Start = Template.bind({});

@@ -1,4 +1,3 @@
-import { HEIGHT } from "../core/constants"
 import { Button } from "./Button"
 import _React, { ReactNode } from "react"
 import { TFunction } from "tfunction"
@@ -8,10 +7,9 @@ const Container = (props: { children: ReactNode }) => {
     position: "absolute",
     top: 0,
     display: "flex",
-    flexDirection: "column",
     background: "#F3EFEC",
-    width: "11.4em",
-    height: HEIGHT + "px"
+    width: "inherit",
+    height: "50px"
   } as const
 
   return (
@@ -23,15 +21,17 @@ const Container = (props: { children: ReactNode }) => {
 
 export type Props = {
   t: TFunction,
-  onLeaveGame: () => void
+  onLeaveGame: () => void,
+  score: number
 }
 
 export const SPUI = (props: Props) => {
-  const { t, onLeaveGame } = props
+  const { t, onLeaveGame, score } = props
 
   const Instructions = () => {
     const style = {
-      "padding": "1em"
+      width: "100%",
+      padding: "1em"
     }
 
     return (
@@ -41,8 +41,18 @@ export const SPUI = (props: Props) => {
     )
   }
 
+  const Score = () => {
+    const style = {
+      padding: "1em",
+      width: "10em"
+    }
+
+    return <div style={style}>{t('score')}: { score }</div>
+  }
+
   return <Container>
-    <Instructions></Instructions>
+    <Instructions />
+    <Score />
     <Button color="pink" onClick={onLeaveGame}>{t('leave-game')}</Button>
   </Container>
 }

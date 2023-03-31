@@ -43,7 +43,7 @@ const isLegalPlay = (
   return leftOk && rightOk
 }
 
-export const onCardsPlayed = (
+export const playCards = (
   piles: Piles,
   designs: CardDesign[],
   playedCards: PlayedCard[]
@@ -79,3 +79,5 @@ export const onCardsPlayed = (
     discardPile
   }
 }
+
+export const score = (piles: Piles) => piles.emissionsLine.length - 1
