@@ -1,7 +1,7 @@
 import { Canvas } from './Canvas'
-import { CardDesign } from "../core2/card_design"
-import { PlayedCard } from '../core2/play_card'
-import { init, onCardsPlayed } from '../core2/singleplayer'
+import { CardDesign } from "../core/card_design"
+import { PlayedCard } from '../core/play_card'
+import { init, onCardsPlayed } from '../core/singleplayer'
 
 export type Props = {
   designs: CardDesign[]
@@ -21,8 +21,8 @@ export const SinglePlayer = (props: Props): React.ReactElement => {
   return <Canvas {...args} />
 }
 /*
-import * as Card from '../../core2/card'
-import { CardDesign } from '../../core2/card_design'
+import * as Card from '../../core/card'
+import { CardDesign } from '../../core/card_design'
 import { BasicGame } from '../BasicGame'
 import { ServerCard } from 'components/App/fetch-cards'
 import { equijoin } from '../../util'

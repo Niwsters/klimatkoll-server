@@ -1,4 +1,4 @@
-import { CardDesign } from '../core2/card_design'
+import { CardDesign } from '../core/card_design'
 
 export const card: CardDesign = {
   card: "pendla",

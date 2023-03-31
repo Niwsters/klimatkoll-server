@@ -3,7 +3,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { Canvas } from '../components/Canvas'
 import * as SampleCards from './sample_cards'
 import './font.css'
-import { Piles } from 'core2/pile'
+import { Piles } from 'core/pile'
 
 export default {
   title: 'Canvas',

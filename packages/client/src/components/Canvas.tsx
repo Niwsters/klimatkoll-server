@@ -1,10 +1,10 @@
-import { CardDesign } from '../core2/card_design'
+import { CardDesign } from '../core/card_design'
 import React, { useEffect, useRef } from 'react'
-import { start } from '../core2/loop'
-import { WIDTH, HEIGHT } from '../core2/constants'
-import { MouseClickedEvent } from 'core2/mouse'
-import { PlayedCard } from 'core2/play_card'
-import { Piles } from 'core2/pile'
+import { start } from '../core/loop'
+import { WIDTH, HEIGHT } from '../core/constants'
+import { MouseClickedEvent } from 'core/mouse'
+import { PlayedCard } from 'core/play_card'
+import { Piles } from 'core/pile'
 
 function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: number } {
   const rect = canvas.getBoundingClientRect()

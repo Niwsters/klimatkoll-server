@@ -1,19 +1,20 @@
-import { Card } from "./card"
+import { Card } from './card'
+import { Positions } from './move'
 
-export class Deck {
-  private topCard?: Card
+const DECK_POSITION_X = 800
+const DECK_POSITION_Y = 150
+const CARD_SCALE = 0.5
 
-  get cards(): Card[] {
-    const topCard = this.topCard
-    if (!topCard) return []
-    return [topCard]
-  }
-
-  constructor(topCard: Card | undefined = undefined) {
-    this.topCard = topCard
-  }
-
-  setTopCard(card: Card): Deck {
-    return new Deck(card)
-  }
+export const deckPositions = (deck: Card[]): Positions => {
+  const positions: Positions = {}
+  deck.forEach(card => {
+    positions[card] = {
+      card,
+      x: DECK_POSITION_X,
+      y: DECK_POSITION_Y,
+      rotation: 0,
+      scale: CARD_SCALE
+    }
+  })
+  return positions
 }

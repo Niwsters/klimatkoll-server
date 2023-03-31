@@ -1,134 +1,98 @@
+import { WIDTH, HEIGHT } from './constants'
 import { Card } from './card'
-import {
-  HAND_POSITION,
-  HAND_CARD_ANGLE,
-  HAND_X_RADIUS,
-  HAND_Y_RADIUS,
-  HAND_ANGLE_FACTOR
-} from './constants'
+import { closestCard } from './closest_card'
+import { CARD_HEIGHT, CARD_WIDTH } from './constants'
 import { Position } from './position'
+import { Positions } from './move'
 
-function distance(a: number, b: number) {
-  return Math.abs(a - b)
+const HAND_POSITION_X = WIDTH / 2
+const HAND_POSITION_Y = HEIGHT + 50
+const HAND_CARD_ANGLE = Math.PI/5
+const HAND_X_RADIUS = 160
+const HAND_Y_RADIUS = 80
+const HAND_ANGLE_FACTOR = HAND_Y_RADIUS / HAND_X_RADIUS // The angle should not map to the same ellipse as the position
+const CARD_SCALE = 0.5
+const HOVER_Y_AXIS_LIMIT: number =
+  HAND_POSITION_Y - HAND_Y_RADIUS - CARD_HEIGHT / 2 * CARD_SCALE
+
+const cardAngle = (i: number, cardCount: number) => {
+  const n = cardCount - 1
+  return HAND_CARD_ANGLE * (i - n/2) * HAND_ANGLE_FACTOR
 }
 
-export class Hand {
+const cardX = (i: number, cardCount: number): number => {
+  const angle = cardAngle(i, cardCount)
+  return HAND_POSITION_X + HAND_X_RADIUS * Math.sin(angle)
+}
 
-  private _cards: Card[]
-  private mousePosition: Position = new Position(0, 0)
+const cardY = (i: number, cardCount: number): number => {
+  const angle = cardAngle(i, cardCount)
+  return HAND_POSITION_Y - HAND_Y_RADIUS * Math.cos(angle)
+}
 
-  private getCardAngle(i: number) {
-    const n = this.cards.length - 1
-    return HAND_CARD_ANGLE * (i - n/2)
+const handWidth = (cardCount: number): number => {
+  const leftIndex = 0
+  const rightIndex = cardCount - 1
+  const leftCardX = cardX(leftIndex, cardCount)
+  const rightCardX = cardX(rightIndex, cardCount)
+  return rightCardX - leftCardX + CARD_WIDTH
+}
+
+const mouseWithinBounds = (cardCount: number, mouseX: number, mouseY: number): boolean => {
+  const width = handWidth(cardCount)
+  return mouseY > HOVER_Y_AXIS_LIMIT &&
+         mouseX > HAND_POSITION_X - width / 2 &&
+         mouseX < HAND_POSITION_X + width / 2
+}
+
+const zoomInOnCard = (position: Position): Position => {
+  const scale = 1
+  const y = HEIGHT - CARD_HEIGHT / 2 * scale
+  const rotation = 0
+  return {
+    ...position,
+    scale,
+    y,
+    rotation
   }
+}
 
-  private getPosition(i: number) {
-    const angle = this.getCardAngle(i)
-    const x = HAND_POSITION.x + HAND_X_RADIUS * Math.sin(angle)
-    const y = HAND_POSITION.y - HAND_Y_RADIUS * Math.cos(angle)
-    return [x, y]
-  }
-
-  private getCardRotation(i: number) {
-    let angle = this.getCardAngle(i)
-    return angle * HAND_ANGLE_FACTOR
-  }
-
-  private closestCardToMouse(mouseX: number): Card | undefined {
-    let closestCard: Card | undefined
-    for (const card of this.cards) {
-      if (!closestCard) closestCard = card
-
-      if (distance(mouseX, card.position.x) < distance(mouseX, closestCard.position.x))
-        closestCard = card
+const defaultPositions = (
+  hand: Card[]
+): Positions => {
+  const positions: Positions = {}
+  hand.forEach((card, index) => {
+    positions[card] = {
+      card,
+      x: cardX(index, hand.length),
+      y: cardY(index, hand.length),
+      rotation: cardAngle(index, hand.length),
+      scale: CARD_SCALE
     }
-    return closestCard
+  })
+  return positions
+}
+
+export const focusedCards = (hand: Card[], mouseX: number, mouseY: number): Card[] => {
+  const positions = Object.values(defaultPositions(hand))
+  if (mouseWithinBounds(positions.length, mouseX, mouseY)) {
+    return closestCard(positions, mouseX, mouseY)
   }
+  return []
+}
 
-  private zoomInOnCard(card: Card, currentTime: number): Card {
-    card = card.move(card.position.x, HAND_POSITION.y - 230, currentTime)
-    card = card.setScale(Card.DEFAULT_SCALE * 2, currentTime)
-    card = card.rotateGlobal(0, currentTime)
-    card.zLevel = 999
-    return card
-  }
+export const handPositions = (
+  hand: Card[],
+  mouseX: number,
+  mouseY: number
+): Positions => {
+  const positions = defaultPositions(hand)
+  focusedCards(hand, mouseX, mouseY).forEach(card => {
+    const position = positions[card]
+    if (position !== undefined) {
+      positions[card] = zoomInOnCard(position)
+    }
+  })
 
-  private moveCardDefault(card: Card, cardIndex: number, currentTime: number): Card {
-    const [x, y] = this.getPosition(cardIndex)
-    const scale = Card.DEFAULT_SCALE
-    const rotation = this.getCardRotation(cardIndex)
-    card = card.move(x, y, currentTime)
-    card = card.rotateGlobal(rotation, currentTime)
-    // + 10 to prevent first card going under emissions line card when zooming out
-    card.zLevel = cardIndex + 10
-    return card.setScale(scale, currentTime)
-  }
-
-  private handWidth(): number {
-    const leftCard = this.cards[0]
-    const rightCard = this.cards[this.cards.length - 1]
-    return rightCard.position.x - leftCard.position.x + Card.DEFAULT_WIDTH * Card.DEFAULT_SCALE
-  }
-
-  private readonly hoverYAxisLimit: number = HAND_POSITION.y - Card.DEFAULT_HEIGHT * Card.DEFAULT_SCALE
-  private isCardFocused(card: Card, mouseX: number, mouseY: number): boolean {
-    const width = this.handWidth()
-    const closestCard = this.closestCardToMouse(mouseX)
-    return closestCard !== undefined &&
-           card.id === closestCard.id &&
-           mouseY > this.hoverYAxisLimit &&
-           mouseX > HAND_POSITION.x - width / 2 &&
-           mouseX < HAND_POSITION.x + width / 2
-  }
-
-  private zoomHoveredCards(currentTime: number, mouseX: number, mouseY: number): Hand {
-    const cards = this._cards.map((card: Card, cardIndex: number) => {
-      if (this.isCardFocused(card, mouseX, mouseY))
-        return this.zoomInOnCard(card, currentTime)
-
-      return this.moveCardDefault(card, cardIndex, currentTime)
-    })
-
-    return new Hand(cards)
-  }
-
-  constructor(cards: Card[] = []) {
-    this._cards = cards
-  }
-
-  get cards(): Card[] {
-    return this._cards
-  }
-
-  get selectedCard(): Card | undefined {
-    return this.cards.find(c => c.selected === true)
-  }
-
-  addCard(card: Card): Hand {
-    return new Hand([...this._cards, card])
-  }
-
-  mouseClicked(mouseX: number, mouseY: number): Hand {
-    const cards = this.cards.map(card => {
-      if (this.isCardFocused(card, mouseX, mouseY)) {
-        return card.select()
-      }
-
-      return card.deselect()
-    })
-
-    return new Hand(cards)
-  }
-
-  animate(currentTime: number): Hand {
-    return new Hand(this.cards.map(card => card.update(currentTime)))
-  }
-
-  update(currentTime: number, mouseX: number, mouseY: number): Hand {
-    return new Hand(this._cards).zoomHoveredCards(currentTime, mouseX, mouseY).animate(currentTime)
-  }
-
-  removeCard(card: Card): Hand {
-    return new Hand(this.cards.filter(c => c.id !== card.id))
-  }
+  return positions
 }
