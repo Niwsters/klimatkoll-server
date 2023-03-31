@@ -1,7 +1,6 @@
 import * as Canvas from "./Canvas"
 import { CardDesign } from "../core2/card_design"
 import { Card } from "../core2/card"
-import { reformSpaceCards } from "../core2/emissions_line"
 
 export type Props = {
   designs: CardDesign[],
@@ -11,8 +10,6 @@ export type Props = {
 
 export const BasicGame = (props: Props): React.ReactElement => {
   let { designs, hand, emissionsLine } = props
-
-  emissionsLine = reformSpaceCards(emissionsLine, [])
   
   const args: Canvas.CanvasProps = {
     designs: designs,

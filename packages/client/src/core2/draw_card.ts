@@ -1,6 +1,16 @@
 import { CardDesign } from './card_design'
-import { CardPosition } from './card'
+import { Card, CardPosition } from './card'
 import { CARD_WIDTH, CARD_HEIGHT, BORDER_RADIUS, WIDTH, HEIGHT } from './constants'
+import { dict } from './util';
+
+export type CardToDraw = {
+  card: Card,
+  position: CardPosition
+  isSpace: boolean
+  flipped: boolean
+  selected: boolean
+  opacity: number
+}
 
 // Cheers @ https://stackoverflow.com/questions/2936112/text-wrap-in-a-canvas-element
 function wordWrap(context: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
@@ -93,12 +103,11 @@ function colorHex(color: string, opacity: number): string {
 function drawNormalCard(
   context: CanvasRenderingContext2D,
   design: CardDesign,
-  flipped: boolean,
-  selected: boolean,
-  width: number,
-  height: number,
-  opacity: number = 1.0
+  card: CardToDraw
 ) {
+  const { flipped, selected, opacity } = card
+  const width = CARD_WIDTH
+  const height = CARD_HEIGHT
   const headerHeight = 144
   const footerHeight = CARD_HEIGHT - headerHeight
   const darkBlue = colorHex('#1C1C45', opacity)
@@ -233,50 +242,33 @@ function drawNormalCard(
   }
 }
 
-export type CardToDraw = {
-  position: CardPosition
-  design: CardDesign
-  isSpace: boolean
-  flipped: boolean
-  selected: boolean
-  opacity: number
+
+const drawSpaceCard = (context: CanvasRenderingContext2D) => {
+  context.fillStyle = 'rgba(0, 0, 0, 0.3)'
+  roundRect(
+    context,
+    0,
+    0,
+    CARD_WIDTH,
+    CARD_HEIGHT,
+    BORDER_RADIUS,
+    BORDER_RADIUS
+  )
+  context.fill()
 }
 
-export function drawCard(
-  context: CanvasRenderingContext2D,
-  card: CardToDraw
-) {
-  const { position, design, isSpace, flipped, selected, opacity } = card
-
+const setPosition = (context: CanvasRenderingContext2D, position: CardPosition) => {
   const width = CARD_WIDTH
   const height = CARD_HEIGHT
-
   context.translate(position.x, position.y)
   context.rotate(position.rotation)
   context.scale(position.scale, position.scale)
   context.translate(-width/2, -height/2)
+}
 
-  const drawSpaceCard = () => {
-    context.fillStyle = 'rgba(0, 0, 0, 0.3)'
-    roundRect(
-      context,
-      0,
-      0,
-      width,
-      height,
-      BORDER_RADIUS,
-      BORDER_RADIUS
-    )
-    context.fill()
-  }
-
-  if (isSpace) {
-    drawSpaceCard()
-  } else {
-    drawNormalCard(context, design, flipped, selected, width, height, opacity)
-  }
-
-  // Reset translation and rotation
+const reset = (context: CanvasRenderingContext2D, position: CardPosition) => {
+  const width = CARD_WIDTH
+  const height = CARD_HEIGHT
   context.translate(width/2, height/2)
   context.scale(1/position.scale, 1/position.scale)
   context.rotate(-position.rotation)
@@ -285,11 +277,25 @@ export function drawCard(
 
 export const drawCards = (
   context: CanvasRenderingContext2D,
+  designs: CardDesign[],
   cards: CardToDraw[]
 ) => {
   context.fillStyle = '#ccc'
   context.fillRect(0, 0, WIDTH, HEIGHT)
+
+  const designDict = dict(designs, d => d.card)
+
   for (const card of cards) {
-    drawCard(context, card)
+    setPosition(context, card.position)
+
+    if (card.isSpace) {
+      drawSpaceCard(context)
+    } else {
+      const design = designDict[card.card]
+      if (design !== undefined) {
+        drawNormalCard(context, design, card)
+      }
+    }
+    reset(context, card.position)
   }
 }

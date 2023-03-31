@@ -1,6 +1,8 @@
 import { Card } from './card'
-import { Movements, PositionGoal, PositionGoals } from './move'
+import { PositionGoal, PositionGoals } from './move'
 import { WIDTH, HEIGHT, CARD_WIDTH } from './constants'
+import { entries } from './util'
+import { ZLevel } from './z_levels'
 
 const EMISSIONS_LINE_MAX_LENGTH = WIDTH
 const EMISSIONS_LINE_POSITION_X = WIDTH / 2
@@ -10,7 +12,7 @@ const CARD_SCALE = 0.5
 function cardDistance(cardCount: number): number {
   const cardWidth = CARD_WIDTH * CARD_SCALE
   const totalELWidth = cardWidth * cardCount
-  let cardDistance = cardWidth / 2
+  let cardDistance = cardWidth
   if (totalELWidth > EMISSIONS_LINE_MAX_LENGTH) {
     cardDistance = (EMISSIONS_LINE_MAX_LENGTH - cardWidth) / (cardCount-1)
   }
@@ -19,7 +21,7 @@ function cardDistance(cardCount: number): number {
 
 const cardX = (index: number, cardCount: number): number => {
   const width = cardDistance(cardCount)
-  const startOffset = 0 - width*cardCount/2 - width/2
+  const startOffset = 0 - width/2
   const result = EMISSIONS_LINE_POSITION_X + startOffset + width * index
   return result
 }
@@ -35,32 +37,46 @@ const goal = (index: number, cardCount: number): PositionGoal => ({
   scale: CARD_SCALE
 })
 
-export const emissionsLineGoals = (moves: Movements, emissionsLine: Card[]): PositionGoals => {
+export const emissionsLineGoals = (emissionsLine: Card[]): PositionGoals => {
   const goals: PositionGoals = {}
   emissionsLine.forEach((card, index) => {
-    const move = moves[card]
-    if (move !== undefined) {
-      goals[card] = goal(index, emissionsLine.length)
-    }
-    return goals
+    goals[card] = goal(index, emissionsLine.length)
   })
   return goals
 }
 
-const spaceCard = () => Math.random().toString()
+export type SpaceCards = Card[]
 
-export const reformSpaceCards = (cards: Card[], spaceCards: Card[]): Card[] => {
-  const spaceCardsSet = new Set(spaceCards)
-  cards = cards.filter(c => !spaceCardsSet.has(c))
-  cards = cards.reduce((cards, card) => {
-    return [
-      ...cards,
-      card,
-      spaceCard()
-    ]
-  }, [spaceCard()])
-  return cards
+const spaceCard = (index: number): Card => "space-" + index
+
+export const getSpaceCards = (el: Card[]) => {
+  let spaceCards: Card[] = [spaceCard(0)]
+  el.forEach((_, index) => {
+    spaceCards.push(spaceCard(index+1))
+  })
+  for (const _ of el) {
+  }
+  return spaceCards
 }
+
+export const spaceCardsGoals = (spaceCards: SpaceCards): PositionGoals => {
+  const goals = emissionsLineGoals(spaceCards)
+  const newGoals = {...goals}
+  for (const [card, goal] of entries(goals)) {
+    const newGoal = {
+      ...goal,
+      x: goal.x - CARD_WIDTH / 4
+    }
+    newGoals[card] = newGoal
+  }
+  return newGoals
+}
+
+export const zLevels = (emissionsLine: Card[], spaceCards: SpaceCards): ZLevel[] =>
+  [
+    ...spaceCards.map((card, index) => ({ card, zLevel: index-1 })),
+    ...emissionsLine.map((card, index) => ({ card, zLevel: index }))
+  ]
 
 
 

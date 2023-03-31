@@ -45,15 +45,12 @@ export const createDrawingQueue = (
   for (const position of positions) {
     const card = position.card
     if (visibleSet.has(card)) {
-      const design = designDict[card]
-      if (design !== undefined) {
-          const flipped = flippedSet.has(card)
-          const selected = selectedSet.has(card)
-          const isSpace = spaceCardsSet.has(card)
-          const cardToDraw: CardToDraw = 
-            { position, design, isSpace, flipped, selected, opacity }
-          cardsToDraw.push(cardToDraw)
-      }
+        const flipped = flippedSet.has(card)
+        const selected = selectedSet.has(card)
+        const isSpace = spaceCardsSet.has(card)
+        const cardToDraw: CardToDraw = 
+          { card, position, isSpace, flipped, selected, opacity }
+        cardsToDraw.push(cardToDraw)
     }
   }
   return cardsToDraw

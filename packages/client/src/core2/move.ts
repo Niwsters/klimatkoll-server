@@ -1,5 +1,5 @@
 import { Card } from './card'
-import { emissionsLineGoals } from './emissions_line'
+import { emissionsLineGoals, spaceCardsGoals } from './emissions_line'
 import { handGoals } from './hand'
 
 const ANIMATION_DURATION_MS = 300
@@ -21,15 +21,17 @@ export type Movements = {
   [card: Card]: Movement
 }
 
+export const initMovement = (): Movement => ({
+  x: { from: 0, to: 0, started: Date.now() },
+  y: { from: 0, to: 0, started: Date.now() },
+  rotation: { from: 0, to: 0, started: Date.now() },
+  scale: { from: 1.0, to: 1.0, started: Date.now() }
+})
+
 export const initMovements = (cards: Card[]): Movements => {
   let moves: Movements = {}
   for (const card of cards) {
-    moves[card] = {
-      x: { from: 0, to: 0, started: Date.now() },
-      y: { from: 0, to: 0, started: Date.now() },
-      rotation: { from: 0, to: 0, started: Date.now() },
-      scale: { from: 1.0, to: 1.0, started: Date.now() }
-    }
+    moves[card] = initMovement()
   }
   return moves
 }
@@ -78,12 +80,9 @@ const applyGoal = (move: Movement, goal: PositionGoal, currentTime: number): Mov
 const applyGoals = (moves: Movements, goals: PositionGoals, currentTime: number): Movements => {
   let newMovements: Movements = {...moves}
   for (const [card, goal] of Object.entries(goals)) {
-    const move = moves[card]
-    if (move !== undefined) {
-      newMovements[card] = applyGoal(move, goal, currentTime)
-    }
+    const move = moves[card] || initMovement()
+    newMovements[card] = applyGoal(move, goal, currentTime)
   }
-
   return newMovements
 }
 
@@ -91,13 +90,15 @@ export const getMovements = (
   moves: Movements,
   hand: Card[],
   emissionsLine: Card[],
+  spaceCards: Card[],
   mouseX: number,
   mouseY: number,
   currentTime: number
 ): Movements => {
   const goals = {
     ...handGoals(moves, hand, mouseX, mouseY),
-    ...emissionsLineGoals(moves, emissionsLine)
+    ...emissionsLineGoals(emissionsLine),
+    ...spaceCardsGoals(spaceCards)
   }
   moves = applyGoals(moves, goals, currentTime)
   return moves

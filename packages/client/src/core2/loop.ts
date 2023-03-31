@@ -6,6 +6,7 @@ import { CardToDraw, drawCards } from './draw_card'
 import { transpose } from './transition'
 import { createDrawingQueue } from './drawing_queue'
 import { getSelected } from './select'
+import { getSpaceCards } from './emissions_line'
 
 
 export type MouseClickedEvent = {}
@@ -28,7 +29,8 @@ function update(
     selected = getSelected(hand, mouse.x, mouse.y)
   }
 
-  moves = getMovements(moves, hand, emissionsLine, mouse.x, mouse.y, currentTime)
+  const spaceCards: Card[] = getSpaceCards(emissionsLine)
+  moves = getMovements(moves, hand, emissionsLine, spaceCards, mouse.x, mouse.y, currentTime)
 
   let positionsDict: {[card: Card]: CardPosition} = {}
   for (const card in moves) {
@@ -50,7 +52,6 @@ function update(
   const cards = positions.map(p => p.card)
   const visible = cards
   const flipped = emissionsLine
-  const spaceCards: Card[] = []
   const reflections: Reflection[] = []
 
   const queue = createDrawingQueue(
@@ -61,7 +62,7 @@ function update(
     selected,
     spaceCards,
     reflections,
-    zLevels(hand)
+    zLevels(hand, emissionsLine, spaceCards)
   )
 
   return [selected, moves, queue]
@@ -109,7 +110,7 @@ export function start(
       getMouseClickedEvents(),
       Date.now()
     )
-    drawCards(context, queue)
+    drawCards(context, designs, queue)
     animationId = requestAnimationFrame(loop)
   }
 
