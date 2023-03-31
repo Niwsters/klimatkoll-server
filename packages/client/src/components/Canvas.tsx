@@ -17,7 +17,7 @@ export type Props = {
   designs: CardDesign[],
   getHand: () => Card[],
   getEmissionsLine: () => Card[],
-  onCardPlayed: (playedCard: PlayedCard) => void
+  onCardsPlayed: (playedCards: PlayedCard[]) => void
 }
 
 export function Canvas(props: Props): React.ReactElement {
@@ -25,7 +25,7 @@ export function Canvas(props: Props): React.ReactElement {
     getHand,
     getEmissionsLine,
     designs,
-    onCardPlayed
+    onCardsPlayed
   } = props
 
   const canvasRef = useRef(null)
@@ -70,7 +70,7 @@ export function Canvas(props: Props): React.ReactElement {
           getEmissionsLine,
           getMousePosition,
           getMouseClickedEvents,
-          onCardPlayed
+          onCardsPlayed
         )
       }
     }

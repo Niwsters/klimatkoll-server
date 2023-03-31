@@ -56,7 +56,7 @@ export function start(
   getEmissionsLine: () => Card[],
   getMousePosition: () => MousePosition,
   getMouseClickedEvents: () => MouseClickedEvent[],
-  onCardPlayed: (playedCard: PlayedCard) => void
+  onCardsPlayed: (playedCards: PlayedCard[]) => void
 ) {
   let animationId: number | undefined
   let moves: Movements = initMovements([...getHand(), ...getEmissionsLine()])
@@ -74,9 +74,7 @@ export function start(
       getMouseClickedEvents(),
       Date.now()
     )
-    for (const playedCard of playedCards) {
-      onCardPlayed(playedCard)
-    }
+    onCardsPlayed(playedCards)
     drawCards(context, designs, reflections, queue)
     animationId = requestAnimationFrame(loop)
   }

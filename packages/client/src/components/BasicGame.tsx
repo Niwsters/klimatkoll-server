@@ -16,7 +16,7 @@ export const BasicGame = (props: Props): React.ReactElement => {
     designs: designs,
     getHand: () => hand,
     getEmissionsLine: () => emissionsLine,
-    onCardPlayed: (cardPlayed: PlayedCard) => console.log("card played:", cardPlayed)
+    onCardsPlayed: (playedCards: PlayedCard[]) => console.log("cards played:", playedCards)
   }
 
   return <Canvas {...args} />
