@@ -1,7 +1,8 @@
 import { CardDesign } from './card_design'
-import { Card, CardPosition, Reflection } from './card'
+import { Card, Reflection } from './card'
 import { CARD_WIDTH, CARD_HEIGHT, BORDER_RADIUS, WIDTH, HEIGHT, REFLECTION_OPACITY } from './constants'
 import { dict } from './util';
+import { CardPosition } from './position';
 
 export type CardToDraw = {
   card: Card,

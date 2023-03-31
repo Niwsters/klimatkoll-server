@@ -1,4 +1,5 @@
-import { Card, CardPosition } from './card'
+import { Card } from './card'
+import { CardPosition } from './position'
 import { PositionGoal, PositionGoals } from './move'
 import { WIDTH, HEIGHT, CARD_WIDTH, CARD_HEIGHT } from './constants'
 import { entries } from './util'

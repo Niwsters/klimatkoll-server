@@ -1,4 +1,5 @@
-import { Card, CardPosition } from './card'
+import { Card } from './card'
+import { CardPosition } from './position'
 import { SpaceCards, focusedCards } from './emissions_line'
 
 export type Reflection = {

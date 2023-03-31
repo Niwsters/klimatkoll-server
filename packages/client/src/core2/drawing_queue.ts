@@ -1,7 +1,8 @@
-import { Card, CardPosition } from './card'
+import { Card } from './card'
 import { ZLevel } from './z_levels'
 import { CardToDraw } from './draw_card'
 import { dict } from './util'
+import { CardPosition } from './position'
 
 export const createDrawingQueue = (
   positions: CardPosition[],
