@@ -12,6 +12,8 @@ export type Props = {
 export const App = (props: Props) => {
   const { designs, t } = props
 
+  console.log(t('leave-game'))
+
   const [path, setPath] = useState("")
 
   const getPage = (path: string): React.ReactNode => {
@@ -19,7 +21,7 @@ export const App = (props: Props) => {
       case "singleplayer":
         return <SinglePlayer t={t} designs={designs} navigate={setPath} />
       default:
-        return <Menu t={() => ""} navigate={setPath} />
+        return <Menu t={t} navigate={setPath} />
     }
   }
 

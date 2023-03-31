@@ -1,6 +1,7 @@
 import { fetchCards } from 'fetch-cards';
+import i18next from 'i18next';
 import * as ReactDOM from 'react-dom/client';
-import { getEnvironment } from 'root/environment';
+import { Environment, getEnvironment } from 'root/environment';
 import { App } from './components/App';
 
 function getRootElem(): HTMLElement {
@@ -9,12 +10,24 @@ function getRootElem(): HTMLElement {
   return rootElem
 }
 
+async function fetchLocalisation(env: Environment) {
+  const localisations = await (await fetch(`${env.httpServerURL}/localisation`)).json()
+  return localisations[env.language]
+}
+
 async function start() {
   const elem = getRootElem()
   const environment = getEnvironment(elem)
   const cards = await fetchCards(environment)
+  const localisation = await fetchLocalisation(environment)
+  await i18next.init({
+    lng: environment.language,
+    resources: {
+      [environment.language]: localisation
+    }
+  })
   const root = ReactDOM.createRoot(elem)
-  root.render(<App designs={cards} t={key => key}/>)
+  root.render(<App designs={cards} t={i18next.t}/>)
 }
 
 start()
