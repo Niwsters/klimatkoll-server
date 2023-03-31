@@ -57,11 +57,9 @@ export const onCardsPlayed = (state: State, playedCards: PlayedCard[]): State =>
   state = { ...state }
 
   playedCards.forEach(playedCard => {
+    state.hand = state.hand.filter(card => card !== playedCard.card)
     if (isLegalPlay(state.emissionsLine, state.designs, playedCard)) {
-      state.hand = state.hand.filter(card => card !== playedCard.card)
-
       const filled = addFiller(state.emissionsLine)
-
       filled[playedCard.position*2] = playedCard.card
       state.emissionsLine = filled.filter(card => card !== "filler")
     }
