@@ -1,8 +1,22 @@
 import { CardDesign } from "./card_design"
 import { Card } from "./card"
 import { PlayedCard } from './play_card'
-import { dict } from "./util"
+import { dict, shuffle } from "./util"
 import { Piles } from "./pile"
+
+export const init = (designs: CardDesign[]): Piles => {
+  let deck = shuffle(designs.map(d => d.card))
+  let hand: Card[] = deck.slice(0, 1)
+  let emissionsLine: Card[] = deck.slice(1, 2)
+  const discardPile: Card[] = []
+  deck = deck.slice(2)
+  return {
+    deck,
+    hand,
+    emissionsLine,
+    discardPile
+  }
+}
 
 const isLegalPlay = (
   emissionsLine: Card[],
@@ -27,20 +41,6 @@ const isLegalPlay = (
   const rightOk = right === undefined || emissions <= right
 
   return leftOk && rightOk
-}
-
-export const init = (designs: CardDesign[]): Piles => {
-  let deck = designs.map(d => d.card)
-  let hand: Card[] = deck.slice(0, 1)
-  let emissionsLine: Card[] = deck.slice(1, 2)
-  const discardPile: Card[] = []
-  deck = deck.slice(2)
-  return {
-    deck,
-    hand,
-    emissionsLine,
-    discardPile
-  }
 }
 
 export const onCardsPlayed = (
