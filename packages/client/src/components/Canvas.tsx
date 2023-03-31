@@ -12,13 +12,13 @@ function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: n
   return { x, y }
 }
 
-export type CanvasProps = {
+export type Props = {
   designs: CardDesign[],
   getHand: () => Card[],
   getEmissionsLine: () => Card[]
 }
 
-export function Component(props: CanvasProps): React.ReactElement {
+export function Canvas(props: Props): React.ReactElement {
   const {
     getHand,
     getEmissionsLine,
@@ -52,9 +52,9 @@ export function Component(props: CanvasProps): React.ReactElement {
         mouseY = y
       }
 
-      canvas.onmousedown = (_event: MouseEvent) => {
-        //const { x, y } = coords(canvas, event)
-        mouseClickedEvents.push({})
+      canvas.onmousedown = (event: MouseEvent) => {
+        const { x, y } = coords(canvas, event)
+        mouseClickedEvents.push({ x, y })
       }
 
       const context = canvas.getContext('2d')

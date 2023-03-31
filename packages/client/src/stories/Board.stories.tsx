@@ -1,6 +1,6 @@
 import _React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import * as Canvas from '../components/Canvas';
+import { Canvas } from '../components/Canvas'
 import * as SampleCards from './sample_cards'
 import { Card } from '../core2/card';
 import { BasicGame } from '../components/BasicGame';
@@ -8,8 +8,8 @@ import './font.css'
 
 export default {
   title: 'Canvas/Board',
-  component: Canvas.Component
-} as ComponentMeta<typeof Canvas.Component>;
+  component: Canvas
+} as ComponentMeta<typeof Canvas>;
 
 export type Pile = "hand"
 

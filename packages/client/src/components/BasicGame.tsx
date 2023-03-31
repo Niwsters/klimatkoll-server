@@ -1,4 +1,4 @@
-import * as Canvas from "./Canvas"
+import { Canvas } from './Canvas'
 import { CardDesign } from "../core2/card_design"
 import { Card } from "../core2/card"
 
@@ -11,13 +11,13 @@ export type Props = {
 export const BasicGame = (props: Props): React.ReactElement => {
   let { designs, hand, emissionsLine } = props
   
-  const args: Canvas.CanvasProps = {
+  const args = {
     designs: designs,
     getHand: () => hand,
     getEmissionsLine: () => emissionsLine
   }
 
-  return <Canvas.Component {...args} />
+  return <Canvas {...args} />
 }
 
 /*

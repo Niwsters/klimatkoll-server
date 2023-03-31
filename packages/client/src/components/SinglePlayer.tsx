@@ -1,4 +1,27 @@
-import * as Board from '../../core2/board'
+import { Canvas } from './Canvas'
+import { CardDesign } from "../core2/card_design"
+import { Card } from "../core2/card"
+
+export type Props = {
+  designs: CardDesign[],
+  hand: Card[],
+  emissionsLine: Card[]
+}
+
+export const SinglePlayer = (props: Props): React.ReactElement => {
+  let { designs } = props
+
+  let hand: Card[] = []
+  let emissionsLine: Card[] = []
+  
+  const args = {
+    designs: designs,
+    getHand: () => hand,
+    getEmissionsLine: () => emissionsLine
+  }
+
+  return <Canvas {...args} />
+}
 /*
 import * as Card from '../../core2/card'
 import { CardDesign } from '../../core2/card_design'

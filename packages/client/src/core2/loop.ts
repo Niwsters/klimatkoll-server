@@ -19,15 +19,12 @@ function update(
   mouseClickedEvents: MouseClickedEvent[],
   currentTime: number
 ): [Card[], Movements, Reflection[], CardToDraw[]] {
-
-
   const spaceCards: Card[] = getSpaceCards(emissionsLine)
   moves = getMovements(moves, hand, emissionsLine, spaceCards, mouse.x, mouse.y, currentTime)
 
+  selected = getSelected(selected, hand, mouseClickedEvents)
+
   const positions = getPositions(moves)
-  for (const _ of mouseClickedEvents) {
-    selected = getSelected(hand, mouse.x, mouse.y)
-  }
   const cards = positions.map(p => p.card)
   const visible = cards
   const flipped = emissionsLine

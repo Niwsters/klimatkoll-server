@@ -1,9 +1,14 @@
 import { Card } from './card'
 import { focusedCards } from './hand'
+import { MouseClickedEvent } from './mouse'
 
 export const getSelected = (
+  selected: Card[],
   hand: Card[],
-  mouseX: number,
-  mouseY: number
-): Card[] =>
-  focusedCards(hand, mouseX, mouseY)
+  mouseClickedEvents: MouseClickedEvent[]
+): Card[] => {
+  for (const { x, y } of mouseClickedEvents) {
+    selected = focusedCards(hand, x, y)
+  }
+  return selected
+}

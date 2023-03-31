@@ -1,5 +1,5 @@
-import { HEIGHT } from "../../core2/constants"
-import { Button } from "../Button"
+import { HEIGHT } from "../core2/constants"
+import { Button } from "./Button"
 import _React, { ReactNode } from "react"
 import { TFunction } from "tfunction"
 
