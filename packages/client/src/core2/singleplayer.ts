@@ -9,23 +9,16 @@ type State = {
   emissionsLine: Card[]
 }
 
-const addFiller = (emissionsLine: Card[]): Card[] => {
-  let filled: Card[] = ["filler"]
-  for (const card of emissionsLine) {
-    filled.push(card)
-    filled.push("filler")
-  }
-  return filled
-}
-
-const isLegalPlay = (emissionsLine: Card[], designs: CardDesign[], playedCard: PlayedCard): boolean => {
+const isLegalPlay = (
+  emissionsLine: Card[],
+  designs: CardDesign[],
+  playedCard: PlayedCard
+): boolean => {
   const designsDict = dict(designs, d => d.card)
   const { card, position } = playedCard
 
-  const filled = addFiller(emissionsLine)
-
-  const leftOf = filled[position*2-1]
-  const rightOf = filled[position*2+1]
+  const leftOf = emissionsLine[position-1]
+  const rightOf = emissionsLine[position]
 
   const emissions = designsDict[card]?.emissions || 0
 
@@ -57,11 +50,17 @@ export const onCardsPlayed = (state: State, playedCards: PlayedCard[]): State =>
   state = { ...state }
 
   playedCards.forEach(playedCard => {
+    const { card, position } = playedCard
+
     state.hand = state.hand.filter(card => card !== playedCard.card)
     if (isLegalPlay(state.emissionsLine, state.designs, playedCard)) {
-      const filled = addFiller(state.emissionsLine)
-      filled[playedCard.position*2] = playedCard.card
-      state.emissionsLine = filled.filter(card => card !== "filler")
+      const left = state.emissionsLine.slice(0, position)
+      const right = state.emissionsLine.slice(position)
+      state.emissionsLine = [
+        ...left,
+        card,
+        ...right
+      ]
     }
   })
 
