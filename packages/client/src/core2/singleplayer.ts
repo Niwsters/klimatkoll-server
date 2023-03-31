@@ -18,22 +18,6 @@ const addFiller = (emissionsLine: Card[]): Card[] => {
   return filled
 }
 
-/*
-  const isCorrectPlacement = (board: Board.Board, cardName: string, position: number) => {
-    const card = cardEmissions.find(c => c.name === cardName)
-    if (card === undefined) return
-
-    const cards = equijoin(board.emissionsLine.cards, cardEmissions, a => a.name, b => b.name)
-      .sort((a,b) => a.emissions - b.emissions)
-
-    const leftCard = cards[position]
-    const rightCard = cards[position+1]
-
-    return (leftCard === undefined || leftCard.emissions <= card.emissions) &&
-           (rightCard === undefined || card.emissions <= rightCard.emissions)
-  }
-  */
-
 const isLegalPlay = (emissionsLine: Card[], designs: CardDesign[], playedCard: PlayedCard): boolean => {
   const designsDict = dict(designs, d => d.card)
   const { card, position } = playedCard
