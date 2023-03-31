@@ -1,45 +1,21 @@
 import { Canvas } from './Canvas'
 import { CardDesign } from "../core2/card_design"
-import { Card } from "../core2/card"
-import { PlayedCard } from 'core2/play_card'
+import { PlayedCard } from '../core2/play_card'
+import { init, onCardPlayed } from '../core2/singleplayer'
 
 export type Props = {
-  designs: CardDesign[],
-  hand: Card[],
-  emissionsLine: Card[]
-}
-
-export type State = {
-  hand: Card[]
+  designs: CardDesign[]
 }
 
 export const SinglePlayer = (props: Props): React.ReactElement => {
   let { designs } = props
-
-  let deck = designs.map(d => d.card)
-  let hand: Card[] = deck.slice(0, 1)
-  let emissionsLine: Card[] = deck.slice(1, 2)
-  deck = deck.slice(2)
-
-  const onCardPlayed = (playedCard: PlayedCard) => {
-    hand = hand.filter(card => card !== playedCard.card)
-
-    let filled: Card[] = ["filler"]
-    for (const card of emissionsLine) {
-      filled.push(card)
-      filled.push("filler")
-    }
-
-    filled[playedCard.position*2] = playedCard.card
-    emissionsLine = filled.filter(card => card !== "filler")
-  }
-  let getHand: () => Card[] = () => hand
+  let state = init(designs)
   
   const args = {
     designs: designs,
-    getHand: getHand,
-    getEmissionsLine: () => emissionsLine,
-    onCardPlayed
+    getHand: () => state.hand,
+    getEmissionsLine: () => state.emissionsLine,
+    onCardPlayed: (playedCard: PlayedCard) => state = onCardPlayed(state, playedCard)
   }
 
   return <Canvas {...args} />
