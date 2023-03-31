@@ -8,7 +8,7 @@ import { equijoin } from '../../util'
 import { SPUI } from './ui'
 import { TFunction } from 'tfunction'
 
-const positioning: Card.CardPositioning = {
+const positioning: Card.Positioning = {
   x: 0,
   y: 0,
   rotation: 0,

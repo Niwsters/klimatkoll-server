@@ -1,12 +1,12 @@
-import { CardDesign } from './card_design'
+  import { CardDesign } from './card_design'
 import { Card, Reflection } from './card'
 import { CARD_WIDTH, CARD_HEIGHT, BORDER_RADIUS, WIDTH, HEIGHT, REFLECTION_OPACITY } from './constants'
 import { dict } from './util';
-import { CardPosition } from './position';
+import { Position } from './position';
 
 export type CardToDraw = {
   card: Card,
-  position: CardPosition
+  position: Position
   isSpace: boolean
   flipped: boolean
   selected: boolean
@@ -258,7 +258,7 @@ const drawSpaceCard = (context: CanvasRenderingContext2D) => {
   context.fill()
 }
 
-const setPosition = (context: CanvasRenderingContext2D, position: CardPosition) => {
+const setPosition = (context: CanvasRenderingContext2D, position: Position) => {
   const width = CARD_WIDTH
   const height = CARD_HEIGHT
   context.translate(position.x, position.y)
@@ -267,7 +267,7 @@ const setPosition = (context: CanvasRenderingContext2D, position: CardPosition) 
   context.translate(-width/2, -height/2)
 }
 
-const reset = (context: CanvasRenderingContext2D, position: CardPosition) => {
+const reset = (context: CanvasRenderingContext2D, position: Position) => {
   const width = CARD_WIDTH
   const height = CARD_HEIGHT
   context.translate(width/2, height/2)

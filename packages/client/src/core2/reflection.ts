@@ -1,5 +1,5 @@
 import { Card } from './card'
-import { CardPosition } from './position'
+import { Position } from './position'
 import { SpaceCards, focusedCards } from './emissions_line'
 
 export type Reflection = {
@@ -10,7 +10,7 @@ export type Reflection = {
 export const reflections = (
   selectedCards: Card[],
   spaceCards: SpaceCards,
-  positions: CardPosition[],
+  positions: Position[],
   mouseX: number,
   mouseY: number
 ): Reflection[] => {

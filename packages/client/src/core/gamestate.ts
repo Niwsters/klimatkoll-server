@@ -81,16 +81,16 @@ export class GameState {
   mouse_clicked(_: Event): [GameState, EventToAdd[]] {
     let state = this.new()
     
-    const playCardPosition = state.emissionsLine.playCard(state.hand.selectedCard, state.mouseX, state.mouseY)
+    const playPosition = state.emissionsLine.playCard(state.hand.selectedCard, state.mouseX, state.mouseY)
     const playedCard = state.hand.selectedCard
 
     state.hand = state.hand.mouseClicked(state.mouseX, state.mouseY);
     state.emissionsLine = state.emissionsLine.showHideSpaceCards(state.hand.selectedCard);
 
     let events: EventToAdd[] = []
-    if (playCardPosition > -1 && playedCard) {
+    if (playPosition > -1 && playedCard) {
       if (!playedCard) throw new Error("Can't play card: No card selected")
-      events = [playCardRequestEvent(playedCard.id, playCardPosition)]
+      events = [playCardRequestEvent(playedCard.id, playPosition)]
     }
 
     return [state, events]

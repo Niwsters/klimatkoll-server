@@ -2,7 +2,7 @@ import { Card } from './card'
 import { Movements } from './move'
 import { transpose } from './transition'
 
-export type CardPosition = {
+export type Position = {
   readonly card: string,
   readonly x: number,
   readonly y: number,
@@ -10,8 +10,8 @@ export type CardPosition = {
   readonly scale: number
 }
 
-export const positions = (moves: Movements): CardPosition[] => {
-  let positionsDict: {[card: Card]: CardPosition} = {}
+export const positions = (moves: Movements): Position[] => {
+  let positionsDict: {[card: Card]: Position} = {}
   for (const card in moves) {
     const move = moves[card]
     if (move !== undefined) {

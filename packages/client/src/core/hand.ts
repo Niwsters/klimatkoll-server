@@ -22,7 +22,7 @@ export class Hand {
     return HAND_CARD_ANGLE * (i - n/2)
   }
 
-  private getCardPosition(i: number) {
+  private getPosition(i: number) {
     const angle = this.getCardAngle(i)
     const x = HAND_POSITION.x + HAND_X_RADIUS * Math.sin(angle)
     const y = HAND_POSITION.y - HAND_Y_RADIUS * Math.cos(angle)
@@ -54,7 +54,7 @@ export class Hand {
   }
 
   private moveCardDefault(card: Card, cardIndex: number, currentTime: number): Card {
-    const [x, y] = this.getCardPosition(cardIndex)
+    const [x, y] = this.getPosition(cardIndex)
     const scale = Card.DEFAULT_SCALE
     const rotation = this.getCardRotation(cardIndex)
     card = card.move(x, y, currentTime)

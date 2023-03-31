@@ -1,9 +1,9 @@
 import { Card } from './card'
-import { CardPosition } from './position'
+import { Position } from './position'
 import { distance2D } from './util'
 
 export const closestCard = (
-  positions: CardPosition[],
+  positions: Position[],
   mouseX: number,
   mouseY: number
 ): Card[] =>

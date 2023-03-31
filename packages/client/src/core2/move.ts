@@ -1,5 +1,5 @@
 import { Card } from './card'
-import { CardPosition } from './position'
+import { Position } from './position'
 import { emissionsLineGoals, spaceCardsGoals } from './emissions_line'
 import { handGoals } from './hand'
 
@@ -48,7 +48,7 @@ export function transpose(move: Transition, currentTime: number): number {
   return from + (to - from)*mult
 }
 
-export type PositionGoal = CardPosition
+export type PositionGoal = Position
 
 export type PositionGoals = {
   [card: Card]: PositionGoal

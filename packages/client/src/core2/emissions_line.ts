@@ -1,5 +1,5 @@
 import { Card } from './card'
-import { CardPosition } from './position'
+import { Position } from './position'
 import { PositionGoal, PositionGoals } from './move'
 import { WIDTH, HEIGHT, CARD_WIDTH, CARD_HEIGHT } from './constants'
 import { entries } from './util'
@@ -81,7 +81,7 @@ export const zLevels = (emissionsLine: Card[], spaceCards: SpaceCards): ZLevel[]
     ...emissionsLine.map((card, index) => ({ card, zLevel: index }))
   ]
 
-const width = (positions: CardPosition[]): number => {
+const width = (positions: Position[]): number => {
   let leftCardX = 0
   let rightCardX = 0
   for (const position of positions) {
@@ -121,7 +121,7 @@ const mouseWithinBounds = (width: number, mouseX: number, mouseY: number): boole
 
 export const focusedCards = (
   cards: Card[],
-  positions: CardPosition[],
+  positions: Position[],
   mouseX: number,
   mouseY: number
 ): Card[] => {
