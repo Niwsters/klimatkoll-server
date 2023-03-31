@@ -15,3 +15,9 @@ export const dict = <T>(list: T[], key: (t: T) => Key) => {
 }
 
 export const distance = (a: number, b: number): number => Math.abs(a - b)
+export const distance2D = (
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number
+): number => Math.sqrt(Math.pow(distance(ax, bx), 2) + Math.pow(distance(ay, by), 2)) 

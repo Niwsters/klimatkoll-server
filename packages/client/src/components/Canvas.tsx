@@ -1,8 +1,9 @@
 import { Card } from '../core2/card'
 import { CardDesign } from '../core2/card_design'
 import React, { useEffect, useRef } from 'react'
-import { start, MouseClickedEvent } from '../core2/loop'
+import { start } from '../core2/loop'
 import { WIDTH, HEIGHT } from '../core2/constants'
+import { MouseClickedEvent } from 'core2/mouse'
 
 function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: number } {
   const rect = canvas.getBoundingClientRect()

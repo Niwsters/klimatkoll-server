@@ -48,6 +48,7 @@ export function transpose(move: Transition, currentTime: number): number {
 }
 
 export type PositionGoal = {
+  card: Card,
   x: number,
   y: number,
   rotation: number,
@@ -68,10 +69,12 @@ const entries = (goal: PositionGoal): Entries<PositionGoal> => {
 const applyGoal = (move: Movement, goal: PositionGoal, currentTime: number): Movement => {
   const newMove = { ...move }
   for (const [field, value] of entries(goal)) {
-    const transition: Transition = move[field]
-    if (transition.to !== value) {
-      const from = transpose(transition, currentTime)
-      newMove[field] = { from, to: value, started: currentTime }
+    if (field !== 'card') {
+      const transition: Transition = move[field]
+      if (transition.to !== value) {
+        const from = transpose(transition, currentTime)
+        newMove[field] = { from, to: value, started: currentTime }
+      }
     }
   }
   return newMove

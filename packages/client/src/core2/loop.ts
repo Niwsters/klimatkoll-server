@@ -1,21 +1,14 @@
 import { getMovements, initMovements, Movements } from './move'
-import { Card, CardPosition, Reflection } from './card'
+import { Card, Reflection } from './card'
 import { zLevels } from './z_levels'
 import { CardDesign } from './card_design'
 import { CardToDraw, drawCards } from './draw_card'
-import { transpose } from './transition'
 import { createDrawingQueue } from './drawing_queue'
 import { getSelected } from './select'
 import { getSpaceCards } from './emissions_line'
 import { reflections } from './reflection'
 import { positions as getPositions } from './position'
-
-
-export type MouseClickedEvent = {}
-export type MousePosition = {
-  x: number,
-  y: number
-}
+import { MouseClickedEvent, MousePosition } from './mouse'
 
 function update(
   moves: Movements,
@@ -26,29 +19,15 @@ function update(
   mouseClickedEvents: MouseClickedEvent[],
   currentTime: number
 ): [Card[], Movements, Reflection[], CardToDraw[]] {
-  for (const _ of mouseClickedEvents) {
-    selected = getSelected(hand, mouse.x, mouse.y)
-  }
+
 
   const spaceCards: Card[] = getSpaceCards(emissionsLine)
   moves = getMovements(moves, hand, emissionsLine, spaceCards, mouse.x, mouse.y, currentTime)
 
-  let positionsDict: {[card: Card]: CardPosition} = {}
-  for (const card in moves) {
-    const move = moves[card]
-    if (move !== undefined) {
-      const { x, y, rotation, scale } = move
-      positionsDict[card] = {
-        card,
-        x: transpose(x.from, x.to, x.started, Date.now()),
-        y: transpose(y.from, y.to, y.started, Date.now()),
-        rotation: transpose(rotation.from, rotation.to, rotation.started, Date.now()),
-        scale: transpose(scale.from, scale.to, scale.started, Date.now()),
-      }
-    }
-  }
-
   const positions = getPositions(moves)
+  for (const _ of mouseClickedEvents) {
+    selected = getSelected(moves, hand, mouse.x, mouse.y)
+  }
   const cards = positions.map(p => p.card)
   const visible = cards
   const flipped = emissionsLine
