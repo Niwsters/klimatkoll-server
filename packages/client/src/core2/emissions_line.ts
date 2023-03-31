@@ -2,7 +2,6 @@ import { Card } from './card'
 import { Position } from './position'
 import { Positions } from './move'
 import { WIDTH, HEIGHT, CARD_WIDTH, CARD_HEIGHT } from './constants'
-import { entries } from './util'
 import { ZLevel } from './z_levels'
 import { closestCard } from './closest_card'
 
@@ -23,7 +22,7 @@ function cardDistance(cardCount: number): number {
 
 const cardX = (index: number, cardCount: number): number => {
   const width = cardDistance(cardCount)
-  const startOffset = 0 - width/2
+  const startOffset = 0 - width/2 * (cardCount - 1)
   const result = EMISSIONS_LINE_POSITION_X + startOffset + width * index
   return result
 }
@@ -60,16 +59,7 @@ export const getSpaceCards = (emissionsLine: Card[]) => {
 }
 
 export const spaceCardsPositions = (spaceCards: SpaceCards): Positions => {
-  const positions = emissionsLinePositions(spaceCards)
-  const newPositions = {...positions}
-  for (const [card, position] of entries(positions)) {
-    const newPosition = {
-      ...position,
-      x: position.x - CARD_WIDTH / 4
-    }
-    newPositions[card] = newPosition
-  }
-  return newPositions
+  return emissionsLinePositions(spaceCards)
 }
 
 export const zLevels = (emissionsLine: Card[], spaceCards: SpaceCards): ZLevel[] =>
