@@ -2,6 +2,7 @@ import { Card } from './card'
 import { Position } from './position'
 import { emissionsLinePositions, spaceCardsPositions } from './emissions_line'
 import { handPositions } from './hand'
+import { entries } from './util'
 
 const ANIMATION_DURATION_MS = 300
 
@@ -50,13 +51,6 @@ export function transpose(move: Transition, currentTime: number): number {
 
 export type Positions = {
   [card: Card]: Position
-}
-
-type Entries<T> = {
-  [K in keyof T]: [K, T[K]]
-}[keyof T][]
-const entries = (position: Position): Entries<Position> => {
-  return Object.entries(position) as any
 }
 
 const applyPosition = (move: Movement, position: Position, currentTime: number): Movement => {
