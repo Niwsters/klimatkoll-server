@@ -1,4 +1,5 @@
 import { Environment } from "root/environment"
+import { CardDesign } from "core/card_design"
 
 export type ServerCard = {
   readonly id: string
@@ -17,10 +18,24 @@ export type ServerCard = {
   readonly duration: string
 }
 
-export async function fetchCards(env: Environment): Promise<ServerCard[]> {
+const toFrontendCard = (card: ServerCard): CardDesign => {
+  return {
+    card: card.name,
+    title: card.title,
+    subtitle: card.subtitle,
+    emissions: card.emissions,
+    descr_back: card.descr_back,
+    descr_front: card.descr_back,
+    duration: card.duration,
+    bg_color_back: card.bg_color_back,
+    bg_color_front: card.bg_color_front
+  }
+}
+
+export async function fetchCards(env: Environment): Promise<CardDesign[]> {
   try {
     const cards = await (await fetch(`${env.httpServerURL}/${env.language}/cards.json`)).json()
-    return cards
+    return cards.map(toFrontendCard)
   } catch (e) {
     console.log("Failed to fetch cards:", e)
     return []
