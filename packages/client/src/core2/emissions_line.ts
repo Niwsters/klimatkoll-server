@@ -52,14 +52,11 @@ export type SpaceCards = Card[]
 
 const spaceCard = (index: number): Card => "space-" + index
 
-export const getSpaceCards = (el: Card[]) => {
-  let spaceCards: Card[] = [spaceCard(0)]
-  el.forEach((_, index) => {
-    spaceCards.push(spaceCard(index+1))
-  })
-  for (const _ of el) {
-  }
-  return spaceCards
+export const getSpaceCards = (emissionsLine: Card[]) => {
+  return [
+    ...emissionsLine.map((_, index) => spaceCard(index)),
+    spaceCard(emissionsLine.length)
+  ]
 }
 
 export const spaceCardsPositions = (spaceCards: SpaceCards): Positions => {

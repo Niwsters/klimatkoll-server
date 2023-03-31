@@ -27,8 +27,10 @@ function update(
   selected = getSelected(selected, hand, mouseClickedEvents)
 
   const positions = getPositions(moves)
-  const cards = [...hand, ...emissionsLine, ...spaceCards]
-  const visible = cards
+  let visible = [...hand, ...emissionsLine]
+  if (selected.length > 0) {
+    visible = [...visible, ...spaceCards]
+  }
   const flipped = emissionsLine
 
   const queue = createDrawingQueue(
