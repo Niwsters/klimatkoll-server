@@ -3,7 +3,7 @@ import { Card } from '../core2/card'
 import { closestCard } from './closest_card'
 import { CARD_HEIGHT, CARD_WIDTH } from './constants'
 import { Position } from './position'
-import { Movements,  Positions } from './move'
+import { Positions } from './move'
 
 const HAND_POSITION_X = WIDTH / 2
 const HAND_POSITION_Y = HEIGHT + 50
@@ -45,12 +45,12 @@ const mouseWithinBounds = (cardCount: number, mouseX: number, mouseY: number): b
          mouseX < HAND_POSITION_X + width / 2
 }
 
-const zoomInOnCard = (goal: Position): Position => {
+const zoomInOnCard = (position: Position): Position => {
   const scale = 1
   const y = HEIGHT - CARD_HEIGHT / 2 * scale
   const rotation = 0
   return {
-    ...goal,
+    ...position,
     scale,
     y,
     rotation
@@ -58,44 +58,39 @@ const zoomInOnCard = (goal: Position): Position => {
 }
 
 const defaultPositions = (
-  moves: Movements,
   hand: Card[]
 ): Positions => {
   const positions: Positions = {}
   hand.forEach((card, index) => {
-    const move = moves[card]
-    if (move !== undefined) {
-      positions[card] = {
-        card,
-        x: cardX(index, hand.length),
-        y: cardY(index, hand.length),
-        rotation: cardAngle(index, hand.length),
-        scale: CARD_SCALE
-      }
+    positions[card] = {
+      card,
+      x: cardX(index, hand.length),
+      y: cardY(index, hand.length),
+      rotation: cardAngle(index, hand.length),
+      scale: CARD_SCALE
     }
   })
   return positions
 }
 
-export const focusedCards = (moves: Movements, hand: Card[], mouseX: number, mouseY: number): Card[] => {
-  const positions = Object.values(defaultPositions(moves, hand))
+export const focusedCards = (hand: Card[], mouseX: number, mouseY: number): Card[] => {
+  const positions = Object.values(defaultPositions(hand))
   if (mouseWithinBounds(positions.length, mouseX, mouseY)) {
     return closestCard(positions, mouseX, mouseY)
   }
   return []
 }
 
-export const handGoals = (
-  moves: Movements,
+export const handPositions = (
   hand: Card[],
   mouseX: number,
   mouseY: number
 ): Positions => {
-  const positions = defaultPositions(moves, hand)
-  focusedCards(moves, hand, mouseX, mouseY).forEach(card => {
-    const goal = positions[card]
-    if (goal !== undefined) {
-      positions[card] = zoomInOnCard(goal)
+  const positions = defaultPositions(hand)
+  focusedCards(hand, mouseX, mouseY).forEach(card => {
+    const position = positions[card]
+    if (position !== undefined) {
+      positions[card] = zoomInOnCard(position)
     }
   })
 

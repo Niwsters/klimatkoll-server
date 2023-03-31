@@ -1,7 +1,7 @@
 import { Card } from './card'
 import { Position } from './position'
-import { emissionsLineGoals, spaceCardsGoals } from './emissions_line'
-import { handGoals } from './hand'
+import { emissionsLinePositions, spaceCardsPositions } from './emissions_line'
+import { handPositions } from './hand'
 
 const ANIMATION_DURATION_MS = 300
 
@@ -55,13 +55,13 @@ export type Positions = {
 type Entries<T> = {
   [K in keyof T]: [K, T[K]]
 }[keyof T][]
-const entries = (goal: Position): Entries<Position> => {
-  return Object.entries(goal) as any
+const entries = (position: Position): Entries<Position> => {
+  return Object.entries(position) as any
 }
 
-const applyGoal = (move: Movement, goal: Position, currentTime: number): Movement => {
+const applyPosition = (move: Movement, position: Position, currentTime: number): Movement => {
   const newMove = { ...move }
-  for (const [field, value] of entries(goal)) {
+  for (const [field, value] of entries(position)) {
     if (field !== 'card') {
       const transition: Transition = move[field]
       if (transition.to !== value) {
@@ -73,11 +73,11 @@ const applyGoal = (move: Movement, goal: Position, currentTime: number): Movemen
   return newMove
 }
 
-const applyGoals = (moves: Movements, goals: Positions, currentTime: number): Movements => {
+const applyPositions = (moves: Movements, positions: Positions, currentTime: number): Movements => {
   let newMovements: Movements = {...moves}
-  for (const [card, goal] of Object.entries(goals)) {
+  for (const [card, position] of Object.entries(positions)) {
     const move = moves[card] || initMovement()
-    newMovements[card] = applyGoal(move, goal, currentTime)
+    newMovements[card] = applyPosition(move, position, currentTime)
   }
   return newMovements
 }
@@ -91,11 +91,11 @@ export const getMovements = (
   mouseY: number,
   currentTime: number
 ): Movements => {
-  const goals = {
-    ...handGoals(moves, hand, mouseX, mouseY),
-    ...emissionsLineGoals(emissionsLine),
-    ...spaceCardsGoals(spaceCards)
+  const positions = {
+    ...handPositions(hand, mouseX, mouseY),
+    ...emissionsLinePositions(emissionsLine),
+    ...spaceCardsPositions(spaceCards)
   }
-  moves = applyGoals(moves, goals, currentTime)
+  moves = applyPositions(moves, positions, currentTime)
   return moves
 }

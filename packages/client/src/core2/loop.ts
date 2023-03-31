@@ -26,7 +26,7 @@ function update(
 
   const positions = getPositions(moves)
   for (const _ of mouseClickedEvents) {
-    selected = getSelected(moves, hand, mouse.x, mouse.y)
+    selected = getSelected(hand, mouse.x, mouse.y)
   }
   const cards = positions.map(p => p.card)
   const visible = cards
