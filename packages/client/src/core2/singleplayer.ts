@@ -48,12 +48,16 @@ export const onCardsPlayed = (
   designs: CardDesign[],
   playedCards: PlayedCard[]
 ): Piles => {
-  let { hand, emissionsLine, discardPile } = piles
+  let { hand, emissionsLine, discardPile, deck } = piles
 
   playedCards.forEach(playedCard => {
     const { card, position } = playedCard
 
     hand = hand.filter(card => card !== playedCard.card)
+    const drawnCard = deck.slice(deck.length - 1)
+    hand = [...hand, ...drawnCard]
+    deck = deck.slice(0, deck.length - 1)
+
     if (isLegalPlay(emissionsLine, designs, playedCard)) {
       const left = emissionsLine.slice(0, position)
       const right = emissionsLine.slice(position)
@@ -69,6 +73,7 @@ export const onCardsPlayed = (
 
   return {
     ...piles,
+    deck,
     hand,
     emissionsLine,
     discardPile
