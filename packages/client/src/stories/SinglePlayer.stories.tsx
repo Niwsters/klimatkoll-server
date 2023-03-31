@@ -4,7 +4,7 @@ import * as SampleCards from './sample_cards'
 import _React from 'react'
 
 export default {
-  title: 'Game/SinglePlayer',
+  title: 'SinglePlayer',
   component: SinglePlayer 
 } as ComponentMeta<typeof SinglePlayer>;
 

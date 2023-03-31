@@ -3,6 +3,9 @@ import { Position } from './position'
 import { emissionsLinePositions, spaceCardsPositions } from './emissions_line'
 import { handPositions } from './hand'
 import { entries } from './util'
+import { discardPilePositions } from './discard_pile'
+import { Piles } from './pile'
+import { deckPositions } from './deck'
 
 const ANIMATION_DURATION_MS = 300
 
@@ -78,17 +81,18 @@ const applyPositions = (moves: Movements, positions: Positions, currentTime: num
 
 export const getMovements = (
   moves: Movements,
-  hand: Card[],
-  emissionsLine: Card[],
+  piles: Piles,
   spaceCards: Card[],
   mouseX: number,
   mouseY: number,
   currentTime: number
 ): Movements => {
   const positions = {
-    ...handPositions(hand, mouseX, mouseY),
-    ...emissionsLinePositions(emissionsLine),
-    ...spaceCardsPositions(spaceCards)
+    ...handPositions(piles.hand, mouseX, mouseY),
+    ...emissionsLinePositions(piles.emissionsLine),
+    ...spaceCardsPositions(spaceCards),
+    ...discardPilePositions(piles.discardPile),
+    ...deckPositions(piles.deck)
   }
   moves = applyPositions(moves, positions, currentTime)
   return moves

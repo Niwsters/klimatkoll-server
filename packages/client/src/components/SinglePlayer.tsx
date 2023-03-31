@@ -9,13 +9,13 @@ export type Props = {
 
 export const SinglePlayer = (props: Props): React.ReactElement => {
   let { designs } = props
-  let state = init(designs)
+  let piles = init(designs)
   
   const args = {
     designs: designs,
-    getHand: () => state.hand,
-    getEmissionsLine: () => state.emissionsLine,
-    onCardsPlayed: (playedCards: PlayedCard[]) => state = onCardsPlayed(state, playedCards)
+    getPiles: () => piles,
+    onCardsPlayed: (playedCards: PlayedCard[]) =>
+      piles = onCardsPlayed(piles, designs, playedCards)
   }
 
   return <Canvas {...args} />

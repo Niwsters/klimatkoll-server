@@ -1,10 +1,10 @@
-import { Card } from '../core2/card'
 import { CardDesign } from '../core2/card_design'
 import React, { useEffect, useRef } from 'react'
 import { start } from '../core2/loop'
 import { WIDTH, HEIGHT } from '../core2/constants'
 import { MouseClickedEvent } from 'core2/mouse'
 import { PlayedCard } from 'core2/play_card'
+import { Piles } from 'core2/pile'
 
 function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: number } {
   const rect = canvas.getBoundingClientRect()
@@ -15,15 +15,13 @@ function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: n
 
 export type Props = {
   designs: CardDesign[],
-  getHand: () => Card[],
-  getEmissionsLine: () => Card[],
+  getPiles: () => Piles,
   onCardsPlayed: (playedCards: PlayedCard[]) => void
 }
 
 export function Canvas(props: Props): React.ReactElement {
   const {
-    getHand,
-    getEmissionsLine,
+    getPiles,
     designs,
     onCardsPlayed
   } = props
@@ -66,8 +64,7 @@ export function Canvas(props: Props): React.ReactElement {
         return start(
           context,
           designs,
-          getHand,
-          getEmissionsLine,
+          getPiles,
           getMousePosition,
           getMouseClickedEvents,
           onCardsPlayed

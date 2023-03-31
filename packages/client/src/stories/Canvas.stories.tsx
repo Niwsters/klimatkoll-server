@@ -2,41 +2,44 @@ import _React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { Canvas } from '../components/Canvas'
 import * as SampleCards from './sample_cards'
-import { Card } from '../core2/card';
-import { BasicGame } from '../components/BasicGame';
 import './font.css'
+import { Piles } from 'core2/pile'
 
 export default {
-  title: 'Canvas/Board',
+  title: 'Canvas',
   component: Canvas
 } as ComponentMeta<typeof Canvas>;
 
-export type Pile = "hand"
-
-export type PileCard = {
-  card: Card,
-  pile: Pile
-}
-
 const designs = SampleCards.cardDesigns
 const cards = designs.map(d => d.card)
+const piles: Piles = {
+  hand: [],
+  emissionsLine: [],
+  discardPile: [],
+  deck: []
+}
 
-const Template: ComponentStory<typeof BasicGame> = (args) =>
-  <BasicGame {...args} />;
+const Template: ComponentStory<typeof Canvas> = (args) =>
+  <Canvas {...args} />;
 
 const args = { designs }
 
 export const Hand = Template.bind({});
-Hand.args = { ...args, hand: cards, emissionsLine: [] }
+Hand.args = { ...args, getPiles: () => ({ ...piles, hand: cards }) }
 
 export const EmissionsLine = Template.bind({});
-EmissionsLine.args = { ...args, hand: [], emissionsLine: cards }
+EmissionsLine.args = { ...args, getPiles: () => ({ ...piles, emissionsLine: cards }) }
 
 export const HandAndEmissionsLine = Template.bind({});
 HandAndEmissionsLine.args = {
   ...args,
-  hand: cards.slice(2),
-  emissionsLine: cards.slice(0, 2)
+  getPiles: () => ({ ...piles, hand: cards.slice(2), emissionsLine: cards.slice(0, 2) })
+}
+
+export const DiscardPileAndDeck = Template.bind({});
+DiscardPileAndDeck.args = {
+  ...args,
+  getPiles: () => ({ ...piles, discardPile: cards.slice(0, 2), deck: cards.slice(2, 4) })
 }
 
 /*

@@ -21,3 +21,5 @@ export const distance2D = (
   bx: number,
   by: number
 ): number => Math.sqrt(Math.pow(distance(ax, bx), 2) + Math.pow(distance(ay, by), 2)) 
+
+export const tail = <T>(xs: T[]): T[] => xs.slice(xs.length-1)

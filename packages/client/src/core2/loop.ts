@@ -10,24 +10,26 @@ import { reflections } from './reflection'
 import { positions as getPositions } from './position'
 import { MouseClickedEvent, MousePosition } from './mouse'
 import { PlayedCard, playedCards as getPlayedCards } from './play_card'
+import { Piles } from './pile'
 
 function update(
   moves: Movements,
-  hand: Card[],
-  emissionsLine: Card[],
+  piles: Piles,
   selected: Card[],
   mouse: MousePosition,
   mouseClickedEvents: MouseClickedEvent[],
   currentTime: number
 ): [Card[], Movements, Reflection[], CardToDraw[], PlayedCard[]] {
+  const { hand, emissionsLine } = piles
   const spaceCards: Card[] = getSpaceCards(emissionsLine)
-  moves = getMovements(moves, hand, emissionsLine, spaceCards, mouse.x, mouse.y, currentTime)
+
+  moves = getMovements(moves, piles, spaceCards, mouse.x, mouse.y, currentTime)
 
   const playedCards = getPlayedCards(mouseClickedEvents, selected, spaceCards)
   selected = getSelected(selected, hand, mouseClickedEvents)
 
   const positions = getPositions(moves)
-  let visible = [...hand, ...emissionsLine]
+  let visible = [...hand, ...emissionsLine, ...piles.discardPile, ...piles.deck]
   if (selected.length > 0) {
     visible = [...visible, ...spaceCards]
   }
@@ -54,14 +56,14 @@ function update(
 export function start(
   context: CanvasRenderingContext2D,
   designs: CardDesign[],
-  getHand: () => Card[],
-  getEmissionsLine: () => Card[],
+  getPiles: () => Piles,
   getMousePosition: () => MousePosition,
   getMouseClickedEvents: () => MouseClickedEvent[],
   onCardsPlayed: (playedCards: PlayedCard[]) => void
 ) {
   let animationId: number | undefined
-  let moves: Movements = initMovements([...getHand(), ...getEmissionsLine()])
+  const piles = getPiles()
+  let moves: Movements = {}
   let selected: Card[] = []
   function loop() {
     let queue: CardToDraw[] = [];
@@ -69,8 +71,7 @@ export function start(
     let playedCards: PlayedCard[] = [];
     [selected, moves, reflections, queue, playedCards] = update(
       moves,
-      getHand(),
-      getEmissionsLine(),
+      getPiles(),
       selected,
       getMousePosition(),
       getMouseClickedEvents(),

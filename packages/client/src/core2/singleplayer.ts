@@ -2,12 +2,7 @@ import { CardDesign } from "./card_design"
 import { Card } from "./card"
 import { PlayedCard } from './play_card'
 import { dict } from "./util"
-
-type State = {
-  designs: CardDesign[]
-  hand: Card[]
-  emissionsLine: Card[]
-}
+import { Piles } from "./pile"
 
 const isLegalPlay = (
   emissionsLine: Card[],
@@ -34,29 +29,35 @@ const isLegalPlay = (
   return leftOk && rightOk
 }
 
-export const init = (designs: CardDesign[]): State => {
+export const init = (designs: CardDesign[]): Piles => {
   let deck = designs.map(d => d.card)
   let hand: Card[] = deck.slice(0, 1)
   let emissionsLine: Card[] = deck.slice(1, 2)
+  const discardPile: Card[] = []
   deck = deck.slice(2)
   return {
-    designs,
+    deck,
     hand,
-    emissionsLine
+    emissionsLine,
+    discardPile
   }
 }
 
-export const onCardsPlayed = (state: State, playedCards: PlayedCard[]): State => {
-  state = { ...state }
+export const onCardsPlayed = (
+  piles: Piles,
+  designs: CardDesign[],
+  playedCards: PlayedCard[]
+): Piles => {
+  let { hand, emissionsLine } = piles
 
   playedCards.forEach(playedCard => {
     const { card, position } = playedCard
 
-    state.hand = state.hand.filter(card => card !== playedCard.card)
-    if (isLegalPlay(state.emissionsLine, state.designs, playedCard)) {
-      const left = state.emissionsLine.slice(0, position)
-      const right = state.emissionsLine.slice(position)
-      state.emissionsLine = [
+    hand = hand.filter(card => card !== playedCard.card)
+    if (isLegalPlay(emissionsLine, designs, playedCard)) {
+      const left = emissionsLine.slice(0, position)
+      const right = emissionsLine.slice(position)
+      emissionsLine = [
         ...left,
         card,
         ...right
@@ -64,5 +65,9 @@ export const onCardsPlayed = (state: State, playedCards: PlayedCard[]): State =>
     }
   })
 
-  return state
+  return {
+    ...piles,
+    hand,
+    emissionsLine
+  }
 }
