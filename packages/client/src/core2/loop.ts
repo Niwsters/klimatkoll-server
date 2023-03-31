@@ -20,7 +20,7 @@ function update(
   mouseClickedEvents: MouseClickedEvent[],
   currentTime: number
 ): [Card[], Movements, Reflection[], CardToDraw[], PlayedCard[]] {
-  const { hand, emissionsLine } = piles
+  const { hand, emissionsLine, discardPile, deck } = piles
   const spaceCards: Card[] = getSpaceCards(emissionsLine)
 
   moves = getMovements(moves, piles, spaceCards, mouse.x, mouse.y, currentTime)
@@ -29,11 +29,11 @@ function update(
   selected = getSelected(selected, hand, mouseClickedEvents)
 
   const positions = getPositions(moves)
-  let visible = [...hand, ...emissionsLine, ...piles.discardPile, ...piles.deck]
+  let visible = [...hand, ...emissionsLine, ...discardPile, ...deck]
   if (selected.length > 0) {
     visible = [...visible, ...spaceCards]
   }
-  const flipped = emissionsLine
+  const flipped = [...emissionsLine, ...discardPile]
 
   const queue = createDrawingQueue(
     positions,

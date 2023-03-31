@@ -48,7 +48,7 @@ export const onCardsPlayed = (
   designs: CardDesign[],
   playedCards: PlayedCard[]
 ): Piles => {
-  let { hand, emissionsLine } = piles
+  let { hand, emissionsLine, discardPile } = piles
 
   playedCards.forEach(playedCard => {
     const { card, position } = playedCard
@@ -62,12 +62,15 @@ export const onCardsPlayed = (
         card,
         ...right
       ]
+    } else {
+      discardPile = [...discardPile, card]
     }
   })
 
   return {
     ...piles,
     hand,
-    emissionsLine
+    emissionsLine,
+    discardPile
   }
 }
