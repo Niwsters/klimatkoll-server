@@ -1,6 +1,7 @@
 import { Canvas } from './Canvas'
 import { CardDesign } from "../core2/card_design"
 import { Card } from "../core2/card"
+import { PlayedCard } from 'core2/play_card'
 
 export type Props = {
   designs: CardDesign[],
@@ -14,7 +15,8 @@ export const BasicGame = (props: Props): React.ReactElement => {
   const args = {
     designs: designs,
     getHand: () => hand,
-    getEmissionsLine: () => emissionsLine
+    getEmissionsLine: () => emissionsLine,
+    onCardPlayed: (cardPlayed: PlayedCard) => console.log("card played:", cardPlayed)
   }
 
   return <Canvas {...args} />

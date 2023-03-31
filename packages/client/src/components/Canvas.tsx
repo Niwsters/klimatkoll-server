@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from 'react'
 import { start } from '../core2/loop'
 import { WIDTH, HEIGHT } from '../core2/constants'
 import { MouseClickedEvent } from 'core2/mouse'
+import { PlayedCard } from 'core2/play_card'
 
 function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: number } {
   const rect = canvas.getBoundingClientRect()
@@ -15,14 +16,16 @@ function coords(canvas: HTMLCanvasElement, event: MouseEvent): { x: number, y: n
 export type Props = {
   designs: CardDesign[],
   getHand: () => Card[],
-  getEmissionsLine: () => Card[]
+  getEmissionsLine: () => Card[],
+  onCardPlayed: (playedCard: PlayedCard) => void
 }
 
 export function Canvas(props: Props): React.ReactElement {
   const {
     getHand,
     getEmissionsLine,
-    designs
+    designs,
+    onCardPlayed
   } = props
 
   const canvasRef = useRef(null)
@@ -66,7 +69,8 @@ export function Canvas(props: Props): React.ReactElement {
           getHand,
           getEmissionsLine,
           getMousePosition,
-          getMouseClickedEvents
+          getMouseClickedEvents,
+          onCardPlayed
         )
       }
     }

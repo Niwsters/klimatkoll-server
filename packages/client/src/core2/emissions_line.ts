@@ -119,14 +119,12 @@ const mouseWithinBounds = (width: number, mouseX: number, mouseY: number): boole
          mouseY < upperBoundsY
 }
 
-export const focusedCards = (
-  cards: Card[],
-  positions: Position[],
+export const focusedSpaceCards = (
+  spaceCards: SpaceCards,
   mouseX: number,
   mouseY: number
 ): Card[] => {
-  const cardsSet = new Set(cards)
-  positions = positions.filter(p => cardsSet.has(p.card))
+  const positions = Object.values(spaceCardsPositions(spaceCards))
 
   if (mouseWithinBounds(width(positions), mouseX, mouseY)) {
     return closestCard(positions, mouseX, mouseY)

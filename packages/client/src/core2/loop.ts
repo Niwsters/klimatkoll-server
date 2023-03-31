@@ -9,6 +9,7 @@ import { getSpaceCards } from './emissions_line'
 import { reflections } from './reflection'
 import { positions as getPositions } from './position'
 import { MouseClickedEvent, MousePosition } from './mouse'
+import { PlayedCard, playedCards as getPlayedCards } from './play_card'
 
 function update(
   moves: Movements,
@@ -18,10 +19,11 @@ function update(
   mouse: MousePosition,
   mouseClickedEvents: MouseClickedEvent[],
   currentTime: number
-): [Card[], Movements, Reflection[], CardToDraw[]] {
+): [Card[], Movements, Reflection[], CardToDraw[], PlayedCard[]] {
   const spaceCards: Card[] = getSpaceCards(emissionsLine)
   moves = getMovements(moves, hand, emissionsLine, spaceCards, mouse.x, mouse.y, currentTime)
 
+  const playedCards = getPlayedCards(mouseClickedEvents, selected, spaceCards)
   selected = getSelected(selected, hand, mouseClickedEvents)
 
   const positions = getPositions(moves)
@@ -38,27 +40,14 @@ function update(
     zLevels(hand, emissionsLine, spaceCards)
   )
 
-  return [selected, moves, reflections(selected, spaceCards, positions, mouse.x, mouse.y), queue]
+  return [
+    selected,
+    moves,
+    reflections(selected, spaceCards, mouse.x, mouse.y),
+    queue,
+    playedCards
+  ]
 }
-
-// Game state -----
-// piles
-// selected
-//
-// Render state -----
-// designs
-// movements
-//
-// Calculated -----
-// positions
-// visible
-// flipped
-// selected
-// spaceCards
-// reflections
-// zLevels
-
-
 
 export function start(
   context: CanvasRenderingContext2D,
@@ -66,7 +55,8 @@ export function start(
   getHand: () => Card[],
   getEmissionsLine: () => Card[],
   getMousePosition: () => MousePosition,
-  getMouseClickedEvents: () => MouseClickedEvent[]
+  getMouseClickedEvents: () => MouseClickedEvent[],
+  onCardPlayed: (playedCard: PlayedCard) => void
 ) {
   let animationId: number | undefined
   let moves: Movements = initMovements([...getHand(), ...getEmissionsLine()])
@@ -74,7 +64,8 @@ export function start(
   function loop() {
     let queue: CardToDraw[] = [];
     let reflections: Reflection[] = [];
-    [selected, moves, reflections, queue] = update(
+    let playedCards: PlayedCard[] = [];
+    [selected, moves, reflections, queue, playedCards] = update(
       moves,
       getHand(),
       getEmissionsLine(),
@@ -83,6 +74,9 @@ export function start(
       getMouseClickedEvents(),
       Date.now()
     )
+    for (const playedCard of playedCards) {
+      onCardPlayed(playedCard)
+    }
     drawCards(context, designs, reflections, queue)
     animationId = requestAnimationFrame(loop)
   }
