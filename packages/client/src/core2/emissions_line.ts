@@ -1,6 +1,6 @@
 import { Card } from './card'
 import { Position } from './position'
-import { PositionGoal, PositionGoals } from './move'
+import { Positions } from './move'
 import { WIDTH, HEIGHT, CARD_WIDTH, CARD_HEIGHT } from './constants'
 import { entries } from './util'
 import { ZLevel } from './z_levels'
@@ -32,7 +32,7 @@ const cardY = () => {
   return EMISSIONS_LINE_POSITION_Y
 }
 
-const goal = (card: Card, index: number, cardCount: number): PositionGoal => ({
+const goal = (card: Card, index: number, cardCount: number): Position => ({
   card,
   x: cardX(index, cardCount),
   y: cardY(),
@@ -40,8 +40,8 @@ const goal = (card: Card, index: number, cardCount: number): PositionGoal => ({
   scale: CARD_SCALE
 })
 
-export const emissionsLineGoals = (emissionsLine: Card[]): PositionGoals => {
-  const goals: PositionGoals = {}
+export const emissionsLineGoals = (emissionsLine: Card[]): Positions => {
+  const goals: Positions = {}
   emissionsLine.forEach((card, index) => {
     goals[card] = goal(card, index, emissionsLine.length)
   })
@@ -62,7 +62,7 @@ export const getSpaceCards = (el: Card[]) => {
   return spaceCards
 }
 
-export const spaceCardsGoals = (spaceCards: SpaceCards): PositionGoals => {
+export const spaceCardsGoals = (spaceCards: SpaceCards): Positions => {
   const goals = emissionsLineGoals(spaceCards)
   const newGoals = {...goals}
   for (const [card, goal] of entries(goals)) {

@@ -48,20 +48,18 @@ export function transpose(move: Transition, currentTime: number): number {
   return from + (to - from)*mult
 }
 
-export type PositionGoal = Position
-
-export type PositionGoals = {
-  [card: Card]: PositionGoal
+export type Positions = {
+  [card: Card]: Position
 }
 
 type Entries<T> = {
   [K in keyof T]: [K, T[K]]
 }[keyof T][]
-const entries = (goal: PositionGoal): Entries<PositionGoal> => {
+const entries = (goal: Position): Entries<Position> => {
   return Object.entries(goal) as any
 }
 
-const applyGoal = (move: Movement, goal: PositionGoal, currentTime: number): Movement => {
+const applyGoal = (move: Movement, goal: Position, currentTime: number): Movement => {
   const newMove = { ...move }
   for (const [field, value] of entries(goal)) {
     if (field !== 'card') {
@@ -75,7 +73,7 @@ const applyGoal = (move: Movement, goal: PositionGoal, currentTime: number): Mov
   return newMove
 }
 
-const applyGoals = (moves: Movements, goals: PositionGoals, currentTime: number): Movements => {
+const applyGoals = (moves: Movements, goals: Positions, currentTime: number): Movements => {
   let newMovements: Movements = {...moves}
   for (const [card, goal] of Object.entries(goals)) {
     const move = moves[card] || initMovement()

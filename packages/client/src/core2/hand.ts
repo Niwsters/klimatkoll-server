@@ -2,7 +2,8 @@ import { WIDTH, HEIGHT } from '../core/constants'
 import { Card } from '../core2/card'
 import { closestCard } from './closest_card'
 import { CARD_HEIGHT, CARD_WIDTH } from './constants'
-import { Movements, PositionGoal, PositionGoals } from './move'
+import { Position } from './position'
+import { Movements,  Positions } from './move'
 
 const HAND_POSITION_X = WIDTH / 2
 const HAND_POSITION_Y = HEIGHT + 50
@@ -44,7 +45,7 @@ const mouseWithinBounds = (cardCount: number, mouseX: number, mouseY: number): b
          mouseX < HAND_POSITION_X + width / 2
 }
 
-function zoomInOnCard(goal: PositionGoal): PositionGoal {
+const zoomInOnCard = (goal: Position): Position => {
   const scale = 1
   const y = HEIGHT - CARD_HEIGHT / 2 * scale
   const rotation = 0
@@ -56,15 +57,15 @@ function zoomInOnCard(goal: PositionGoal): PositionGoal {
   }
 }
 
-const defaultGoals = (
+const defaultPositions = (
   moves: Movements,
   hand: Card[]
-): PositionGoals => {
-  const goals: PositionGoals = {}
+): Positions => {
+  const positions: Positions = {}
   hand.forEach((card, index) => {
     const move = moves[card]
     if (move !== undefined) {
-      goals[card] = {
+      positions[card] = {
         card,
         x: cardX(index, hand.length),
         y: cardY(index, hand.length),
@@ -73,11 +74,11 @@ const defaultGoals = (
       }
     }
   })
-  return goals
+  return positions
 }
 
 export const focusedCards = (moves: Movements, hand: Card[], mouseX: number, mouseY: number): Card[] => {
-  const positions = Object.values(defaultGoals(moves, hand))
+  const positions = Object.values(defaultPositions(moves, hand))
   if (mouseWithinBounds(positions.length, mouseX, mouseY)) {
     return closestCard(positions, mouseX, mouseY)
   }
@@ -89,14 +90,14 @@ export const handGoals = (
   hand: Card[],
   mouseX: number,
   mouseY: number
-): PositionGoals => {
-  const goals = defaultGoals(moves, hand)
+): Positions => {
+  const positions = defaultPositions(moves, hand)
   focusedCards(moves, hand, mouseX, mouseY).forEach(card => {
-    const goal = goals[card]
+    const goal = positions[card]
     if (goal !== undefined) {
-      goals[card] = zoomInOnCard(goal)
+      positions[card] = zoomInOnCard(goal)
     }
   })
 
-  return goals
+  return positions
 }
