@@ -3,7 +3,8 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { Canvas } from '../components/Canvas'
 import * as SampleCards from './sample_cards'
 import './font.css'
-import { Piles } from 'core/pile'
+import { Piles } from '../core/pile'
+import { dict } from '../core/util'
 
 export default {
   title: 'Canvas',
@@ -11,6 +12,7 @@ export default {
 } as ComponentMeta<typeof Canvas>;
 
 const designs = SampleCards.cardDesigns
+const designsDict = dict(designs, d => d.card)
 const cards = designs.map(d => d.card)
 const piles: Piles = {
   hand: [],
@@ -28,7 +30,11 @@ export const Hand = Template.bind({});
 Hand.args = { ...args, getPiles: () => ({ ...piles, hand: cards }) }
 
 export const EmissionsLine = Template.bind({});
-EmissionsLine.args = { ...args, getPiles: () => ({ ...piles, emissionsLine: cards }) }
+EmissionsLine.args = { ...args, getPiles: () => ({
+  ...piles,
+  emissionsLine: cards.slice(1).sort((a,b) => (designsDict[a]?.emissions || 0) - (designsDict[b]?.emissions || 0)),
+  hand: cards.slice(0, 1)
+}) }
 
 export const HandAndEmissionsLine = Template.bind({});
 HandAndEmissionsLine.args = {

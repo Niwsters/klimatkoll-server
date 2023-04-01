@@ -1,6 +1,6 @@
 import { CardDesign } from '../core/card_design'
 
-export const card: CardDesign = {
+const card: CardDesign = {
   card: "pendla",
   title: "Pendla",
   subtitle: "i medelstor biodieselbil",
@@ -13,7 +13,7 @@ export const card: CardDesign = {
   bg_color_back: "#FAD44C",
 }
 
-export const card2: CardDesign = {
+const card2: CardDesign = {
   card: "blandkost",
   title: "Blandkost",
   subtitle: "svensk genomsnitt",
@@ -26,7 +26,7 @@ export const card2: CardDesign = {
   bg_color_back: "#61ABB3",
 }
 
-export const card3: CardDesign = {
+const card3: CardDesign = {
   card: "dator",
   title: "Dator",
   subtitle: "påslagen dygnet runt",
@@ -39,36 +39,50 @@ export const card3: CardDesign = {
   bg_color_back: "#265157",
 }
 
-const space: CardDesign = {
-  card: "space",
-  title: "",
+const blargh: CardDesign = {
+  card: "blargh",
+  title: "Blargh",
   subtitle: "",
-  emissions: 0,
+  emissions: 100,
   descr_front: "",
   descr_back: "",
   duration: "",
-  bg_color_back: "",
-  bg_color_front: ""
+
+  bg_color_front: "#1C1C45",
+  bg_color_back: "#265157",
 }
 
-const noCard: CardDesign = {
-  card: "no-card",
-  title: "",
+const honk: CardDesign = {
+  card: "honk",
+  title: "Honk",
   subtitle: "",
-  emissions: 0,
+  emissions: 200,
   descr_front: "",
   descr_back: "",
   duration: "",
-  bg_color_back: "",
-  bg_color_front: ""
+  bg_color_front: "#1C1C45",
+  bg_color_back: "#265157",
+}
+
+const ohhi: CardDesign = {
+  card: "oh-hi",
+  title: "Oh hi",
+  subtitle: "",
+  emissions: 9001,
+  descr_front: "",
+  descr_back: "",
+  duration: "",
+  bg_color_front: "#1C1C45",
+  bg_color_back: "#265157",
 }
 
 const cards = [
   card,
   card2,
   card3,
-  space,
-  noCard
+  blargh,
+  honk,
+  ohhi
 ]
 
 export const cardDesigns = cards
